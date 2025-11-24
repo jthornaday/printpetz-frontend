@@ -17,7 +17,7 @@ export const supabaseBaseApi = createApi({
 });
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.serverBaseUrl,
+  baseUrl: process.env.NEXT_PUBLIC_SERVER_BASE_URL,
   prepareHeaders: async (headers, { endpoint }) => {
     try {
       const { data } = await auth.getSession();

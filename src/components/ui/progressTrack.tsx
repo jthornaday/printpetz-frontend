@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-import { RobotIcon } from "@/components/icons/RobotIcon";
+// import { RobotIcon } from "@/components/icons/RobotIcon";
 
 const trackVariants = cva("relative h-2 w-full rounded-full my-2 transition-colors", {
   variants: {
@@ -40,7 +40,7 @@ export const ProgressTrack = ({ value, max = 255, motion, className }: ProgressT
   return (
     <div className={cn(trackVariants({ motion }), className)}>
       <div className={robotVariants({ motion })} style={{ left: `${percentage}%` }}>
-        <RobotIcon size={22} />
+        {/* <RobotIcon size={22} /> */}
       </div>
     </div>
   );
