@@ -1,0 +1,36 @@
+import { LayersIcon } from "@/components/icons";
+import { IStyle } from "@/types/style";
+import { Dispatch, SetStateAction } from "react";
+import { StyleContent } from "./components/StyleContent";
+
+type Props = {
+  selectedStyle: IStyle | null;
+  setSelectedStyle: Dispatch<SetStateAction<IStyle | null>>;
+};
+
+// Style Selector Component
+export const StyleSelector = ({ selectedStyle, setSelectedStyle }: Props) => {
+  return (
+    <div className="bg-black-90 rounded-lg p-1 flex-1 flex flex-col overflow-auto max-h-fit">
+      <div className="flex gap-4 items-center p-3">
+        <LayersIcon size={20} />
+        <span className="font-bold">Style</span>
+      </div>
+
+      {/* <div className="px-2 py-0.5 bg-black-80 flex items-center gap-2.5 rounded-lg mx-3 my-3">
+        <SearchIcon size={20} className="text-black-30" />
+        <Input
+          type="text"
+          placeholder="Search style"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-grow p-0 h-8 text-sm text-white font-semibold rounded-lg focus-visible:ring-0"
+        />
+      </div> */}
+
+      <div className="min-h-[486px]">
+        <StyleContent selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} />
+      </div>
+    </div>
+  );
+};
