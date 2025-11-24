@@ -3,12 +3,16 @@ import { ModelTrainingDialog } from "@/components/pages/shared/ModelTrainingDial
 import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmationDialog";
+import { useAppSelector } from "@/store";
 import { useGetModelsQuery } from "@/store/api/modelApi";
 import { EModelStatus } from "@/types/model";
 import { useState } from "react";
 
 export const ModelSection = () => {
-  const { data: models = [] } = useGetModelsQuery({});
+
+  const { user } = useAppSelector((state) => state.auth);
+
+  const { data: models = [] } = useGetModelsQuery({user_id: user?.id || ""});
   const [isTrainingDialogOpen, setIsTrainingDialogOpen] = useState(false);
 
   const handleDeleteModel = async (id: number) => {

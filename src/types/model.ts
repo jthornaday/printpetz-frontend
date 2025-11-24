@@ -18,6 +18,7 @@ export interface IModel {
 }
 
 export type GetModelsParams = {
+  user_id: string
   lastDocId?: string;
   limit?: number;
 };

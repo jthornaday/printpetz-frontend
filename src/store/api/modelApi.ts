@@ -18,12 +18,13 @@ export const supabaseModelApi = supabaseBaseApi.injectEndpoints({
     // GET Models
     // ----------------------------------------------------------
     getModels: builder.query<IModel[], GetModelsParams>({
-      async queryFn() {
+      async queryFn({user_id}) {
         try {
           const { data, error } = await supabase
             .from("models")
             .select("*")
             .is("is_deleted", false)
+            .eq("user_id", user_id)
             .order("id",{ascending: false});
 
           if (error) return createErrorResponse(error);

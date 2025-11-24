@@ -6,6 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useGetModelsQuery } from "@/store/api/modelApi";
 import { EModelStatus, IModel } from "@/types/model";
 import { Loader } from "@/components/ui/loader";
+import { useAppSelector } from "@/store";
 
 type Props = {
   selectedModel: IModel | null;
@@ -14,10 +15,13 @@ type Props = {
 
 // Model Selector Component
 export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
+
+  const {user} = useAppSelector((state) => state.auth);
+
   const [openModelTrainingDialog, setOpenModelTrainingDialog] = useState(false);
   const [openModelSelectionPopover, setOpenModelSelectionPopover] = useState(false);
 
-  const { data: models, isFetching } = useGetModelsQuery({});
+  const { data: models, isFetching } = useGetModelsQuery({ user_id: user?.id || "" });
 
   useEffect(() => {
     if (!models) return;
