@@ -30,3 +30,22 @@ export const dataURLtoFile = (dataUrl: string, filename: string) => {
 
   return new File([u8arr], filename, { type: mime });
 };
+
+export const handleDownloadImage = async (image: string | null) => {
+  if (!image) return;
+
+  try {
+    const response = await fetch(image, { cache: "no-store" });
+
+    const blob = await response.blob();
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "printpetz_" + Date.now() + image.split(".")[1];
+    link.click();
+
+    URL.revokeObjectURL(link.href);
+  } catch (error) {
+    console.error("Error downloading image:", error);
+  }
+};

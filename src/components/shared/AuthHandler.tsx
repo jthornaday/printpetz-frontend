@@ -55,6 +55,8 @@ const AuthHandler = ({ children }: Props) => {
   const handleAuthStateChange = useCallback(
     async (session: Session | null) => {
       try {
+        console.log(session);
+
         if (session) {
           dispatch(setSupabaseAuthUser(session.user));
           const { data } = await getUser(session.user.id);

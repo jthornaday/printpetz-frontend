@@ -18,7 +18,12 @@ export interface IModel {
 }
 
 export type GetModelsParams = {
-  user_id: string
+  user_id: string;
   lastDocId?: string;
   limit?: number;
 };
+
+export interface UpdateModelRequest {
+  id: number;
+  is_deleted?: boolean;
+}

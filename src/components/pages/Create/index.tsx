@@ -1,4 +1,4 @@
-import { useGenerateImageMutation, useGetGenerationViewsQuery } from "@/store/api/generationApi";
+import { supabaseGenerationApi, useGenerateImageMutation } from "@/store/api/generationApi";
 import { useState } from "react";
 import { ModelSelector } from "./components/ModelSelector";
 import { StyleSelector } from "./components/StyleSelector";
@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Generations } from "./components/Generations";
 import { IStyle } from "@/types/style";
 import { IModel } from "@/types/model";
-import { useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { useGetUserByIdQuery } from "@/store/api/userApi";
+import { IGenerationView } from "@/types/generation";
 
 export const Create = () => {
   const [selectedModel, setSelectedModel] = useState<IModel | null>(null);
@@ -16,7 +17,7 @@ export const Create = () => {
   const [numberOfGenerations, setNumberOfGenerations] = useState(2);
 
   const { user } = useAppSelector((state) => state.auth);
-  const { refetch } = useGetGenerationViewsQuery({ user_id: user!.id });
+  const dispatch = useAppDispatch();
   const { refetch: refetchUser } = useGetUserByIdQuery(user?.id || "", { skip: !user });
 
   const [generateImage, { isLoading: isGenerating }] = useGenerateImageMutation();
@@ -25,14 +26,46 @@ export const Create = () => {
     if (!selectedModel || !selectedStyle) return;
 
     try {
-      await generateImage({
+      const result = await generateImage({
         modelId: selectedModel.id,
         styleId: selectedStyle.id,
         numberOfImages: numberOfGenerations,
       }).unwrap();
-      
-      // Refetch generation views after successful generation
-      refetch();
+
+      // Update cache with new generations instead of refetching all
+      if (result.data?.generations && result.data.generations.length > 0) {
+        const newGenerations = result.data.generations;
+        const groupId = newGenerations[0].group_id;
+
+        dispatch(
+          supabaseGenerationApi.util.updateQueryData(
+            "getGenerationViews",
+            { user_id: user!.id },
+            (draft: IGenerationView[]) => {
+              // Create new generation view for this group
+              const newView: IGenerationView = {
+                user_id: user!.id,
+                group_id: groupId,
+                style: selectedStyle,
+                model: selectedModel,
+                generations: newGenerations.map((gen) => ({
+                  id: gen.id,
+                  prompt: gen.prompt,
+                  image: gen.image,
+                  request_id: gen.request_id,
+                  status: gen.status,
+                  error: gen.error,
+                })),
+              };
+
+              // Add to the beginning of the list
+              draft.unshift(newView);
+            }
+          )
+        );
+      }
+
+      // Refetch user to update credits
       refetchUser();
     } catch (error) {
       console.error("Failed to generate image:", error);

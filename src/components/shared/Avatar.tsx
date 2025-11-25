@@ -14,7 +14,7 @@ export const Avatar = ({ className, ...props }: ComponentProps<"div">) => {
   return (
     <div
       className={cn(
-        "w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold",
+        "w-full h-full bg-primary rounded-full flex items-center justify-center text-white font-bold",
         className
       )}
       {...props}

@@ -50,8 +50,8 @@ export interface GenerateImageResponse {
 
 export interface GetGenerationsRequest {
   user_id: string;
-  lastDocId?: string;
   limit?: number;
+  offset?: number;
 }
 
 export interface GetGenerationByIdRequest {

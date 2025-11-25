@@ -1,6 +1,7 @@
 import { DownloadIcon, LoadingIcon, ThunderIcon } from "@/components/icons";
 import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
 import { Button } from "@/components/ui/button";
+import { handleDownloadImage } from "@/services/shared/image";
 import { EGenerationStatus, IGenerationViewItem } from "@/types/generation";
 import { useState } from "react";
 
@@ -11,19 +12,6 @@ type Props = {
 
 export const GenerationItem = ({ generation, onClick }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
-
-  const handleDownloadImage = async () => {
-    if (!generation.image) return;
-    const response = await fetch(generation.image);
-    const blob = await response.blob();
-
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "printpetz_" + Date.now() + generation.image.split(".")[1];
-    link.click();
-
-    URL.revokeObjectURL(link.href);
-  };
 
   return (
     <div
@@ -51,23 +39,21 @@ export const GenerationItem = ({ generation, onClick }: Props) => {
         <CustomImagePreview image={generation.image} />
       )}
 
-      {isHovered &&
-        generation.status === EGenerationStatus.COMPLETED &&
-        generation.image && (
-          <div className="absolute top-2 right-2 flex flex-col gap-2 z-10">
-            <Button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleDownloadImage();
-              }}
-              variant={"link"}
-              className="p-1.5 min-h-fit h-fit backdrop-blur-sm bg-black-100/70 hover:bg-black-100/80 text-white"
-            >
-              <DownloadIcon size={22} />
-            </Button>
-          </div>
-        )}
+      {isHovered && generation.status === EGenerationStatus.COMPLETED && generation.image && (
+        <div className="absolute top-2 right-2 flex flex-col gap-2 z-10">
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDownloadImage(generation.image);
+            }}
+            variant={"link"}
+            className="p-1.5 min-h-fit h-fit backdrop-blur-sm bg-black-100/70 hover:bg-black-100/80 text-white"
+          >
+            <DownloadIcon size={22} />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

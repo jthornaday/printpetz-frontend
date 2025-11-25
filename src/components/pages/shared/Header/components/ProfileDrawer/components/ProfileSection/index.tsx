@@ -90,14 +90,8 @@ export const ProfileSection = () => {
           <div className="flex flex-col gap-4">
             {/* Avatar */}
             <div className="flex items-center gap-4 py-4">
-              <div className="relative w-20 h-20 rounded-full bg-primary flex items-center justify-center text-3xl font-semibold overflow-hidden">
-                {userImage ? (
-                  <div className="relative w-20 h-20 rounded-full bg-primary flex items-center justify-center text-3xl font-semibold overflow-hidden">
-                    <CustomImagePreview image={userImage} />
-                  </div>
-                ) : (
-                  <Avatar />
-                )}
+              <div className="relative w-20 h-20 rounded-full bg-black-100 flex items-center justify-center text-3xl font-semibold overflow-hidden">
+                {userImage ? <CustomImagePreview image={userImage} /> : <Avatar />}
               </div>
 
               <InputSingleImage setImage={(metadata: ImageMetadata) => setSelectedImage(metadata)}>

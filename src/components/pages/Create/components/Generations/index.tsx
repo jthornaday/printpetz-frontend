@@ -2,32 +2,61 @@ import { MagicSparkIcon } from "@/components/icons";
 import { GenerationItem } from "@/components/pages/shared/GenerationItem";
 import { GenerationPreviewDialog } from "@/components/pages/shared/GenerationPreviewDialog";
 import { Loader } from "@/components/ui/loader";
-import { useAppDispatch, useAppSelector } from "@/store";
-import { supabaseGenerationApi, useGetGenerationViewsQuery, useLazyGetGenerationByIdQuery } from "@/store/api/generationApi";
+import { useAppSelector } from "@/store";
+import {
+  useGetInfiniteGenerationViewsInfiniteQuery,
+  useLazyGetGenerationByIdQuery,
+} from "@/store/api/generationApi";
 import { EGenerationStatus, IGenerationView, IGenerationViewItem } from "@/types/generation";
 import { IModel } from "@/types/model";
 import { IStyle } from "@/types/style";
 import { useEffect, useState } from "react";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 interface ISelectedGeneration extends IGenerationViewItem {
   style: IStyle;
   model: IModel;
 }
 
+const ITEMS_PER_PAGE = 10;
+
 export const Generations = () => {
   const [selectedGeneration, setSelectedGeneration] = useState<ISelectedGeneration | null>(null);
+  const [allGenerations, setAllGenerations] = useState<IGenerationView[]>([]);
 
   const { user } = useAppSelector((state) => state.auth);
-  const dispatch = useAppDispatch();
 
-  const { data: generationViews, isFetching } = useGetGenerationViewsQuery({ user_id: user!.id });
+  const {
+    data: generationViews,
+    isFetching,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+  } = useGetInfiniteGenerationViewsInfiniteQuery({
+    user_id: user!.id,
+    limit: ITEMS_PER_PAGE,
+  });
   const [fetchGenerationById] = useLazyGetGenerationByIdQuery();
 
-  // Poll every 2 seconds for generations with GENERATING status
+  // Infinite scroll hook
+  const { observerTarget, isLoadingMore } = useInfiniteScroll({
+    hasMore: hasNextPage,
+    isFetching,
+    onLoadMore: () => fetchNextPage(),
+  });
+
+  // Accumulate generations as we paginate
+  useEffect(() => {
+    if (generationViews) {
+      setAllGenerations(generationViews.pages.flat());
+    }
+  }, [generationViews]);
+
+  // Poll every 4 seconds for generations with GENERATING status
   useEffect(() => {
     const generatingIds: number[] = [];
-    
-    generationViews?.forEach((view) => {
+
+    allGenerations?.forEach((view) => {
       view.generations.forEach((gen) => {
         if (gen.status === EGenerationStatus.GENERATING) {
           generatingIds.push(gen.id);
@@ -41,30 +70,24 @@ export const Generations = () => {
         for (const id of generatingIds) {
           try {
             const result = await fetchGenerationById({ id }).unwrap();
-            
-            // Update the cache manually using dispatch
-            dispatch(
-              supabaseGenerationApi.util.updateQueryData(
-                'getGenerationViews',
-                { user_id: user!.id },
-                (draft: IGenerationView[]) => {
-                  for (const view of draft) {
-                    const genIndex = view.generations.findIndex((g: IGenerationViewItem) => g.id === id);
-                    if (genIndex !== -1) {
-                      // Update the generation with new data
-                      view.generations[genIndex] = {
+
+            // Update local state
+            setAllGenerations((prev) =>
+              prev.map((view) => ({
+                ...view,
+                generations: view.generations.map((gen) =>
+                  gen.id === id
+                    ? {
                         id: result.id,
                         prompt: result.prompt,
                         image: result.image,
                         request_id: result.request_id,
                         status: result.status,
                         error: result.error,
-                      };
-                      break;
-                    }
-                  }
-                }
-              )
+                      }
+                    : gen
+                ),
+              }))
             );
           } catch (error) {
             console.error(`Failed to fetch generation ${id}:`, error);
@@ -74,13 +97,17 @@ export const Generations = () => {
 
       return () => clearInterval(interval);
     }
-  }, [generationViews, fetchGenerationById, dispatch, user]);
+  }, [allGenerations, fetchGenerationById]);
 
-  if (isFetching) {
-    return <div className="flex-1 flex flex-col gap-6 items-center justify-center"><Loader /></div>;
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex flex-col gap-6 items-center justify-center">
+        <Loader />
+      </div>
+    );
   }
 
-  if (!generationViews || generationViews?.length === 0) {
+  if (!generationViews?.pages.length) {
     return (
       <div className="flex-1 flex flex-col gap-6 items-center justify-center">
         <MagicSparkIcon size={48} />
@@ -94,7 +121,7 @@ export const Generations = () => {
 
   return (
     <div className="flex-1 flex flex-col gap-6 overflow-y-auto p-5">
-      {generationViews.map((generationView) => {
+      {allGenerations.map((generationView) => {
         return (
           <div key={generationView.group_id}>
             <div className="flex gap-3 ">
@@ -123,6 +150,14 @@ export const Generations = () => {
           </div>
         );
       })}
+
+      {/* Infinite scroll trigger */}
+      {hasNextPage && (
+        <div ref={observerTarget} className="flex justify-center py-4">
+          {isLoadingMore && <Loader />}
+        </div>
+      )}
+
       {selectedGeneration && (
         <GenerationPreviewDialog
           generation={selectedGeneration}

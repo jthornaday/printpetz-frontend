@@ -10,7 +10,7 @@ type LoaderProps = {
 };
 
 export const Loader = ({ className, ...props }: IconProps) => {
-  return <LoadingIcon className={cn("animate-spin animation-duration-[2s]", className)} {...props} />;
+  return <LoadingIcon className={cn(className)} {...props} />;
 };
 
 const BodyLoader: React.FC<LoaderProps> = ({ size = 32, colorClass }) => {

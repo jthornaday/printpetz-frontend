@@ -2,7 +2,7 @@ import { serverBaseApi, supabaseBaseApi } from "./baseApi";
 import { supabase } from "@/services/supabase";
 import { PostgrestError } from "@supabase/supabase-js";
 import { supabaseErrors } from "@/utils/constants/appConstants";
-import { GetModelsParams, IModel } from "@/types/model";
+import { GetModelsParams, IModel, UpdateModelRequest } from "@/types/model";
 import { ApiResponse } from "@/types/api";
 import { TrainModelRequest } from "@/types/modelTraining";
 
@@ -18,14 +18,14 @@ export const supabaseModelApi = supabaseBaseApi.injectEndpoints({
     // GET Models
     // ----------------------------------------------------------
     getModels: builder.query<IModel[], GetModelsParams>({
-      async queryFn({user_id}) {
+      async queryFn({ user_id }) {
         try {
           const { data, error } = await supabase
             .from("models")
             .select("*")
             .is("is_deleted", false)
             .eq("user_id", user_id)
-            .order("id",{ascending: false});
+            .order("id", { ascending: false });
 
           if (error) return createErrorResponse(error);
           return { data: data as IModel[] };
@@ -44,6 +44,27 @@ export const supabaseModelApi = supabaseBaseApi.injectEndpoints({
               { type: "Model", id: "LIST" },
             ]
           : [{ type: "Model", id: "LIST" }],
+    }),
+    // ----------------------------------------------------------
+    // UPDATE Model
+    // ----------------------------------------------------------
+    updateModel: builder.mutation<IModel, UpdateModelRequest>({
+      async queryFn({ id, is_deleted }) {
+        try {
+          const { data, error } = await supabase
+            .from("models")
+            .update({ is_deleted })
+            .eq("id", id)
+            .select()
+            .single();
+
+          if (error) return createErrorResponse(error);
+          return { data: data as IModel };
+        } catch (error) {
+          return createErrorResponse(error as PostgrestError);
+        }
+      },
+      invalidatesTags: [{ type: "Model", id: "LIST" }],
     }),
   }),
 });
@@ -65,5 +86,6 @@ export const serverModelApi = serverBaseApi.injectEndpoints({
   }),
 });
 
-export const { useGetModelsQuery, useLazyGetModelsQuery } = supabaseModelApi;
+export const { useGetModelsQuery, useLazyGetModelsQuery, useUpdateModelMutation } =
+  supabaseModelApi;
 export const { useTrainModelMutation } = serverModelApi;

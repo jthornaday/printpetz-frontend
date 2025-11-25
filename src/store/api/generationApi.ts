@@ -36,23 +36,81 @@ export const serverGenerationApi = serverBaseApi.injectEndpoints({
 export const supabaseGenerationApi = supabaseBaseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
-    // ----------------------------------------------------------
-    // Get Generations
-    // ----------------------------------------------------------
-    getGenerationViews: builder.query<IGenerationView[], GetGenerationsRequest>({
-      async queryFn({ user_id }) {
+    getInfiniteGenerationViews: builder.infiniteQuery<
+      IGenerationView[],
+      GetGenerationsRequest,
+      number
+    >({
+      infiniteQueryOptions: {
+        initialPageParam: 0,
+        getNextPageParam: (lastPage, allPages, lastPageParam) =>
+          lastPage.length < 10 ? undefined : lastPageParam + 1,
+      },
+      async queryFn({ queryArg: { user_id, limit = 10 }, pageParam }) {
+        const offset = pageParam * limit;
         try {
           const { data, error } = await supabase
             .from("generation_view")
             .select("*")
             .eq("user_id", user_id)
-            .order("group_id", { ascending: false });
+            .order("group_id", { ascending: false })
+            .range(offset, offset + limit - 1);
 
           if (error) return createErrorResponse(error);
           return { data: data as IGenerationView[] };
         } catch (error) {
           return createErrorResponse(error as PostgrestError);
         }
+      },
+    }),
+    getInfiniteGenerations: builder.infiniteQuery<IGeneration[], GetGenerationsRequest, number>({
+      infiniteQueryOptions: {
+        initialPageParam: 0,
+        getNextPageParam: (lastPage, allPages, lastPageParam) =>
+          lastPage.length < 20 ? undefined : lastPageParam + 1,
+      },
+      async queryFn({ queryArg: { user_id, limit = 20 }, pageParam }) {
+        const offset = pageParam * limit;
+        try {
+          const { data, error } = await supabase
+            .from("generations")
+            .select("*")
+            .eq("user_id", user_id)
+            .order("created_at", { ascending: false })
+            .range(offset, offset + limit - 1);
+
+          if (error) return createErrorResponse(error);
+          return { data: data as IGeneration[] };
+        } catch (error) {
+          return createErrorResponse(error as PostgrestError);
+        }
+      },
+    }),
+    // ----------------------------------------------------------
+    // Get Generations
+    // ----------------------------------------------------------
+    getGenerationViews: builder.query<IGenerationView[], GetGenerationsRequest>({
+      async queryFn({ user_id, limit = 10, offset = 0 }) {
+        try {
+          const { data, error } = await supabase
+            .from("generation_view")
+            .select("*")
+            .eq("user_id", user_id)
+            .order("group_id", { ascending: false })
+            .range(offset, offset + limit - 1);
+
+          if (error) return createErrorResponse(error);
+          return { data: data as IGenerationView[] };
+        } catch (error) {
+          return createErrorResponse(error as PostgrestError);
+        }
+      },
+      serializeQueryArgs: ({ endpointName }) => endpointName,
+      merge: (currentCache, newItems) => {
+        currentCache.push(...newItems);
+      },
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg !== previousArg;
       },
       async onCacheEntryAdded(arg, { updateCachedData, cacheDataLoaded, cacheEntryRemoved }) {
         const channel = supabase
@@ -118,4 +176,10 @@ export const supabaseGenerationApi = supabaseBaseApi.injectEndpoints({
 });
 
 export const { useGenerateImageMutation, usePrefetch: useAuthPrefetch } = serverGenerationApi;
-export const { useGetGenerationViewsQuery, useLazyGetGenerationViewsQuery, useLazyGetGenerationByIdQuery } = supabaseGenerationApi;
+export const {
+  useGetGenerationViewsQuery,
+  useLazyGetGenerationViewsQuery,
+  useLazyGetGenerationByIdQuery,
+  useGetInfiniteGenerationViewsInfiniteQuery,
+  useGetInfiniteGenerationsInfiniteQuery,
+} = supabaseGenerationApi;

@@ -4,7 +4,7 @@ import { AnimatedImageSlider } from "../shared/AnimatedImageSlider";
 import { authRoutes, userRoutes } from "@/utils/constants/appConstants";
 import { ROUTES } from "@/routes";
 import { Header } from "../pages/shared/Header";
-import { Sidebar } from "../pages/shared/Sideber";
+import { Sidebar } from "../pages/shared/Sidebar";
 import { cn } from "@/lib/utils";
 
 type Props = {

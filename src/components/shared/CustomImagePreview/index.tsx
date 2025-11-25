@@ -29,7 +29,7 @@ export const CustomImagePreview = ({ image, className, alt }: Props) => {
         `${!isImgLoad && "opacity-0"} transition-all duration-500 pointer-events-none`,
         className
       )}
-      quality={20}
+      quality={100}
     />
   );
 };

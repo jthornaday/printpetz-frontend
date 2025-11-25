@@ -27,7 +27,7 @@ export const ProfilePopover = ({ openProfile }: Props) => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger className="flex gap-2.5 items-center cursor-pointer">
-        <div className="relative w-10 h-10 rounded-full bg-primary flex items-center justify-center text-lg font-semibold overflow-hidden">
+        <div className="relative w-10 h-10 rounded-full bg-black-100 flex items-center justify-center text-lg font-semibold overflow-hidden">
           {user?.profile_image ? <CustomImagePreview image={user?.profile_image} /> : <Avatar />}
         </div>
         <CaretIcon size={18} className="rotate-x-180 transition duration-300" />
@@ -41,7 +41,7 @@ export const ProfilePopover = ({ openProfile }: Props) => {
         <div className="p-4 flex flex-col gap-4 border-b-[1px] border-black-70">
           {/* Top Section */}
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-full bg-primary flex items-center justify-center text-lg font-semibold overflow-hidden">
+            <div className="relative w-10 h-10 rounded-full bg-black-100 flex items-center justify-center text-lg font-semibold overflow-hidden">
               {user?.profile_image ? <CustomImagePreview image={user?.profile_image} /> : <Avatar />}
             </div>
             <div>

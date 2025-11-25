@@ -41,7 +41,7 @@
   --primary: #6f61ef;
   --primary-dark: #5f52d1;
   --red: #eb5454;
-  --yellow: #FFC107;
+  --yellow: #ffc107;
   --orange: #f39122;
   --green: #4cc25e;
   --white: #ffffff;
@@ -163,33 +163,27 @@ body {
   user-select: none;
 }
 
-.slide_b-t div {
-  position: relative;
-  top: 75vh;
-  animation: track 100s linear infinite;
-  justify-content: space-around;
+.slide_b-t .slider-mover {
+  animation: track 50s ease-in-out infinite alternate;
 }
-.slide_t-b div {
-  position: relative;
-  top: -75vh;
-  animation: track-r 100s linear infinite;
-  justify-content: space-around;
+.slide_t-b .slider-mover {
+  animation: track-r 50s ease-in-out infinite alternate;
 }
 
 @keyframes track {
   0% {
-    transform: translateY(0%);
+    transform: translateY(40%);
   }
   100% {
-    transform: translateY(-89.78%);
+    transform: translateY(0%);
   }
 }
 
 @keyframes track-r {
   0% {
-    transform: translateY(0%);
+    transform: translateY(-40%);
   }
   100% {
-    transform: translateY(89.78%);
+    transform: translateY(0%);
   }
 }
