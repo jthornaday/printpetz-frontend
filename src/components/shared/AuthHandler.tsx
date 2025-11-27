@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import { clearAuth, setUser } from "@/store/slices/authSlice";
 import { ROUTES } from "@/routes";
 import { PageLoader } from "../ui/loader";
 import { supabase } from "@/services/supabase";
 import { Session } from "@supabase/supabase-js";
 import { authRoutes } from "@/utils/constants/appConstants";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { setSupabaseAuthUser } from "@/store/slices/supabaseUserSlice";
-import { useLazyGetUserByIdQuery } from "@/store/api/userApi";
+import { useGetUserByIdQuery } from "@/store/api/userApi";
+import { supabaseBaseApi } from "@/store/api/baseApi";
+import { clearSessionUser, setSessionUser } from "@/store/slices/sessionUserSlice";
 
 type Props = { children: React.ReactNode };
 
@@ -16,11 +16,11 @@ const AuthHandler = ({ children }: Props) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { user } = useAppSelector((state) => state.auth);
-
   const [initializing, setInitializing] = useState(true);
+  const wasLoggedIn = useRef(false);
 
-  const [getUser, { isFetching }] = useLazyGetUserByIdQuery();
+  const { data, refetch: refetchUser } = useGetUserByIdQuery();
+  const { data: user } = data || {};
 
   useEffect(() => {
     // Still loading user → keep initializing
@@ -34,8 +34,8 @@ const AuthHandler = ({ children }: Props) => {
       setInitializing(false);
 
       // No user → logout & redirect
-      if (user === null) {
-        dispatch(clearAuth());
+      if (!user) {
+        dispatch(clearSessionUser());
 
         if (!authRoutes.includes(router.pathname)) {
           router.replace(ROUTES.login);
@@ -55,23 +55,31 @@ const AuthHandler = ({ children }: Props) => {
   const handleAuthStateChange = useCallback(
     async (session: Session | null) => {
       try {
-        console.log(session);
+        dispatch(clearSessionUser());
 
         if (session) {
-          dispatch(setSupabaseAuthUser(session.user));
-          const { data } = await getUser(session.user.id);
-          dispatch(setUser(data ?? null));
+          wasLoggedIn.current = true;
+          dispatch(setSessionUser(session.user));
         } else {
-          dispatch(setUser(null));
+          dispatch(clearSessionUser());
+          if (wasLoggedIn.current) {
+            dispatch(supabaseBaseApi.util.resetApiState());
+            wasLoggedIn.current = false;
+          }
         }
+
+        refetchUser();
 
         setTimeout(() => setInitializing(false), 500);
       } catch (error) {
         console.error("Auth error:", error);
-        dispatch(setUser(null));
+        if (wasLoggedIn.current) {
+          dispatch(supabaseBaseApi.util.resetApiState());
+          wasLoggedIn.current = false;
+        }
       }
     },
-    [dispatch, router]
+    [router, dispatch]
   );
 
   useEffect(() => {

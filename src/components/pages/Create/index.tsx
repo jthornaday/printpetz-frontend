@@ -1,4 +1,7 @@
-import { supabaseGenerationApi, useGenerateImageMutation } from "@/store/api/generationApi";
+import {
+  useGenerateImageMutation,
+  useGetInfiniteGenerationViewsInfiniteQuery,
+} from "@/store/api/generationApi";
 import { useState } from "react";
 import { ModelSelector } from "./components/ModelSelector";
 import { StyleSelector } from "./components/StyleSelector";
@@ -7,18 +10,20 @@ import { Button } from "@/components/ui/button";
 import { Generations } from "./components/Generations";
 import { IStyle } from "@/types/style";
 import { IModel } from "@/types/model";
-import { useAppDispatch, useAppSelector } from "@/store";
 import { useGetUserByIdQuery } from "@/store/api/userApi";
-import { IGenerationView } from "@/types/generation";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 export const Create = () => {
   const [selectedModel, setSelectedModel] = useState<IModel | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<IStyle | null>(null);
   const [numberOfGenerations, setNumberOfGenerations] = useState(2);
 
-  const { user } = useAppSelector((state) => state.auth);
-  const dispatch = useAppDispatch();
-  const { refetch: refetchUser } = useGetUserByIdQuery(user?.id || "", { skip: !user });
+  const { data, refetch: refetchUser } = useGetUserByIdQuery();
+  const { data: user } = data || {};
+
+  const { refetch: refetchGenerationViews } = useGetInfiniteGenerationViewsInfiniteQuery(
+    user ? { user_id: user.id } : skipToken
+  );
 
   const [generateImage, { isLoading: isGenerating }] = useGenerateImageMutation();
 
@@ -26,47 +31,17 @@ export const Create = () => {
     if (!selectedModel || !selectedStyle) return;
 
     try {
-      const result = await generateImage({
+      await generateImage({
         modelId: selectedModel.id,
         styleId: selectedStyle.id,
         numberOfImages: numberOfGenerations,
       }).unwrap();
 
-      // Update cache with new generations instead of refetching all
-      if (result.data?.generations && result.data.generations.length > 0) {
-        const newGenerations = result.data.generations;
-        const groupId = newGenerations[0].group_id;
-
-        dispatch(
-          supabaseGenerationApi.util.updateQueryData(
-            "getGenerationViews",
-            { user_id: user!.id },
-            (draft: IGenerationView[]) => {
-              // Create new generation view for this group
-              const newView: IGenerationView = {
-                user_id: user!.id,
-                group_id: groupId,
-                style: selectedStyle,
-                model: selectedModel,
-                generations: newGenerations.map((gen) => ({
-                  id: gen.id,
-                  prompt: gen.prompt,
-                  image: gen.image,
-                  request_id: gen.request_id,
-                  status: gen.status,
-                  error: gen.error,
-                })),
-              };
-
-              // Add to the beginning of the list
-              draft.unshift(newView);
-            }
-          )
-        );
-      }
-
       // Refetch user to update credits
       refetchUser();
+
+      // Refetch generation views to update history
+      refetchGenerationViews();
     } catch (error) {
       console.error("Failed to generate image:", error);
     }
@@ -75,12 +50,14 @@ export const Create = () => {
   return (
     <div className="flex w-full">
       {/* Left Panel - Controls */}
-      <div className="w-100 h-full border-r border-gray-800 overflow-y-auto flex flex-col gap-3 p-5">
+      <div className="w-100 h-full border-r border-gray-800 flex flex-col gap-3 p-5">
         <h1 className="text-white text-xl font-bold">Generate Images</h1>
 
         <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
 
-        <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} />
+        <div className="flex-1">
+          <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} />
+        </div>
 
         <GenerationControls
           numberOfGenerations={numberOfGenerations}

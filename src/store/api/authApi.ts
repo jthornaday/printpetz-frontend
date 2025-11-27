@@ -5,7 +5,7 @@ import type {
   IResetPasswordRequest,
   ISignupRequest,
 } from "@/types/auth";
-import { supabaseBaseApi } from "./baseApi";
+import { supabaseAuthApi } from "./baseApi";
 import { AuthError, Provider } from "@supabase/supabase-js";
 import { supabase } from "@/services/supabase";
 import { supabaseErrors } from "@/utils/constants/appConstants";
@@ -25,7 +25,7 @@ const createErrorResponse = (error: AuthError) => {
   return { error: { code: error.code, status: error.status, message } };
 };
 
-export const clientApi = supabaseBaseApi.injectEndpoints({
+export const clientApi = supabaseAuthApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
     signUpWithEmail: builder.mutation({
@@ -38,7 +38,7 @@ export const clientApi = supabaseBaseApi.injectEndpoints({
           return createErrorResponse(error as AuthError);
         }
       },
-      invalidatesTags: ["Auth", "User"],
+      invalidatesTags: ["Auth"],
     }),
     signInWithEmail: builder.mutation({
       async queryFn({ email, password }: ILoginRequest) {

@@ -2,17 +2,15 @@ import { useEffect, useState } from "react";
 import { NoHistory } from "./components/NoHistory";
 import { GenerationItem } from "../shared/GenerationItem";
 import { GenerationPreviewDialog } from "../shared/GenerationPreviewDialog";
-import { IGeneration, IGenerationView, IGenerationViewItem } from "@/types/generation";
-import {
-  useGetInfiniteGenerationsInfiniteQuery,
-  useGetInfiniteGenerationViewsInfiniteQuery,
-} from "@/store/api/generationApi";
-import { useAppSelector } from "@/store";
+import { IGenerationView, IGenerationViewItem } from "@/types/generation";
+import { useGetInfiniteGenerationViewsInfiniteQuery } from "@/store/api/generationApi";
 import { IStyle } from "@/types/style";
 import { IModel } from "@/types/model";
 import { Loader } from "@/components/ui/loader";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-
+import { useGetUserByIdQuery } from "@/store/api/userApi";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { getModelName } from "@/utils/app_utils";
 // Extended interface to include style and model from the view
 interface IExtendedGeneration extends IGenerationViewItem {
   group_id: number;
@@ -21,14 +19,16 @@ interface IExtendedGeneration extends IGenerationViewItem {
 }
 
 export const History = () => {
-  const { user } = useAppSelector((state) => state.auth);
+  const { data } = useGetUserByIdQuery();
+  const { data: user } = data || {};
+
   const {
     data: generationViews,
     isLoading,
     isFetching,
     hasNextPage,
     fetchNextPage,
-  } = useGetInfiniteGenerationViewsInfiniteQuery({ user_id: user!.id });
+  } = useGetInfiniteGenerationViewsInfiniteQuery(user ? { user_id: user.id } : skipToken);
 
   const [selectedGeneration, setSelectedGeneration] = useState<IExtendedGeneration | null>(null);
   const [allGenerations, setAllGenerations] = useState<IGenerationView[]>([]);
@@ -64,38 +64,36 @@ export const History = () => {
 
   return (
     <>
-      <div className="flex-1 flex flex-col gap-6 overflow-y-auto p-5">
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2 mt-2 bg-black-90 p-2 rounded-lg">
-          {allGenerations.map((generationView, index) => {
-            return (
+      <div className="relative flex-1 flex flex-col gap-1.5 overflow-y-auto p-5 pb-1">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-2 bg-black-90 p-2 rounded-lg">
+          {allGenerations.map((generationView) => {
+            return generationView.generations.map((generation) => (
               <GenerationItem
-                key={`${generationView.group_id}-${generationView.generations[0].id}`}
-                generation={generationView.generations[0]}
+                key={generation.id}
+                generation={generation}
                 onClick={() =>
                   setSelectedGeneration({
-                    ...generationView.generations[0],
+                    ...generation,
                     group_id: generationView.group_id,
                     style: generationView.style,
                     model: generationView.model,
                   })
                 }
               />
-            );
+            ));
           })}
         </div>
 
         {/* Infinite scroll trigger */}
-        {hasNextPage && (
-          <div ref={observerTarget} className="flex justify-center py-4">
-            {isLoadingMore && <Loader />}
-          </div>
-        )}
+        <div ref={observerTarget} className="flex justify-center items-center min-h-[20px]">
+          {hasNextPage && isLoadingMore && <Loader size={16} />}
+        </div>
       </div>
 
       {selectedGeneration && (
         <GenerationPreviewDialog
           generation={selectedGeneration}
-          chips={[selectedGeneration.style.name, selectedGeneration.model.name]}
+          chips={[selectedGeneration.style.name, getModelName(selectedGeneration.model.name)]}
           onClose={() => setSelectedGeneration(null)}
         />
       )}

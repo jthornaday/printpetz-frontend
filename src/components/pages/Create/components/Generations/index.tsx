@@ -2,7 +2,6 @@ import { MagicSparkIcon } from "@/components/icons";
 import { GenerationItem } from "@/components/pages/shared/GenerationItem";
 import { GenerationPreviewDialog } from "@/components/pages/shared/GenerationPreviewDialog";
 import { Loader } from "@/components/ui/loader";
-import { useAppSelector } from "@/store";
 import {
   useGetInfiniteGenerationViewsInfiniteQuery,
   useLazyGetGenerationByIdQuery,
@@ -12,19 +11,21 @@ import { IModel } from "@/types/model";
 import { IStyle } from "@/types/style";
 import { useEffect, useState } from "react";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { useGetUserByIdQuery } from "@/store/api/userApi";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { getModelName } from "@/utils/app_utils";
 
 interface ISelectedGeneration extends IGenerationViewItem {
   style: IStyle;
   model: IModel;
 }
 
-const ITEMS_PER_PAGE = 10;
-
 export const Generations = () => {
   const [selectedGeneration, setSelectedGeneration] = useState<ISelectedGeneration | null>(null);
   const [allGenerations, setAllGenerations] = useState<IGenerationView[]>([]);
 
-  const { user } = useAppSelector((state) => state.auth);
+  const { data, isLoading: isUserLoading } = useGetUserByIdQuery();
+  const { data: user } = data || {};
 
   const {
     data: generationViews,
@@ -32,10 +33,7 @@ export const Generations = () => {
     isLoading,
     fetchNextPage,
     hasNextPage,
-  } = useGetInfiniteGenerationViewsInfiniteQuery({
-    user_id: user!.id,
-    limit: ITEMS_PER_PAGE,
-  });
+  } = useGetInfiniteGenerationViewsInfiniteQuery(user?.id ? { user_id: user.id } : skipToken);
   const [fetchGenerationById] = useLazyGetGenerationByIdQuery();
 
   // Infinite scroll hook
@@ -99,7 +97,7 @@ export const Generations = () => {
     }
   }, [allGenerations, fetchGenerationById]);
 
-  if (isLoading) {
+  if (isUserLoading || isLoading) {
     return (
       <div className="flex-1 flex flex-col gap-6 items-center justify-center">
         <Loader />
@@ -120,48 +118,50 @@ export const Generations = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col gap-6 overflow-y-auto p-5">
-      {allGenerations.map((generationView) => {
-        return (
-          <div key={generationView.group_id}>
-            <div className="flex gap-3 ">
-              {[generationView.style.name, generationView.model.name].map((item, i) => (
-                <div key={i} className="bg-black-90 px-4 py-2 rounded-lg text-sm">
-                  {item}
-                </div>
-              ))}
-            </div>
+    <div className="p-5 pb-1 overflow-y-auto">
+      <div className="flex flex-col gap-6">
+        {allGenerations.map((generationView) => {
+          return (
+            <div key={generationView.group_id}>
+              <div className="flex gap-3 ">
+                {[generationView.style.name, getModelName(generationView.model.name)].map(
+                  (item, i) => (
+                    <div key={i} className="bg-black-90 px-4 py-2 rounded-lg text-sm">
+                      {item}
+                    </div>
+                  )
+                )}
+              </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2 mt-2 bg-black-90 p-2 rounded-lg">
-              {generationView.generations.map((generation) => (
-                <GenerationItem
-                  key={generation.id}
-                  generation={generation}
-                  onClick={() =>
-                    setSelectedGeneration({
-                      ...generation,
-                      style: generationView.style,
-                      model: generationView.model,
-                    })
-                  }
-                />
-              ))}
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2 mt-2 bg-black-90 p-2 rounded-lg">
+                {generationView.generations.map((generation) => (
+                  <GenerationItem
+                    key={generation.id}
+                    generation={generation}
+                    onClick={() =>
+                      setSelectedGeneration({
+                        ...generation,
+                        style: generationView.style,
+                        model: generationView.model,
+                      })
+                    }
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
 
       {/* Infinite scroll trigger */}
-      {hasNextPage && (
-        <div ref={observerTarget} className="flex justify-center py-4">
-          {isLoadingMore && <Loader />}
-        </div>
-      )}
+      <div ref={observerTarget} className="flex justify-center items-center min-h-[20px]">
+        {hasNextPage && isLoadingMore && <Loader size={16} />}
+      </div>
 
       {selectedGeneration && (
         <GenerationPreviewDialog
           generation={selectedGeneration}
-          chips={[selectedGeneration.style.name, selectedGeneration.model.name]}
+          chips={[selectedGeneration.style.name, getModelName(selectedGeneration.model.name)]}
           onClose={() => setSelectedGeneration(null)}
         />
       )}

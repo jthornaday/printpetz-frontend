@@ -6,7 +6,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useGetModelsQuery } from "@/store/api/modelApi";
 import { EModelStatus, IModel } from "@/types/model";
 import { Loader } from "@/components/ui/loader";
-import { useAppSelector } from "@/store";
+import { useGetUserByIdQuery } from "@/store/api/userApi";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { getModelName } from "@/utils/app_utils";
 
 type Props = {
   selectedModel: IModel | null;
@@ -15,17 +17,17 @@ type Props = {
 
 // Model Selector Component
 export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
-
-  const {user} = useAppSelector((state) => state.auth);
-
   const [openModelTrainingDialog, setOpenModelTrainingDialog] = useState(false);
   const [openModelSelectionPopover, setOpenModelSelectionPopover] = useState(false);
 
-  const { data: models, isFetching } = useGetModelsQuery({ user_id: user?.id || "" });
+  const { data } = useGetUserByIdQuery();
+  const { data: user } = data || {};
+
+  const { data: models = [], isLoading } = useGetModelsQuery(
+    user ? { user_id: user.id } : skipToken
+  );
 
   useEffect(() => {
-    if (!models) return;
-
     const completeModels = models.filter((m) => m.status === EModelStatus.COMPLETED);
 
     if (!selectedModel && completeModels[0]) {
@@ -40,13 +42,15 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
           <ModelIcon size={20} />
           <span className="font-bold">Model</span>
         </div>
-        {isFetching ? (
+        {isLoading ? (
           <Loader size={18} />
         ) : !!models?.length ? (
           <Popover open={openModelSelectionPopover} onOpenChange={setOpenModelSelectionPopover}>
             <PopoverTrigger className="flex gap-2.5 items-center cursor-pointer">
               <div className="flex gap-2.5 items-center cursor-pointer text-black-40">
-                <span className="font-semibold text-sm">{selectedModel?.name}</span>
+                <span className="font-semibold text-sm">
+                  {selectedModel ? getModelName(selectedModel.name) : "· · ·"}
+                </span>
                 <CaretIcon size={14} className="rotate-90" />
               </div>
             </PopoverTrigger>

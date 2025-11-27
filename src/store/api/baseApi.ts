@@ -9,10 +9,17 @@ import {
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 
+export const supabaseAuthApi = createApi({
+  reducerPath: "supabase-auth-api",
+  baseQuery: fakeBaseQuery<SupabaseCustomAuthError>(),
+  tagTypes: ["Auth"],
+  endpoints: () => ({}),
+});
+
 export const supabaseBaseApi = createApi({
   reducerPath: "supabase-api",
-  baseQuery: fakeBaseQuery<SupabaseCustomAuthError>(),
-  tagTypes: ["User", "Auth", "Style", "Model"],
+  baseQuery: fakeBaseQuery(),
+  tagTypes: ["User", "Style", "Model"],
   endpoints: () => ({}),
 });
 

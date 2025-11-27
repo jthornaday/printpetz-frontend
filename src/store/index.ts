@@ -1,7 +1,6 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import authReducer from "./slices/authSlice";
-import supabaseAuthUserReducer from "./slices/supabaseUserSlice";
+import sessionUserReducer from "./slices/sessionUserSlice";
 import {
   persistStore,
   persistReducer,
@@ -14,20 +13,20 @@ import {
   PersistConfig,
 } from "redux-persist";
 
-import { supabaseBaseApi, serverBaseApi } from "./api/baseApi";
+import { supabaseBaseApi, serverBaseApi, supabaseAuthApi } from "./api/baseApi";
 import storage from "redux-persist/es/storage";
 
 const rootReducer = combineReducers({
-  auth: authReducer,
+  sessionUser: sessionUserReducer,
   [supabaseBaseApi.reducerPath]: supabaseBaseApi.reducer,
   [serverBaseApi.reducerPath]: serverBaseApi.reducer,
-  supabaseAuthUser: supabaseAuthUserReducer,
+  [supabaseAuthApi.reducerPath]: supabaseAuthApi.reducer,
 });
 
 const persistConfig: PersistConfig<RootState> = {
   key: "root",
   storage,
-  blacklist: [serverBaseApi.reducerPath, supabaseBaseApi.reducerPath], // do not persist these
+  blacklist: [serverBaseApi.reducerPath, supabaseAuthApi.reducerPath, supabaseBaseApi.reducerPath], // do not persist these
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -42,7 +41,8 @@ export const store = configureStore({
       },
     })
       .concat(supabaseBaseApi.middleware)
-      .concat(serverBaseApi.middleware),
+      .concat(serverBaseApi.middleware)
+      .concat(supabaseAuthApi.middleware),
 });
 
 export const persistor = persistStore(store);

@@ -6,14 +6,14 @@ import { ArrowIcon } from "@/components/icons";
 import { ROUTES } from "@/routes";
 import { useRouter } from "next/router";
 import { Footer } from "@/components/shared/Footer";
-import { useAppDispatch, useAppSelector } from "@/store";
+import { useAppSelector } from "@/store";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { otpVerificationSchema } from "@/lib/validations/login";
 import { IVerificationRequest } from "@/types/auth";
 import { useResendEmailOtpMutation, useVerifyEmailOtpMutation } from "@/store/api/authApi";
 import { useToast } from "@/hooks/useToast";
-import { clearSupabaseAuthUser } from "@/store/slices/supabaseUserSlice";
+import { Loader } from "@/components/ui/loader";
 
 type Props = {
   handleSetOtp: (otp: string) => void;
@@ -124,10 +124,10 @@ const OtpField = ({ handleSetOtp }: Props) => {
 
 const VerificationPage = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
 
   const { toast } = useToast();
-  const supabaseAuthUser = useAppSelector((state) => state.supabaseAuthUser);
+
+  const sessionUser = useAppSelector((state) => state.sessionUser);
 
   const [verifyEmailOtp, { isLoading: isOtpVerifying }] = useVerifyEmailOtpMutation();
   const [resendEmailOtp, { isLoading: isOtpResending }] = useResendEmailOtpMutation();
@@ -139,21 +139,19 @@ const VerificationPage = () => {
   const { handleSubmit, reset, watch } = methods;
 
   const onSubmit = handleSubmit(async ({ otp }) => {
-    if (!supabaseAuthUser) return;
+    if (!sessionUser?.email) return;
 
-    const { data, error } = await verifyEmailOtp({ email: supabaseAuthUser.email!, otp });
+    const { data, error } = await verifyEmailOtp({ email: sessionUser.email, otp });
     if (error || !data.user) {
       toast("ERROR", error?.message ?? "Something went wrong");
       return;
     }
-
-    dispatch(clearSupabaseAuthUser());
   });
 
   const handleResendEmailOtp = async () => {
-    if (!supabaseAuthUser) return;
+    if (!sessionUser?.email) return;
 
-    const { error } = await resendEmailOtp({ email: supabaseAuthUser.email! });
+    const { error } = await resendEmailOtp({ email: sessionUser.email });
     if (error) {
       toast("ERROR", error?.message ?? "Something went wrong");
       return;
@@ -166,9 +164,18 @@ const VerificationPage = () => {
     reset({ otp });
   };
 
-  if (!supabaseAuthUser) {
-    router.push(ROUTES.signup);
-    return;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!sessionUser) {
+        router.push(ROUTES.signup);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [sessionUser]);
+
+  if (!sessionUser) {
+    return <Loader />;
   }
 
   return (
@@ -186,8 +193,7 @@ const VerificationPage = () => {
 
         <div className="text-center">
           <p className="text-black-40 max-w-sm">
-            please enter the code we sent to{" "}
-            <span className="text-white">{supabaseAuthUser?.email}</span>
+            please enter the code we sent to <span className="text-white">{sessionUser.email}</span>
           </p>
         </div>
 

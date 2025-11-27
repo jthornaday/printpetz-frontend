@@ -7,8 +7,6 @@ import { ControlledInput } from "@/components/ui/form/ControlledInput";
 import { useToast } from "@/hooks/useToast";
 import { updateUserSchema } from "@/lib/validations/user";
 import { dataURLtoFile } from "@/services/shared/image";
-import { uploadFileToStorage } from "@/services/supabase/functions";
-import { useAppSelector } from "@/store";
 import { useUploadFileMutation } from "@/store/api/fileApi";
 import { useGetUserByIdQuery, useUpdateUserMutation } from "@/store/api/userApi";
 import { ImageMetadata } from "@/types/common";
@@ -21,9 +19,8 @@ import { FormProvider, useForm } from "react-hook-form";
 export const ProfileSection = () => {
   const { toast } = useToast();
 
-  const { user: supabaseUser } = useAppSelector((state) => state.auth);
-
-  const { data: user } = useGetUserByIdQuery(supabaseUser?.id ?? "");
+  const { data } = useGetUserByIdQuery();
+  const { data: user } = data || {};
 
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const [uploadFile, { isLoading: isFileUploading }] = useUploadFileMutation();
@@ -67,9 +64,10 @@ export const ProfileSection = () => {
       }
     }
 
-    const { error } = await updateUser({ id: user.id, updates: formData });
-    if (error) {
-      toast("ERROR", error.message ?? "Something went wrong");
+    const { data } = await updateUser({ id: user.id, ...formData });
+    const { message, success } = data || {};
+    if (!success) {
+      toast("ERROR", message ?? "Something went wrong");
       return;
     }
     toast("SUCCESS", "Profile Updated Successfully");

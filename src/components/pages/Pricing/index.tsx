@@ -1,11 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmationDialog";
 import { useUpdateUserMutation, useGetUserByIdQuery } from "@/store/api/userApi";
-import { useAppSelector } from "@/store";
-import React, { useState } from "react";
-
-// Local hero image (user provided)
-const HERO_IMG = "/mnt/data/c90c09b2-fc2f-4cc7-a447-13e4d793c960.png";
+import React from "react";
 
 // Small presentational components
 // const Badge = ({ children }) => (
@@ -36,23 +32,19 @@ type Props = {
 };
 
 const PlanCard = ({ title, subtitle, price, credits, perCredit, badge, highlighted }: Props) => {
-  const { user } = useAppSelector((state) => state.auth);
   const [updateUser, { isLoading }] = useUpdateUserMutation();
-  const { refetch } = useGetUserByIdQuery(user?.id || "", { skip: !user });
+
+  const { refetch, data } = useGetUserByIdQuery();
+  const { data: user } = data || {};
 
   const handlePurchase = async () => {
     if (!user) return false;
 
     try {
-      await updateUser({
-        id: user.id,
-        updates: {
-          credit: user.credit + credits,
-        },
-      }).unwrap();
+      await updateUser({ id: user.id, credit: user.credit + credits }).unwrap();
 
       // Refetch user to update the UI
-      await refetch();
+      refetch();
 
       return true;
     } catch (error) {

@@ -1,6 +1,7 @@
 import { MagicSparkIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { IModel } from "@/types/model";
+import { getModelName } from "@/utils/app_utils";
 
 type Props = {
   models: IModel[];
@@ -27,7 +28,9 @@ export const ModelSelectionPopover = ({
               isSelected ? "bg-black-80" : "hover:bg-black-80/80"
             }`}
           >
-            <span className={`${isSelected ? "text-white" : "text-black-40"}`}>{model.name}</span>
+            <span className={`${isSelected ? "text-white" : "text-black-40"}`}>
+              {getModelName(model.name)}
+            </span>
             {isSelected && <span className="text-white">✓</span>}
           </div>
         );

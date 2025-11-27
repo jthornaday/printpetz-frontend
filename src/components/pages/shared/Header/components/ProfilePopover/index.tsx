@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ROUTES } from "@/routes";
-import { useAppSelector } from "@/store";
 import { useSignOutMutation } from "@/store/api/authApi";
 import { useGetUserByIdQuery } from "@/store/api/userApi";
 import { useRouter } from "next/router";
@@ -16,9 +15,8 @@ type Props = { openProfile: () => void };
 export const ProfilePopover = ({ openProfile }: Props) => {
   const router = useRouter();
 
-  const { user: supabaseUser } = useAppSelector((state) => state.auth);
-
-  const { data: user } = useGetUserByIdQuery(supabaseUser?.id ?? "");
+  const { data } = useGetUserByIdQuery();
+  const { data: user } = data || {};
 
   const [open, setOpen] = useState(false);
 

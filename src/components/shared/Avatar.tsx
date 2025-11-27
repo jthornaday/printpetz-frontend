@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
-import { useAppSelector } from "@/store";
+import { useGetUserByIdQuery } from "@/store/api/userApi";
 import { ComponentProps } from "react";
 
 export const Avatar = ({ className, ...props }: ComponentProps<"div">) => {
-  const { user } = useAppSelector((state) => state.auth);
+  const { data } = useGetUserByIdQuery();
+  const { data: user } = data || {};
 
   if (!user) {
     return;

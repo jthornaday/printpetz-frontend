@@ -15,12 +15,9 @@ import { useRouter } from "next/router";
 import { Footer } from "@/components/shared/Footer";
 import { useSignInWithProviderMutation, useSignUpWithEmailMutation } from "@/store/api/authApi";
 import { useToast } from "@/hooks/useToast";
-import { setSupabaseAuthUser } from "@/store/slices/supabaseUserSlice";
-import { useDispatch } from "react-redux";
 
 const SignupPage = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
 
   const { toast } = useToast();
 
@@ -44,7 +41,6 @@ const SignupPage = () => {
       return;
     }
 
-    dispatch(setSupabaseAuthUser(data.user));
     router.push(ROUTES.verification);
   });
 

@@ -1,12 +1,12 @@
+import { ApiResponse } from "./../../types/api";
 import { IUser } from "@/types/user";
 import { supabaseBaseApi } from "./baseApi";
 import { supabase } from "@/services/supabase";
 import { PostgrestError } from "@supabase/supabase-js";
-import { supabaseErrors } from "@/utils/constants/appConstants";
 
 const createErrorResponse = (error: PostgrestError) => {
-  const message = supabaseErrors[error.code ?? ""] ?? error.message;
-  return { error: { code: error.code, status: 400, message } };
+  const message = error.message;
+  return { data: null, message, success: false };
 };
 
 export const userApi = supabaseBaseApi.injectEndpoints({
@@ -15,37 +15,54 @@ export const userApi = supabaseBaseApi.injectEndpoints({
     // ----------------------------------------------------------
     // GET USER BY ID
     // ----------------------------------------------------------
-    getUserById: builder.query<IUser | null, string>({
-      async queryFn(id) {
-        try {
-          const { data, error } = await supabase.from("users").select("*").eq("id", id).single();
+    getUserById: builder.query<ApiResponse<IUser | null>, void>({
+      async queryFn() {
+        // get user if from auth
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-          if (error) return createErrorResponse(error);
-          return { data: data as IUser };
+        console.log({ user });
+
+        if (!user) {
+          // logout user
+          await supabase.auth.signOut();
+          return { data: { success: false, data: null, message: "User not authenticated" } };
+        }
+
+        try {
+          const { data, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+
+          if (error) return { data: createErrorResponse(error) };
+          return { data: { success: true, data: data as IUser } };
         } catch (error) {
-          return createErrorResponse(error as PostgrestError);
+          return { data: { success: false, data: null, message: "Something went wrong" } };
         }
       },
-      providesTags: (result, error, id) => [{ type: "User", id }],
+      providesTags: (result) => [{ type: "User", id: result?.data?.id }],
     }),
 
     // ----------------------------------------------------------
     // UPDATE USER
     // ----------------------------------------------------------
-    updateUser: builder.mutation<IUser, { id: string; updates: Partial<IUser> }>({
-      async queryFn({ id, updates }) {
+    updateUser: builder.mutation<ApiResponse<IUser | null>, Partial<IUser> & { id: string }>({
+      async queryFn({ id, ...dataToUpdate }) {
         try {
           const { data, error } = await supabase
             .from("users")
-            .update(updates)
+            .update(dataToUpdate)
             .eq("id", id)
             .select("*")
             .single();
 
-          if (error) return createErrorResponse(error);
-          return { data };
+          if (error) return { data: createErrorResponse(error) };
+          return { data: { success: true, data: data as IUser } };
         } catch (error) {
-          return createErrorResponse(error as PostgrestError);
+          return { data: { success: false, data: null, message: "Something went wrong" } };
         }
       },
       invalidatesTags: (result, error, { id }) => [{ type: "User", id }, "User"],

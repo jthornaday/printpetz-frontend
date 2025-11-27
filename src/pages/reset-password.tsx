@@ -11,13 +11,15 @@ import { IResetPasswordRequest } from "@/types/auth";
 import { Footer } from "@/components/shared/Footer";
 import { PasswordEyeButton } from "@/components/ui/passwordEyeButton";
 import { useSignOutMutation, useUpdatePasswordMutation } from "@/store/api/authApi";
-import { useAppSelector } from "@/store";
 import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/hooks/useToast";
+import { useGetUserByIdQuery } from "@/store/api/userApi";
 
 const ResetPasswordPage = () => {
   const { toast } = useToast();
-  const supabaseAuthUser = useAppSelector((state) => state.supabaseAuthUser);
+
+  const { data } = useGetUserByIdQuery();
+  const { data: user } = data || {};
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -32,7 +34,7 @@ const ResetPasswordPage = () => {
   const { reset, handleSubmit } = methods;
 
   const onSubmit = handleSubmit(async (formData) => {
-    if (!supabaseAuthUser) return;
+    if (!user) return;
 
     const { data, error } = await updatePassword(formData);
     if (error || !data.user) {
@@ -45,11 +47,12 @@ const ResetPasswordPage = () => {
   });
 
   useEffect(() => {
-    if (!supabaseAuthUser) return;
-    reset({ email: supabaseAuthUser.email, password: "", confirmPassword: "" });
-  }, [supabaseAuthUser]);
+    if (!user) return;
 
-  if (!supabaseAuthUser) {
+    reset({ email: user.email, password: "", confirmPassword: "" });
+  }, [user]);
+
+  if (!user) {
     return <Loader />;
   }
 

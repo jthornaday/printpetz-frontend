@@ -16,9 +16,7 @@
 const config = {
   reactStrictMode: true,
   // ... other config options
-  transpilePackages: [
-    "redux-persist",
-  ],
+  transpilePackages: ["redux-persist"],
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -27,9 +25,8 @@ const config = {
         hostname: "images.unsplash.com",
       },
     ],
+    qualities: [100, 80, 60, 50, 40, 20, 10],
   },
 };
-
-
 
 export default config;

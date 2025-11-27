@@ -19,12 +19,9 @@ import {
   useSignUpWithEmailMutation,
 } from "@/store/api/authApi";
 import { useToast } from "@/hooks/useToast";
-import { useAppDispatch } from "@/store";
-import { setSupabaseAuthUser } from "@/store/slices/supabaseUserSlice";
 
 const LoginPage = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
 
   const { toast } = useToast();
 
@@ -44,8 +41,6 @@ const LoginPage = () => {
   const onSubmit = handleSubmit(async (formData) => {
     const { error: signinError } = await handleSignIn(formData);
 
-    console.log({ signinError });
-
     if (signinError) {
       if (signinError.code === "email_not_confirmed") {
         const { data, error: signupError } = await handleSignup({
@@ -57,7 +52,6 @@ const LoginPage = () => {
           return;
         }
 
-        dispatch(setSupabaseAuthUser(data.user));
         router.push(ROUTES.verification);
         return;
       }

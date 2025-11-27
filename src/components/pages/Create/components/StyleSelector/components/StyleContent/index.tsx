@@ -3,7 +3,7 @@ import { Loader } from "@/components/ui/loader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useGetStylesQuery } from "@/store/api/styleApi";
 import { ECategory, IStyle } from "@/types/style";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 
 type ItemProps = {
   name: string;
@@ -15,6 +15,7 @@ type ItemProps = {
 type StyleContentProps = {
   selectedStyle: IStyle | null;
   setSelectedStyle: Dispatch<SetStateAction<IStyle | null>>;
+  searchTerm: string;
 };
 
 const StyleItem = ({ name, image, isSelected, onClick }: ItemProps) => (
@@ -37,15 +38,25 @@ const StyleItem = ({ name, image, isSelected, onClick }: ItemProps) => (
   </div>
 );
 
-export const StyleContent = ({ selectedStyle, setSelectedStyle }: StyleContentProps) => {
+export const StyleContent = ({
+  selectedStyle,
+  setSelectedStyle,
+  searchTerm,
+}: StyleContentProps) => {
   const [categories, setCategories] = useState<ECategory[]>([]);
 
   const { data: styles, isFetching } = useGetStylesQuery({});
 
+  const filteredStyles = useMemo(
+    () =>
+      styles?.filter((style) => style.name.toLowerCase().includes(searchTerm.toLowerCase())) || [],
+    [styles, searchTerm]
+  );
+
   useEffect(() => {
     if (!styles) return;
 
-    const cats = styles?.reduce((acc: ECategory[], curr) => {
+    const cats = styles.reduce((acc: ECategory[], curr) => {
       if (acc.includes(curr.category)) {
         return acc;
       }
@@ -58,7 +69,7 @@ export const StyleContent = ({ selectedStyle, setSelectedStyle }: StyleContentPr
     if (!selectedStyle && styles[0]) {
       setSelectedStyle(styles[0]);
     }
-  }, [styles]);
+  }, [styles, selectedStyle, setSelectedStyle]);
 
   if (isFetching || !categories.length) {
     return (
@@ -83,23 +94,31 @@ export const StyleContent = ({ selectedStyle, setSelectedStyle }: StyleContentPr
         ))}
       </TabsList>
 
-      {categories.map((category) => (
-        <TabsContent key={category} value={category} className="overflow-auto p-1">
-          <div className="grid grid-cols-3 gap-1.5">
-            {styles
-              ?.filter((s) => s.category === category)
-              .map((style) => (
-                <StyleItem
-                  key={style.id}
-                  name={style.name}
-                  image={style.image}
-                  isSelected={selectedStyle?.id === style.id}
-                  onClick={() => setSelectedStyle(style)}
-                />
-              ))}
-          </div>
-        </TabsContent>
-      ))}
+      {categories.map((category) => {
+        const categoryStyles = filteredStyles?.filter((s) => s.category === category);
+
+        return (
+          <TabsContent key={category} value={category} className="overflow-auto p-1 min-h-[435px]">
+            {categoryStyles?.length ? (
+              <div className="grid grid-cols-3 gap-1.5">
+                {categoryStyles.map((style) => (
+                  <StyleItem
+                    key={style.id}
+                    name={style.name}
+                    image={style.image}
+                    isSelected={selectedStyle?.id === style.id}
+                    onClick={() => setSelectedStyle(style)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-secondary text-sm py-40">
+                No styles found
+              </div>
+            )}
+          </TabsContent>
+        );
+      })}
     </Tabs>
   );
 };
