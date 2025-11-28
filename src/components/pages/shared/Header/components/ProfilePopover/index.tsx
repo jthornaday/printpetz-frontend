@@ -2,7 +2,7 @@ import { CaretIcon, CreditIcon, LogoutIcon, UserIcon } from "@/components/icons"
 import { Avatar } from "@/components/shared/Avatar";
 import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
 import { Button } from "@/components/ui/button";
-import { Loader } from "@/components/ui/loader";
+import { ConfirmationDialog } from "@/components/ui/confirmationDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ROUTES } from "@/routes";
 import { useSignOutMutation } from "@/store/api/authApi";
@@ -20,7 +20,12 @@ export const ProfilePopover = ({ openProfile }: Props) => {
 
   const [open, setOpen] = useState(false);
 
-  const [handleSignout, { isLoading: isSignoutLoading }] = useSignOutMutation();
+  const [signout, { isLoading: isSignoutLoading }] = useSignOutMutation();
+
+  const handleSignout = async () => {
+    await signout({});
+    return true;
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -40,7 +45,11 @@ export const ProfilePopover = ({ openProfile }: Props) => {
           {/* Top Section */}
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-full bg-black-100 flex items-center justify-center text-lg font-semibold overflow-hidden">
-              {user?.profile_image ? <CustomImagePreview image={user?.profile_image} /> : <Avatar />}
+              {user?.profile_image ? (
+                <CustomImagePreview image={user?.profile_image} />
+              ) : (
+                <Avatar />
+              )}
             </div>
             <div>
               {user?.name && <p className="text-white font-black text-sm">{user.name}</p>}
@@ -87,13 +96,19 @@ export const ProfilePopover = ({ openProfile }: Props) => {
         </div>
 
         {/* Logout */}
-        <div
-          className="p-4 w-full text-sm flex items-center gap-3 text-red font-bold cursor-pointer"
-          onClick={handleSignout}
-        >
-          {isSignoutLoading ? <Loader size={20} /> : <LogoutIcon size={20} />}
-          Logout
-        </div>
+        <ConfirmationDialog
+          title="Logout"
+          description={`Are you absolutely sure? You'll need to login again to continue.`}
+          confirmText="Yes, Logout"
+          isLoading={isSignoutLoading}
+          onConfirm={handleSignout}
+          trigger={
+            <div className="p-4 w-full text-sm flex items-center gap-3 text-red font-bold cursor-pointer">
+              <LogoutIcon size={20} />
+              Logout
+            </div>
+          }
+        />
       </PopoverContent>
     </Popover>
   );

@@ -55,7 +55,7 @@ export const Create = () => {
 
         <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
 
-        <div className="flex-1">
+        <div className="flex-1 overflow-y-auto">
           <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} />
         </div>
 

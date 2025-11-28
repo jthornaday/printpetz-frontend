@@ -5,7 +5,7 @@ import { PageLoader } from "../ui/loader";
 import { supabase } from "@/services/supabase";
 import { Session } from "@supabase/supabase-js";
 import { authRoutes } from "@/utils/constants/appConstants";
-import { useAppDispatch, useAppSelector } from "@/store";
+import { useAppDispatch } from "@/store";
 import { useGetUserByIdQuery } from "@/store/api/userApi";
 import { supabaseBaseApi } from "@/store/api/baseApi";
 import { clearSessionUser, setSessionUser } from "@/store/slices/sessionUserSlice";
@@ -31,7 +31,7 @@ const AuthHandler = ({ children }: Props) => {
 
     // User resolved → stop initializing smoothly
     const timer = setTimeout(() => {
-      setInitializing(false);
+      setTimeout(() => setInitializing(false), 500);
 
       // No user → logout & redirect
       if (!user) {
@@ -55,8 +55,6 @@ const AuthHandler = ({ children }: Props) => {
   const handleAuthStateChange = useCallback(
     async (session: Session | null) => {
       try {
-        dispatch(clearSessionUser());
-
         if (session) {
           wasLoggedIn.current = true;
           dispatch(setSessionUser(session.user));

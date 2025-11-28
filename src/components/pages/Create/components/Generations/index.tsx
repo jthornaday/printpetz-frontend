@@ -71,21 +71,19 @@ export const Generations = () => {
 
             // Update local state
             setAllGenerations((prev) =>
-              prev.map((view) => ({
-                ...view,
-                generations: view.generations.map((gen) =>
-                  gen.id === id
-                    ? {
-                        id: result.id,
-                        prompt: result.prompt,
-                        image: result.image,
-                        request_id: result.request_id,
-                        status: result.status,
-                        error: result.error,
-                      }
-                    : gen
-                ),
-              }))
+              prev.map((view) => {
+                if (!view.generations.some((g) => g.id === id)) return view;
+
+                return {
+                  ...view,
+                  generations: view.generations.map((gen) => {
+                    if (gen.id !== id) return gen;
+
+                    const { prompt, image, request_id, status, error } = result;
+                    return { ...gen, prompt, image, request_id, status, error };
+                  }),
+                };
+              })
             );
           } catch (error) {
             console.error(`Failed to fetch generation ${id}:`, error);
@@ -105,7 +103,7 @@ export const Generations = () => {
     );
   }
 
-  if (!generationViews?.pages.length) {
+  if (!generationViews?.pages?.[0].length) {
     return (
       <div className="flex-1 flex flex-col gap-6 items-center justify-center">
         <MagicSparkIcon size={48} />

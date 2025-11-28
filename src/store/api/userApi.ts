@@ -22,8 +22,6 @@ export const userApi = supabaseBaseApi.injectEndpoints({
           data: { user },
         } = await supabase.auth.getUser();
 
-        console.log({ user });
-
         if (!user) {
           // logout user
           await supabase.auth.signOut();

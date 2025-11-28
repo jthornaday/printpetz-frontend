@@ -80,7 +80,7 @@ export const StyleContent = ({
   }
 
   return (
-    <Tabs defaultValue={categories[0]} className="overflow-auto">
+    <Tabs defaultValue={categories[0]} className="h-full gap-1.5">
       <TabsList className="w-full">
         {categories.map((category) => (
           <TabsTrigger key={category} value={category} className="gap-1 items-start">
@@ -98,7 +98,7 @@ export const StyleContent = ({
         const categoryStyles = filteredStyles?.filter((s) => s.category === category);
 
         return (
-          <TabsContent key={category} value={category} className="overflow-auto p-1 min-h-[435px]">
+          <TabsContent key={category} value={category} className="overflow-auto p-1">
             {categoryStyles?.length ? (
               <div className="grid grid-cols-3 gap-1.5">
                 {categoryStyles.map((style) => (

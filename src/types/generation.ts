@@ -36,6 +36,12 @@ export interface IGenerationView {
   style: IStyle;
   model: IModel;
   generations: IGenerationViewItem[];
+  created_at: Date;
+}
+
+export interface IGenerationViewDateGroup {
+  displayDate: string;
+  generationViews: IGenerationView[];
 }
 
 export interface GenerateImageRequest {

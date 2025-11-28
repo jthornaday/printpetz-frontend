@@ -49,7 +49,7 @@ export function ControlledInput<T extends FieldValues>(input: ControlledInputPro
                 type={type}
                 placeholder={placeholder}
                 className={cn("pr-10 text-white", className, {
-                  "border-red-500 focus:ring-red-500": fieldState.error,
+                  "border-red-500 focus:ring-red-500 focus-visible:border-red-500": fieldState.error,
                 })}
               />
               {renderRight && (

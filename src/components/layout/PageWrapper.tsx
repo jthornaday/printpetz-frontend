@@ -27,7 +27,6 @@ export const PageWrapper = ({ children }: Props) => {
   const { data: user } = data || {};
 
   if (!user && !authRoutes.includes(router.pathname)) {
-    console.log({ user });
     return;
   }
 

@@ -169,13 +169,17 @@ const VerificationPage = () => {
       if (!sessionUser) {
         router.push(ROUTES.signup);
       }
-    }, 5000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [sessionUser]);
 
   if (!sessionUser) {
-    return <Loader />;
+    return (
+      <div className="relative w-full lg:w-1/2 flex items-center justify-center px-6 md:px-12 py-12">
+        <Loader />
+      </div>
+    );
   }
 
   return (
