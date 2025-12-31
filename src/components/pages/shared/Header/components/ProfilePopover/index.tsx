@@ -75,7 +75,7 @@ export const ProfilePopover = ({ openProfile }: Props) => {
               <CreditIcon size={20} />
               Credit Usage
             </span>
-            <span className="text-sm text-primary font-bold">{user?.credit} credits left</span>
+            <span className="text-sm text-primary font-bold">{user?.credits} credits left</span>
           </div>
 
           {/* <div className="h-2 mt-3.5 bg-black-70 rounded-lg overflow-hidden">

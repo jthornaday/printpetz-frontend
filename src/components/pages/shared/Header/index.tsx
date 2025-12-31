@@ -36,7 +36,7 @@ export const Header = () => {
           <div className="flex items-center gap-2.5">
             <div className="flex items-center gap-3 pl-2.5 pr-4 py-2 rounded-full border border-black-70">
               <ThunderIcon size={16} className="text-yellow" />
-              <span className="text-white font-semibold">{user?.credit}</span>
+              <span className="text-white font-semibold">{user?.credits}</span>
             </div>
 
             {/* Profile Popover */}

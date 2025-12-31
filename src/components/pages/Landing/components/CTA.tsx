@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/routes";
-import { Sparkles } from "lucide-react";
 import superHeroImage from "@/utils/images/landingPage/superhero-example.png";
 import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
 import backgroundGridImage from "@/utils/images/landingPage/background-grid.svg";
@@ -21,7 +20,7 @@ export const CTA = () => {
               "Turn your pet’s photos into fun, creative AI portraits. Preview them on mugs, tees, and more — and make something truly adorable!"
             }
           </p>
-          <Link href={ROUTES.create}>
+          <Link href={ROUTES.login}>
             <Button className="w-fit">
               {"Let's Get Started"}
               <ArrowIcon className="rotate-y-180 w-4 h-4" />

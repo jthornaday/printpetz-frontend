@@ -26,7 +26,7 @@ export const Hero = () => {
           avatars. No subscriptions. Just unforgettable memories.
         </p>
 
-        <Link href={ROUTES.create}>
+        <Link href={ROUTES.login}>
           <Button size={"lg"}>
             {"Let's Start Magic"}
             <ArrowIcon className="rotate-180" />

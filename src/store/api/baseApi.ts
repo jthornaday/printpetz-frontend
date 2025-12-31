@@ -19,7 +19,7 @@ export const supabaseAuthApi = createApi({
 export const supabaseBaseApi = createApi({
   reducerPath: "supabase-api",
   baseQuery: fakeBaseQuery(),
-  tagTypes: ["User", "Style", "Model"],
+  tagTypes: ["User", "Style", "Model", "Price"],
   endpoints: () => ({}),
 });
 

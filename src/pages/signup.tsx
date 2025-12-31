@@ -48,7 +48,10 @@ const SignupPage = () => {
     <div className="relative w-full lg:w-1/2 flex items-center justify-center px-6 md:px-12 py-12">
       <div className="w-full max-w-md flex flex-col items-center gap-14 mb-14">
         {/* Logo */}
-        <div className="relative w-44 h-[68px] text-center">
+        <div
+          className="relative w-44 h-[68px] text-center cursor-pointer"
+          onClick={() => router.push(ROUTES.landing)}
+        >
           <CustomImagePreview image={Logo} />
         </div>
 
