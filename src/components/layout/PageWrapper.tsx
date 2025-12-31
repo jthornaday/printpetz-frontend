@@ -26,8 +26,12 @@ export const PageWrapper = ({ children }: Props) => {
   const { data } = useGetUserByIdQuery();
   const { data: user } = data || {};
 
-  if (!user && !authRoutes.includes(router.pathname)) {
+  if (!user && !authRoutes.includes(router.pathname) && router.pathname !== ROUTES.landing) {
     return;
+  }
+
+  if (router.pathname === ROUTES.landing) {
+    return <DefaultWrapper className="overflow-y-auto">{children}</DefaultWrapper>;
   }
 
   if (showAnimatedSliderRoutes.includes(router.pathname)) {

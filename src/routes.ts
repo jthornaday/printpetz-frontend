@@ -4,7 +4,8 @@ export const ROUTES = {
   verification: "/verification",
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",
-  create: "/",
+  create: "/create",
+  landing: "/",
   history: "/history",
   pricing: "/pricing",
 };

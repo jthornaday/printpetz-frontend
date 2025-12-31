@@ -38,13 +38,13 @@ const AuthHandler = ({ children }: Props) => {
         dispatch(clearSessionUser());
 
         if (!authRoutes.includes(router.pathname)) {
-          router.replace(ROUTES.login);
+          router.replace(ROUTES.landing);
         }
         return;
       }
 
       // User exists → redirect if needed
-      if (authRoutes.includes(router.pathname)) {
+      if (authRoutes.includes(router.pathname) || router.pathname === ROUTES.landing) {
         router.replace(ROUTES.create);
       }
     }, 0);

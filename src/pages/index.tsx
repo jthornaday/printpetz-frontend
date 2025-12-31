@@ -1,7 +1,7 @@
-import { Create } from "@/components/pages/Create";
+import { Landing } from "@/components/pages/Landing";
 
-const CreatePage = () => {
-  return <Create />;
+const LandingPage = () => {
+  return <Landing />;
 };
 
-export default CreatePage;
+export default LandingPage;
