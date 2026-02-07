@@ -5,6 +5,7 @@ import { DeleteIcon } from "@/components/icons";
 import { EModelStatus, IModel } from "@/types/model";
 import { useUpdateModelMutation } from "@/store/api/modelApi";
 import { getModelName } from "@/utils/app_utils";
+import { Loader } from "@/components/ui/loader";
 
 export const ModelItem = ({ model }: { model: IModel }) => {
   const [updateModel, { isLoading: isDeleting }] = useUpdateModelMutation();
@@ -31,8 +32,8 @@ export const ModelItem = ({ model }: { model: IModel }) => {
       </p>
       {isTraining ? (
         <div className="flex items-center gap-2 text-primary">
-          <MagicSparkIcon size={18} />
-          <span className="text-sm font-bold">Training In Progress...</span>
+          <Loader size={18} />
+          <span className="text-sm font-bold">Training....</span>
         </div>
       ) : (
         <ConfirmationDialog

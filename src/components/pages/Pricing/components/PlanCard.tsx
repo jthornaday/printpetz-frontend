@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { useGetUser } from "@/hooks/user/useGetUser";
 import { ROUTES } from "@/routes";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
 import { IPrice } from "@/types/price";
 import { useRouter } from "next/router";
 
@@ -14,8 +14,7 @@ interface Props {
 export const PlanCard = ({ price, onSelect, isLoading, selectedPriceId }: Props) => {
   const router = useRouter();
 
-  const { data } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user } = useGetUser();
 
   const handleUserPurchase = () => {
     if (!user) {
@@ -31,8 +30,6 @@ export const PlanCard = ({ price, onSelect, isLoading, selectedPriceId }: Props)
   const savingPercentage = Number(
     (((baseAmountPerCredit - currentAmountPerCredit) / baseAmountPerCredit) * 100).toFixed(0)
   );
-
-  console.log(location);
 
   return (
     <div

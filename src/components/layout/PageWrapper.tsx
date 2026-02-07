@@ -6,7 +6,6 @@ import { ROUTES } from "@/routes";
 import { Header } from "../pages/shared/Header";
 import { Sidebar } from "../pages/shared/Sidebar";
 import { cn } from "@/lib/utils";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
 
 type Props = {
   children: React.ReactNode;
@@ -22,13 +21,6 @@ export const PageWrapper = ({ children }: Props) => {
   const router = useRouter();
 
   const showAnimatedSliderRoutes = authRoutes.concat(ROUTES.resetPassword);
-
-  const { data } = useGetUserByIdQuery();
-  const { data: user } = data || {};
-
-  if (!user && !authRoutes.includes(router.pathname) && router.pathname !== ROUTES.landing) {
-    return;
-  }
 
   if (router.pathname === ROUTES.landing) {
     return <DefaultWrapper className="overflow-y-auto">{children}</DefaultWrapper>;

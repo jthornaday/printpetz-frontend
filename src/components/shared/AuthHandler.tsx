@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { ROUTES } from "@/routes";
 import { PageLoader } from "../ui/loader";
 import { supabase } from "@/services/supabase";
 import { Session } from "@supabase/supabase-js";
 import { authRoutes } from "@/utils/constants/appConstants";
-import { useAppDispatch } from "@/store";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { supabaseBaseApi } from "@/store/api/baseApi";
 import { clearSessionUser, setSessionUser } from "@/store/slices/sessionUserSlice";
 
@@ -16,68 +15,36 @@ const AuthHandler = ({ children }: Props) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
+  const sessionUser = useAppSelector((state) => state.sessionUser);
+
   const [initializing, setInitializing] = useState(true);
-  const wasLoggedIn = useRef(false);
-
-  const { data, refetch: refetchUser } = useGetUserByIdQuery();
-  const { data: user } = data || {};
-
-  useEffect(() => {
-    // Still loading user → keep initializing
-    if (user === undefined) {
-      setInitializing(true);
-      return;
-    }
-
-    // User resolved → stop initializing smoothly
-    const timer = setTimeout(() => {
-      setTimeout(() => setInitializing(false), 500);
-
-      // No user → logout & redirect
-      if (!user) {
-        dispatch(clearSessionUser());
-
-        if (!authRoutes.includes(router.pathname)) {
-          router.replace(ROUTES.landing);
-        }
-        return;
-      }
-
-      // User exists → redirect if needed
-      if (authRoutes.includes(router.pathname) || router.pathname === ROUTES.landing) {
-        router.replace(ROUTES.create);
-      }
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [user, router.pathname]);
 
   const handleAuthStateChange = useCallback(
     async (session: Session | null) => {
       try {
+        console.log("session", { session, sessionUser });
         if (session) {
-          wasLoggedIn.current = true;
-          dispatch(setSessionUser(session.user));
+          if (sessionUser?.id !== session.user?.id) {
+            dispatch(setSessionUser(session.user));
+          }
+          if (ROUTES.login === router.pathname) {
+            router.replace(ROUTES.create);
+          }
         } else {
-          dispatch(clearSessionUser());
-          if (wasLoggedIn.current) {
+          if (!authRoutes.includes(router.pathname)) {
+            dispatch(clearSessionUser());
             dispatch(supabaseBaseApi.util.resetApiState());
-            wasLoggedIn.current = false;
+            router.replace(ROUTES.login);
           }
         }
-
-        refetchUser();
-
-        setTimeout(() => setInitializing(false), 500);
       } catch (error) {
         console.error("Auth error:", error);
-        if (wasLoggedIn.current) {
-          dispatch(supabaseBaseApi.util.resetApiState());
-          wasLoggedIn.current = false;
-        }
+        router.replace(ROUTES.login);
       }
+
+      setTimeout(() => setInitializing(false), 500);
     },
-    [router, dispatch]
+    [router, dispatch, sessionUser]
   );
 
   useEffect(() => {

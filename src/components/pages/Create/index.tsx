@@ -1,7 +1,4 @@
-import {
-  useGenerateImageMutation,
-  useGetInfiniteGenerationViewsInfiniteQuery,
-} from "@/store/api/generationApi";
+import { useGenerateImageMutation } from "@/store/api/generationApi";
 import { useState } from "react";
 import { ModelSelector } from "./components/ModelSelector";
 import { StyleSelector } from "./components/StyleSelector";
@@ -10,20 +7,22 @@ import { Button } from "@/components/ui/button";
 import { Generations } from "./components/Generations";
 import { IStyle } from "@/types/style";
 import { IModel } from "@/types/model";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
-import { skipToken } from "@reduxjs/toolkit/query";
+import { useGetUser } from "@/hooks/user/useGetUser";
+import { useToast } from "@/hooks/useToast";
+import { EToastType } from "@/types/toast";
+import { ApiError } from "@/types/api";
+import { useGetGenerationViews } from "@/hooks/generation/useGetGenerationViews";
 
 export const Create = () => {
+  const { toast } = useToast();
+
   const [selectedModel, setSelectedModel] = useState<IModel | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<IStyle | null>(null);
   const [numberOfGenerations, setNumberOfGenerations] = useState(2);
 
-  const { data, refetch: refetchUser } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user, refetch: refetchUser } = useGetUser();
 
-  const { refetch: refetchGenerationViews } = useGetInfiniteGenerationViewsInfiniteQuery(
-    user ? { user_id: user.id } : skipToken
-  );
+  const { refetchGenerationViews } = useGetGenerationViews(user?.id);
 
   const [generateImage, { isLoading: isGenerating }] = useGenerateImageMutation();
 
@@ -31,21 +30,31 @@ export const Create = () => {
     if (!selectedModel || !selectedStyle) return;
 
     try {
-      await generateImage({
+      const response = await generateImage({
         modelId: selectedModel.id,
         styleId: selectedStyle.id,
         numberOfImages: numberOfGenerations,
       }).unwrap();
+      const { success, data, message } = response;
+      if (!success || !data) {
+        toast(EToastType.ERROR, message ?? "Failed to generate image");
+        return false;
+      }
 
-      // Refetch user to update credits
-      refetchUser();
+      refetchUser(); // Refetch user to update credits
+      refetchGenerationViews(); // Refetch generation views to update history
 
-      // Refetch generation views to update history
-      refetchGenerationViews();
-    } catch (error) {
-      console.error("Failed to generate image:", error);
+      return true;
+    } catch (error: unknown) {
+      console.error("Create company error:", error);
+      const err = error as ApiError;
+      const errorMessage = err?.data?.message || "Failed to generate image";
+      toast(EToastType.ERROR, errorMessage);
+      return false;
     }
   };
+
+  const isGenerateButtonDisabled = !selectedModel || !selectedStyle || isGenerating;
 
   return (
     <div className="flex w-full">
@@ -67,10 +76,11 @@ export const Create = () => {
         <div>
           <Button
             onClick={handleGenerate}
-            disabled={isGenerating}
+            disabled={isGenerateButtonDisabled}
+            loading={isGenerating}
             className="w-full py-3 text-white rounded-lg hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isGenerating ? "Generating..." : "Generate"}
+            Generate
           </Button>
           <p className="text-black-40 text-xs text-center mt-2">2 Credits used per generation</p>
         </div>

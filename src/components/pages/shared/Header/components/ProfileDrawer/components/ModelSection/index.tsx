@@ -2,19 +2,16 @@ import { MagicSparkIcon, ModelIcon } from "@/components/icons";
 import { ModelTrainingDialog } from "@/components/pages/shared/ModelTrainingDialog";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
-import { useGetModelsQuery } from "@/store/api/modelApi";
 import { useState } from "react";
 import { ModelItem } from "./components/ModelItem";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
-import { skipToken } from "@reduxjs/toolkit/query";
+import { useGetUser } from "@/hooks/user/useGetUser";
+import { useGetModels } from "@/hooks/model/useGetModels";
 
 export const ModelSection = () => {
-  const { data } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user } = useGetUser();
 
-  const { data: models = [], isLoading } = useGetModelsQuery(
-    user ? { user_id: user.id } : skipToken
-  );
+  const { models, isModelsFetching } = useGetModels(user?.id);
+
   const [isTrainingDialogOpen, setIsTrainingDialogOpen] = useState(false);
 
   return (
@@ -27,7 +24,7 @@ export const ModelSection = () => {
         </div>
 
         <div className="flex flex-col gap-1 items-center">
-          {isLoading ? (
+          {isModelsFetching ? (
             <Loader size={18} />
           ) : !!models.length ? (
             models.map((model) => <ModelItem key={model.id} model={model} />)

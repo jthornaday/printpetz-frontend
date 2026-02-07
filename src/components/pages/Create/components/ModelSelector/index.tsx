@@ -3,12 +3,11 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ModelTrainingDialog } from "@/components/pages/shared/ModelTrainingDialog";
 import { ModelSelectionPopover } from "./components/ModelSelectionPopover";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useGetModelsQuery } from "@/store/api/modelApi";
 import { EModelStatus, IModel } from "@/types/model";
 import { Loader } from "@/components/ui/loader";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
-import { skipToken } from "@reduxjs/toolkit/query";
+import { useGetUser } from "@/hooks/user/useGetUser";
 import { getModelName } from "@/utils/app_utils";
+import { useGetModels } from "@/hooks/model/useGetModels";
 
 type Props = {
   selectedModel: IModel | null;
@@ -20,12 +19,9 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
   const [openModelTrainingDialog, setOpenModelTrainingDialog] = useState(false);
   const [openModelSelectionPopover, setOpenModelSelectionPopover] = useState(false);
 
-  const { data } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user } = useGetUser();
 
-  const { data: models = [], isLoading } = useGetModelsQuery(
-    user ? { user_id: user.id } : skipToken
-  );
+  const { models, isModelsFetching } = useGetModels(user?.id);
 
   useEffect(() => {
     const completeModels = models.filter((m) => m.status === EModelStatus.COMPLETED);
@@ -42,14 +38,14 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
           <ModelIcon size={20} />
           <span className="font-bold">Model</span>
         </div>
-        {isLoading ? (
+        {isModelsFetching ? (
           <Loader size={18} />
         ) : !!models?.length ? (
           <Popover open={openModelSelectionPopover} onOpenChange={setOpenModelSelectionPopover}>
             <PopoverTrigger className="flex gap-2.5 items-center cursor-pointer">
               <div className="flex gap-2.5 items-center cursor-pointer text-black-40">
                 <span className="font-semibold text-sm">
-                  {selectedModel ? getModelName(selectedModel.name) : "· · ·"}
+                  {selectedModel ? getModelName(selectedModel.name) : "Select Model"}
                 </span>
                 <CaretIcon size={14} className="rotate-90" />
               </div>
@@ -62,7 +58,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
               className="rounded-xl bg-black-90 border-none h-fit -mt-5 p-2"
             >
               <ModelSelectionPopover
-                models={models.filter((m) => m.status === EModelStatus.COMPLETED)}
+                models={models.filter((m) => m.status !== EModelStatus.ERROR)}
                 selectedModel={selectedModel}
                 onSelection={(model) => {
                   setSelectedModel(model);

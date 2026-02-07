@@ -15,9 +15,13 @@ import { useRouter } from "next/router";
 import { Footer } from "@/components/shared/Footer";
 import { useSignInWithProviderMutation, useSignUpWithEmailMutation } from "@/store/api/authApi";
 import { useToast } from "@/hooks/useToast";
+import { setSessionUser } from "@/store/slices/sessionUserSlice";
+import { useAppDispatch } from "@/store";
+import { EToastType } from "@/types/toast";
 
 const SignupPage = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const { toast } = useToast();
 
@@ -37,9 +41,11 @@ const SignupPage = () => {
   const onSubmit = handleSubmit(async (formData) => {
     const { data, error } = await handleSignup(formData);
     if (error || !data.user) {
-      toast("ERROR", error?.message ?? "Something went wrong");
+      toast(EToastType.ERROR, error?.message ?? "Something went wrong");
       return;
     }
+
+    dispatch(setSessionUser(data.user));
 
     router.push(ROUTES.verification);
   });

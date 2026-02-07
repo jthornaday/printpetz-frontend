@@ -7,14 +7,13 @@ import {
   IGenerationViewDateGroup,
   IGenerationViewItem,
 } from "@/types/generation";
-import { useGetInfiniteGenerationViewsInfiniteQuery } from "@/store/api/generationApi";
 import { IStyle } from "@/types/style";
 import { IModel } from "@/types/model";
 import { Loader } from "@/components/ui/loader";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
-import { skipToken } from "@reduxjs/toolkit/query";
+import { useGetUser } from "@/hooks/user/useGetUser";
 import { formatDateForDisplay, getModelName } from "@/utils/app_utils";
+import { useGetGenerationViews } from "@/hooks/generation/useGetGenerationViews";
 
 // Extended interface to include style and model from the view
 interface IExtendedGeneration extends IGenerationViewItem {
@@ -24,16 +23,15 @@ interface IExtendedGeneration extends IGenerationViewItem {
 }
 
 export const History = () => {
-  const { data } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user } = useGetUser();
 
   const {
-    data: generationViews,
-    isLoading,
-    isFetching,
+    generationViews,
+    isGenerationViewsFetching,
+    isGenerationViewsLoading,
     hasNextPage,
     fetchNextPage,
-  } = useGetInfiniteGenerationViewsInfiniteQuery(user ? { user_id: user.id } : skipToken);
+  } = useGetGenerationViews(user?.id);
 
   const [selectedGeneration, setSelectedGeneration] = useState<IExtendedGeneration | null>(null);
   const [generationViewsGroupedByDate, setGenerationViewsGroupedByDate] = useState<
@@ -43,7 +41,7 @@ export const History = () => {
   // Infinite scroll hook
   const { observerTarget, isLoadingMore } = useInfiniteScroll({
     hasMore: hasNextPage,
-    isFetching,
+    isFetching: isGenerationViewsFetching,
     onLoadMore: () => fetchNextPage(),
   });
 
@@ -51,7 +49,7 @@ export const History = () => {
     if (!generationViews) return;
 
     const timer = setTimeout(() => {
-      const formattedData = generationViews.pages.flat().reduce((acc, genView) => {
+      const formattedData = generationViews.reduce((acc, genView) => {
         const displayDate = formatDateForDisplay(new Date(genView.created_at));
         const existingDateGroup = acc.find((v) => v.displayDate === displayDate);
 
@@ -77,7 +75,7 @@ export const History = () => {
     return () => clearTimeout(timer);
   }, [generationViews]);
 
-  if (isLoading) {
+  if (isGenerationViewsLoading) {
     return (
       <div className="w-full h-full flex justify-center items-center">
         <Loader />
@@ -85,7 +83,7 @@ export const History = () => {
     );
   }
 
-  if (!generationViews?.pages?.[0].length) {
+  if (!generationViews.length) {
     return (
       <div className="w-full h-full flex justify-center items-center">
         <NoHistory />

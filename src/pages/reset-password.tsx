@@ -13,13 +13,13 @@ import { PasswordEyeButton } from "@/components/ui/passwordEyeButton";
 import { useSignOutMutation, useUpdatePasswordMutation } from "@/store/api/authApi";
 import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/hooks/useToast";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
+import { useGetUser } from "@/hooks/user/useGetUser";
+import { EToastType } from "@/types/toast";
 
 const ResetPasswordPage = () => {
   const { toast } = useToast();
 
-  const { data } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user } = useGetUser();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -38,11 +38,11 @@ const ResetPasswordPage = () => {
 
     const { data, error } = await updatePassword(formData);
     if (error || !data.user) {
-      toast("ERROR", error?.message ?? "Something went wrong");
+      toast(EToastType.ERROR, error?.message ?? "Something went wrong");
       return;
     }
 
-    toast("SUCCESS", "All set! Your password has been reset.");
+    toast(EToastType.SUCCESS, "All set! Your password has been reset.");
     handleSignOut({});
   });
 

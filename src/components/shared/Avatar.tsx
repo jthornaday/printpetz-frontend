@@ -1,10 +1,14 @@
 import { cn } from "@/lib/utils";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
+import { useGetUser } from "@/hooks/user/useGetUser";
 import { ComponentProps } from "react";
+import { Loader } from "../ui/loader";
 
 export const Avatar = ({ className, ...props }: ComponentProps<"div">) => {
-  const { data } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user, isUserFetching } = useGetUser();
+
+  if (isUserFetching) {
+    return <Loader />;
+  }
 
   if (!user) {
     return;

@@ -14,6 +14,7 @@ import { IVerificationRequest } from "@/types/auth";
 import { useResendEmailOtpMutation, useVerifyEmailOtpMutation } from "@/store/api/authApi";
 import { useToast } from "@/hooks/useToast";
 import { Loader } from "@/components/ui/loader";
+import { EToastType } from "@/types/toast";
 
 type Props = {
   handleSetOtp: (otp: string) => void;
@@ -143,7 +144,7 @@ const VerificationPage = () => {
 
     const { data, error } = await verifyEmailOtp({ email: sessionUser.email, otp });
     if (error || !data.user) {
-      toast("ERROR", error?.message ?? "Something went wrong");
+      toast(EToastType.ERROR, error?.message ?? "Something went wrong");
       return;
     }
   });
@@ -153,11 +154,11 @@ const VerificationPage = () => {
 
     const { error } = await resendEmailOtp({ email: sessionUser.email });
     if (error) {
-      toast("ERROR", error?.message ?? "Something went wrong");
+      toast(EToastType.ERROR, error?.message ?? "Something went wrong");
       return;
     }
 
-    toast("SUCCESS", "Please check your mail");
+    toast(EToastType.SUCCESS, "Please check your mail");
   };
 
   const handleSetOtp = (otp: string) => {
@@ -165,11 +166,9 @@ const VerificationPage = () => {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!sessionUser) {
-        router.push(ROUTES.signup);
-      }
-    }, 3000);
+    if (sessionUser?.email) return;
+
+    const timer = setTimeout(() => router.push(ROUTES.signup), 3000);
 
     return () => clearTimeout(timer);
   }, [sessionUser]);

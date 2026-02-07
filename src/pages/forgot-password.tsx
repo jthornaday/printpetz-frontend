@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import { Footer } from "@/components/shared/Footer";
 import { useToast } from "@/hooks/useToast";
 import { useForgotPasswordMutation } from "@/store/api/authApi";
+import { EToastType } from "@/types/toast";
 
 const ForgotPasswordPage = () => {
   const router = useRouter();
@@ -33,11 +34,11 @@ const ForgotPasswordPage = () => {
       redirectTo: window.location.origin + ROUTES.resetPassword,
     });
     if (error) {
-      toast("ERROR", error?.message ?? "Something went wrong");
+      toast(EToastType.ERROR, error?.message ?? "Something went wrong");
       return;
     }
 
-    toast("SUCCESS", "Please check your mail");
+    toast(EToastType.SUCCESS, "Please check your mail");
   });
 
   return (

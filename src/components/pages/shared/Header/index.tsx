@@ -6,14 +6,20 @@ import { useRouter } from "next/router";
 import { ROUTES } from "@/routes";
 import { ProfilePopover } from "./components/ProfilePopover";
 import { ProfileDrawer } from "./components/ProfileDrawer";
-import { useState } from "react";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
+import { useEffect, useState } from "react";
+import { useGetUser } from "@/hooks/user/useGetUser";
 
 export const Header = () => {
   const router = useRouter();
 
-  const { data } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user, refetch } = useGetUser();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      refetch();
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [refetch]);
 
   const [openProfileDrawer, setOpenProfileDrawer] = useState(false);
 
@@ -31,7 +37,7 @@ export const Header = () => {
             variant={"link"}
             className="w-fit p-0 underline underline-offset-2 text-orange font-bold hover:opacity-90 transition"
           >
-            Upgrade
+            Buy more
           </Button>
           <div className="flex items-center gap-2.5">
             <div className="flex items-center gap-3 pl-2.5 pr-4 py-2 rounded-full border border-black-70">

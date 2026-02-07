@@ -1,6 +1,7 @@
 import { MagicSparkIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { IModel } from "@/types/model";
+import { Loader } from "@/components/ui/loader";
+import { EModelStatus, IModel } from "@/types/model";
 import { getModelName } from "@/utils/app_utils";
 
 type Props = {
@@ -20,17 +21,25 @@ export const ModelSelectionPopover = ({
     <div className="flex flex-col">
       {models.map((model) => {
         const isSelected = model.id === selectedModel?.id;
+        const isModelTraining = [EModelStatus.PENDING, EModelStatus.TRAINING].includes(
+          model.status
+        );
+        const isCompleted = model.status === EModelStatus.COMPLETED;
+
         return (
           <div
             key={model.id}
-            onClick={() => onSelection(model)}
+            onClick={() => isCompleted && onSelection(model)}
             className={`w-full p-3.5 transition text-sm flex items-center justify-between rounded-lg cursor-pointer ${
               isSelected ? "bg-black-80" : "hover:bg-black-80/80"
             }`}
           >
-            <span className={`${isSelected ? "text-white" : "text-black-40"}`}>
-              {getModelName(model.name)}
-            </span>
+            <div className="flex items-center gap-2">
+              {isModelTraining && <Loader size={16} />}
+              <span className={`${isSelected ? "text-white" : "text-black-40"}`}>
+                {getModelName(model.name)}
+              </span>
+            </div>
             {isSelected && <span className="text-white">✓</span>}
           </div>
         );

@@ -15,16 +15,13 @@ export const userApi = supabaseBaseApi.injectEndpoints({
     // ----------------------------------------------------------
     // GET USER BY ID
     // ----------------------------------------------------------
-    getUserById: builder.query<ApiResponse<IUser | null>, void>({
+    getUser: builder.query<ApiResponse<IUser | null>, void>({
       async queryFn() {
         // get user if from auth
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        const { data } = await supabase.auth.getUser();
+        const { user } = data || {};
 
         if (!user) {
-          // logout user
-          await supabase.auth.signOut();
           return { data: { success: false, data: null, message: "User not authenticated" } };
         }
 
@@ -69,8 +66,8 @@ export const userApi = supabaseBaseApi.injectEndpoints({
 });
 
 export const {
-  useGetUserByIdQuery,
-  useLazyGetUserByIdQuery,
+  useGetUserQuery,
+  useLazyGetUserQuery,
   useUpdateUserMutation,
   usePrefetch: useAuthPrefetch,
 } = userApi;

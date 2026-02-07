@@ -4,13 +4,16 @@ import { Avatar } from "@/components/shared/Avatar";
 import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
 import { Button } from "@/components/ui/button";
 import { ControlledInput } from "@/components/ui/form/ControlledInput";
+import { useGetUser } from "@/hooks/user/useGetUser";
 import { useToast } from "@/hooks/useToast";
 import { updateUserSchema } from "@/lib/validations/user";
 import { dataURLtoFile } from "@/services/shared/image";
 import { useUploadFileMutation } from "@/store/api/fileApi";
-import { useGetUserByIdQuery, useUpdateUserMutation } from "@/store/api/userApi";
+import { useUpdateUserMutation } from "@/store/api/userApi";
+import { ApiError } from "@/types/api";
 import { ImageMetadata } from "@/types/common";
 import { EUploadFile } from "@/types/file";
+import { EToastType } from "@/types/toast";
 import { IUpdateUserRequest } from "@/types/user";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
@@ -19,8 +22,7 @@ import { FormProvider, useForm } from "react-hook-form";
 export const ProfileSection = () => {
   const { toast } = useToast();
 
-  const { data } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user } = useGetUser();
 
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const [uploadFile, { isLoading: isFileUploading }] = useUploadFileMutation();
@@ -49,28 +51,39 @@ export const ProfileSection = () => {
     if (selectedImage) {
       const file = dataURLtoFile(selectedImage.src, "image.jpg");
 
-      const { data: resData, error } = await uploadFile({
-        files: [file],
-        type: EUploadFile.PROFILE_IMAGE,
-      });
-      if (error) {
-        toast("ERROR", "Something went wrong");
-        return;
-      }
+      try {
+        const response = await uploadFile({
+          files: [file],
+          type: EUploadFile.PROFILE_IMAGE,
+        }).unwrap();
+        const { success, data, message } = response;
+        if (!success || !data) {
+          toast(EToastType.ERROR, message ?? "Something went wrong");
+          return false;
+        }
 
-      const url = resData?.data?.fileUrls[0];
-      if (resData?.data?.fileUrls) {
-        formData.profile_image = url;
+        const url = data.fileUrls[0];
+        if (url) {
+          formData.profile_image = url;
+        }
+      } catch (error: unknown) {
+        console.error("Create company error:", error);
+        const err = error as ApiError;
+        const errorMessage = err?.data?.message || "Failed to generate image";
+        toast(EToastType.ERROR, errorMessage);
+        return false;
       }
     }
 
     const { data } = await updateUser({ id: user.id, ...formData });
     const { message, success } = data || {};
     if (!success) {
-      toast("ERROR", message ?? "Something went wrong");
-      return;
+      toast(EToastType.ERROR, message ?? "Something went wrong");
+      return false;
     }
-    toast("SUCCESS", "Profile Updated Successfully");
+
+    toast(EToastType.SUCCESS, "Profile Updated Successfully");
+    return true;
   });
 
   const userImage = selectedImage?.src ?? user?.profile_image;

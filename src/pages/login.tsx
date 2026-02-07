@@ -19,6 +19,7 @@ import {
   useSignUpWithEmailMutation,
 } from "@/store/api/authApi";
 import { useToast } from "@/hooks/useToast";
+import { EToastType } from "@/types/toast";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -48,7 +49,7 @@ const LoginPage = () => {
           confirmPassword: formData.password,
         });
         if (signupError || !data.user) {
-          toast("ERROR", signupError?.message ?? "Something went wrong");
+          toast(EToastType.ERROR, signupError?.message ?? "Something went wrong");
           return;
         }
 
@@ -56,7 +57,7 @@ const LoginPage = () => {
         return;
       }
 
-      toast("ERROR", signinError.message ?? "Something went wrong");
+      toast(EToastType.ERROR, signinError.message ?? "Something went wrong");
       return false;
     }
   });

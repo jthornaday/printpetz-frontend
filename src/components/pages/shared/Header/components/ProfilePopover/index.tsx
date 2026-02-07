@@ -6,7 +6,7 @@ import { ConfirmationDialog } from "@/components/ui/confirmationDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ROUTES } from "@/routes";
 import { useSignOutMutation } from "@/store/api/authApi";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
+import { useGetUser } from "@/hooks/user/useGetUser";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -15,8 +15,7 @@ type Props = { openProfile: () => void };
 export const ProfilePopover = ({ openProfile }: Props) => {
   const router = useRouter();
 
-  const { data } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user } = useGetUser();
 
   const [open, setOpen] = useState(false);
 
@@ -56,16 +55,6 @@ export const ProfilePopover = ({ openProfile }: Props) => {
               <p className="text-sm text-black-40">{user?.email}</p>
             </div>
           </div>
-
-          {/* Upgrade Button */}
-          <Button
-            onClick={() => {
-              setOpen(false);
-              router.push(ROUTES.pricing);
-            }}
-          >
-            Upgrade
-          </Button>
         </div>
 
         {/* Credit Usage */}
@@ -78,9 +67,16 @@ export const ProfilePopover = ({ openProfile }: Props) => {
             <span className="text-sm text-primary font-bold">{user?.credits} credits left</span>
           </div>
 
-          {/* <div className="h-2 mt-3.5 bg-black-70 rounded-lg overflow-hidden">
-            <div className="h-full bg-primary w-[80%]" />
-          </div> */}
+          {/* Upgrade Button */}
+          <Button
+            onClick={() => {
+              setOpen(false);
+              router.push(ROUTES.pricing);
+            }}
+            className="mt-2"
+          >
+            Buy More
+          </Button>
         </div>
 
         {/* My Account */}

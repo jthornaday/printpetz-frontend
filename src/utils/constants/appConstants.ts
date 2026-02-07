@@ -1,6 +1,12 @@
 import { ROUTES } from "@/routes";
 
-export const authRoutes = [ROUTES.login, ROUTES.signup, ROUTES.verification, ROUTES.forgotPassword];
+export const authRoutes = [
+  ROUTES.login,
+  ROUTES.signup,
+  ROUTES.verification,
+  ROUTES.forgotPassword,
+  ROUTES.landing,
+];
 
 export const userRoutes = [ROUTES.create, ROUTES.history, ROUTES.pricing];
 

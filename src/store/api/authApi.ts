@@ -111,8 +111,6 @@ export const clientApi = supabaseAuthApi.injectEndpoints({
     forgotPassword: builder.mutation({
       async queryFn({ email, redirectTo }: IForgotPasswordRequest) {
         try {
-          console.log("heree", { email, redirectTo });
-
           const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: redirectTo ?? window.location.href,
           });

@@ -2,18 +2,15 @@ import { MagicSparkIcon } from "@/components/icons";
 import { GenerationItem } from "@/components/pages/shared/GenerationItem";
 import { GenerationPreviewDialog } from "@/components/pages/shared/GenerationPreviewDialog";
 import { Loader } from "@/components/ui/loader";
-import {
-  useGetInfiniteGenerationViewsInfiniteQuery,
-  useLazyGetGenerationByIdQuery,
-} from "@/store/api/generationApi";
-import { EGenerationStatus, IGenerationView, IGenerationViewItem } from "@/types/generation";
+import { useLazyGetGenerationByIdQuery } from "@/store/api/generationApi";
+import { EGenerationStatus, IGenerationViewItem } from "@/types/generation";
 import { IModel } from "@/types/model";
 import { IStyle } from "@/types/style";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
-import { useGetUserByIdQuery } from "@/store/api/userApi";
-import { skipToken } from "@reduxjs/toolkit/query";
+import { useGetUser } from "@/hooks/user/useGetUser";
 import { getModelName } from "@/utils/app_utils";
+import { useGetGenerationViews } from "@/hooks/generation/useGetGenerationViews";
 
 interface ISelectedGeneration extends IGenerationViewItem {
   style: IStyle;
@@ -22,80 +19,62 @@ interface ISelectedGeneration extends IGenerationViewItem {
 
 export const Generations = () => {
   const [selectedGeneration, setSelectedGeneration] = useState<ISelectedGeneration | null>(null);
-  const [allGenerations, setAllGenerations] = useState<IGenerationView[]>([]);
 
-  const { data, isLoading: isUserLoading } = useGetUserByIdQuery();
-  const { data: user } = data || {};
+  const { user } = useGetUser();
 
   const {
-    data: generationViews,
-    isFetching,
-    isLoading,
+    generationViews,
+    isGenerationViewsFetching,
+    isGenerationViewsLoading,
     fetchNextPage,
     hasNextPage,
-  } = useGetInfiniteGenerationViewsInfiniteQuery(user?.id ? { user_id: user.id } : skipToken);
+    refetchGenerationViews,
+  } = useGetGenerationViews(user?.id);
   const [fetchGenerationById] = useLazyGetGenerationByIdQuery();
 
   // Infinite scroll hook
   const { observerTarget, isLoadingMore } = useInfiniteScroll({
     hasMore: hasNextPage,
-    isFetching,
+    isFetching: isGenerationViewsFetching,
     onLoadMore: () => fetchNextPage(),
   });
 
-  // Accumulate generations as we paginate
-  useEffect(() => {
-    if (generationViews) {
-      setAllGenerations(generationViews.pages.flat());
-    }
-  }, [generationViews]);
-
-  // Poll every 4 seconds for generations with GENERATING status
-  useEffect(() => {
-    const generatingIds: number[] = [];
-
-    allGenerations?.forEach((view) => {
+  // Get IDs of generations currently in generating status
+  const generatingIds = useMemo(() => {
+    const ids: number[] = [];
+    generationViews?.forEach((view) => {
       view.generations.forEach((gen) => {
         if (gen.status === EGenerationStatus.GENERATING) {
-          generatingIds.push(gen.id);
+          ids.push(gen.id);
         }
       });
     });
+    return ids;
+  }, [generationViews]);
 
-    if (generatingIds.length > 0) {
-      const interval = setInterval(async () => {
-        // Fetch each generating generation individually
-        for (const id of generatingIds) {
-          try {
-            const result = await fetchGenerationById({ id }).unwrap();
+  // Poll for generating status
+  useEffect(() => {
+    if (!user?.id || generatingIds.length === 0) return;
 
-            // Update local state
-            setAllGenerations((prev) =>
-              prev.map((view) => {
-                if (!view.generations.some((g) => g.id === id)) return view;
+    const interval = setInterval(async () => {
+      // Fetch each generating generation individually
+      for (const id of generatingIds) {
+        try {
+          const result = await fetchGenerationById({ id }).unwrap();
 
-                return {
-                  ...view,
-                  generations: view.generations.map((gen) => {
-                    if (gen.id !== id) return gen;
+          if (result.status === EGenerationStatus.GENERATING) return;
 
-                    const { prompt, image, request_id, status, error } = result;
-                    return { ...gen, prompt, image, request_id, status, error };
-                  }),
-                };
-              })
-            );
-          } catch (error) {
-            console.error(`Failed to fetch generation ${id}:`, error);
-          }
+          refetchGenerationViews();
+        } catch (error) {
+          console.error(`Failed to fetch generation ${id}:`, error);
         }
-      }, 4000);
+      }
+    }, 4000);
 
-      return () => clearInterval(interval);
-    }
-  }, [allGenerations, fetchGenerationById]);
+    return () => clearInterval(interval);
+  }, [generatingIds, fetchGenerationById, user?.id]);
 
-  if (isUserLoading || isLoading) {
+  if (!generationViews || isGenerationViewsLoading) {
     return (
       <div className="flex-1 flex flex-col gap-6 items-center justify-center">
         <Loader />
@@ -103,7 +82,7 @@ export const Generations = () => {
     );
   }
 
-  if (!generationViews?.pages?.[0].length) {
+  if (!generationViews?.length) {
     return (
       <div className="flex-1 flex flex-col gap-6 items-center justify-center">
         <MagicSparkIcon size={48} />
@@ -118,7 +97,7 @@ export const Generations = () => {
   return (
     <div className="p-5 pb-1 overflow-y-auto">
       <div className="flex flex-col gap-6">
-        {allGenerations.map((generationView) => {
+        {generationViews.map((generationView) => {
           return (
             <div key={generationView.group_id}>
               <div className="flex gap-3 ">
