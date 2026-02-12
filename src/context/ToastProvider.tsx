@@ -38,7 +38,7 @@ const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       case EToastType.INFO:
         reactHotToast.error(message, {
           className: toastStyle({ type }),
-          duration: Infinity,
+          duration: 4000,
           icon: "⚠️",
         });
         break;

@@ -14,9 +14,9 @@ import { ROUTES } from "@/routes";
 import { useRouter } from "next/router";
 import { Footer } from "@/components/shared/Footer";
 import {
+  useResendEmailOtpMutation,
   useSignInWithEmailMutation,
   useSignInWithProviderMutation,
-  useSignUpWithEmailMutation,
 } from "@/store/api/authApi";
 import { useToast } from "@/hooks/useToast";
 import { EToastType } from "@/types/toast";
@@ -31,7 +31,7 @@ const LoginPage = () => {
 
   const [handleGoogleAuth, { isLoading: isProviderSigning }] = useSignInWithProviderMutation();
   const [handleSignIn, { isLoading: isSignInButtonLoading }] = useSignInWithEmailMutation();
-  const [handleSignup, { isLoading: isSignUpButtonLoading }] = useSignUpWithEmailMutation();
+  const [resendEmailOtp, { isLoading: isResendEmailOtpLoading }] = useResendEmailOtpMutation();
 
   const methods = useForm<ILoginRequest>({
     defaultValues: { email: "", password: "" },
@@ -44,16 +44,15 @@ const LoginPage = () => {
 
     if (signinError) {
       if (signinError.code === "email_not_confirmed") {
-        const { data, error: signupError } = await handleSignup({
-          ...formData,
-          confirmPassword: formData.password,
-        });
-        if (signupError || !data.user) {
-          toast(EToastType.ERROR, signupError?.message ?? "Something went wrong");
-          return;
+        const { error: resendError } = await resendEmailOtp({ email: formData.email });
+        if (resendError) {
+          if (resendError?.code !== "over_email_send_rate_limit") {
+            toast(EToastType.ERROR, resendError?.message ?? "Something went wrong");
+            return;
+          }
         }
 
-        router.push(ROUTES.verification);
+        router.push({ pathname: ROUTES.verification, query: { email: formData.email } });
         return;
       }
 
@@ -61,6 +60,9 @@ const LoginPage = () => {
       return false;
     }
   });
+
+  const isBtnDisabled = isSignInButtonLoading || isResendEmailOtpLoading || isProviderSigning;
+  const isSigningIn = isSignInButtonLoading || isResendEmailOtpLoading;
 
   return (
     <div className="relative w-full lg:w-1/2 flex items-center justify-center px-6 md:px-12 py-12">
@@ -111,20 +113,17 @@ const LoginPage = () => {
                 <span className="text-sm text-gray-400">Remember me</span>
               </label>
               <p
-                onClick={() => router.push(ROUTES.forgotPassword)}
-                className="text-sm text-red cursor-pointer hover:text-red-400 transition tracking-wide"
+                onClick={() => !isBtnDisabled && router.push(ROUTES.forgotPassword)}
+                className={`text-sm text-red cursor-pointer hover:text-red-400 transition tracking-wide ${
+                  isBtnDisabled ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 Forgot Password?
               </p>
             </div>
 
             {/* Sign In Button */}
-            <Button
-              type="submit"
-              onClick={onSubmit}
-              disabled={isSignInButtonLoading || isSignUpButtonLoading}
-              loading={isSignInButtonLoading || isSignUpButtonLoading}
-            >
+            <Button type="submit" onClick={onSubmit} disabled={isBtnDisabled} loading={isSigningIn}>
               Sign In
             </Button>
           </FormProvider>
@@ -143,7 +142,7 @@ const LoginPage = () => {
             }
             variant={"outline"}
             loading={isProviderSigning}
-            disabled={isProviderSigning}
+            disabled={isBtnDisabled}
           >
             <GoogleIcon size={18} className="tracking-wide" />
             Continue With Google

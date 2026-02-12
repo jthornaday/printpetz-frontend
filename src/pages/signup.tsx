@@ -40,8 +40,19 @@ const SignupPage = () => {
 
   const onSubmit = handleSubmit(async (formData) => {
     const { data, error } = await handleSignup(formData);
-    if (error || !data.user) {
+    if (error) {
       toast(EToastType.ERROR, error?.message ?? "Something went wrong");
+      return;
+    }
+
+    if (!data?.user) {
+      toast(EToastType.ERROR, "Something went wrong during signup");
+      return;
+    }
+
+    if (data?.user && data.user.identities?.length === 0) {
+      toast(EToastType.INFO, "Account already exists with this email. Please sign in.");
+      router.push(ROUTES.login);
       return;
     }
 
@@ -49,6 +60,8 @@ const SignupPage = () => {
 
     router.push(ROUTES.verification);
   });
+
+  const isBtnDisabled = isSignupButtonLoading || isGoogleButtonLoading;
 
   return (
     <div className="relative w-full lg:w-1/2 flex items-center justify-center px-6 md:px-12 py-12">
@@ -118,7 +131,7 @@ const SignupPage = () => {
             <Button
               type="submit"
               onClick={onSubmit}
-              disabled={isSignupButtonLoading}
+              disabled={isBtnDisabled}
               loading={isSignupButtonLoading}
             >
               Sign Up
@@ -137,7 +150,7 @@ const SignupPage = () => {
             onClick={() => handleGoogleAuth({ provider: "google" })}
             variant={"outline"}
             loading={isGoogleButtonLoading}
-            disabled={isGoogleButtonLoading}
+            disabled={isBtnDisabled}
           >
             <GoogleIcon size={18} className="tracking-wide" />
             Continue With Google

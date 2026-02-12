@@ -132,6 +132,17 @@ const VerificationPage = () => {
 
   const [verifyEmailOtp, { isLoading: isOtpVerifying }] = useVerifyEmailOtpMutation();
   const [resendEmailOtp, { isLoading: isOtpResending }] = useResendEmailOtpMutation();
+  const [timeLeft, setTimeLeft] = useState(60);
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
 
   const methods = useForm<IVerificationRequest>({
     defaultValues: { otp: "" },
@@ -139,10 +150,13 @@ const VerificationPage = () => {
   });
   const { handleSubmit, reset, watch } = methods;
 
-  const onSubmit = handleSubmit(async ({ otp }) => {
-    if (!sessionUser?.email) return;
+  const queryEmail = router.query.email as string | undefined;
+  const email = sessionUser?.email || queryEmail;
 
-    const { data, error } = await verifyEmailOtp({ email: sessionUser.email, otp });
+  const onSubmit = handleSubmit(async ({ otp }) => {
+    if (!email) return;
+
+    const { data, error } = await verifyEmailOtp({ email, otp });
     if (error || !data.user) {
       toast(EToastType.ERROR, error?.message ?? "Something went wrong");
       return;
@@ -150,15 +164,16 @@ const VerificationPage = () => {
   });
 
   const handleResendEmailOtp = async () => {
-    if (!sessionUser?.email) return;
+    if (!email || timeLeft > 0 || isOtpResending) return;
 
-    const { error } = await resendEmailOtp({ email: sessionUser.email });
+    const { error } = await resendEmailOtp({ email });
     if (error) {
       toast(EToastType.ERROR, error?.message ?? "Something went wrong");
       return;
     }
 
     toast(EToastType.SUCCESS, "Please check your mail");
+    setTimeLeft(60);
   };
 
   const handleSetOtp = (otp: string) => {
@@ -166,14 +181,17 @@ const VerificationPage = () => {
   };
 
   useEffect(() => {
-    if (sessionUser?.email) return;
+    if (!router.isReady) return;
 
-    const timer = setTimeout(() => router.push(ROUTES.signup), 3000);
+    if (email) return;
+
+    console.log("No email found for verification, redirecting...");
+    const timer = setTimeout(() => router.push(ROUTES.login), 3000);
 
     return () => clearTimeout(timer);
-  }, [sessionUser]);
+  }, [email, router.isReady]);
 
-  if (!sessionUser) {
+  if (!email) {
     return (
       <div className="relative w-full lg:w-1/2 flex items-center justify-center px-6 md:px-12 py-12">
         <Loader />
@@ -196,7 +214,7 @@ const VerificationPage = () => {
 
         <div className="text-center">
           <p className="text-black-40 max-w-sm">
-            please enter the code we sent to <span className="text-white">{sessionUser.email}</span>
+            please enter the code we sent to <span className="text-white">{email}</span>
           </p>
         </div>
 
@@ -219,9 +237,13 @@ const VerificationPage = () => {
             <span className="text-black-50 text-lg">|</span>
             <span
               onClick={handleResendEmailOtp}
-              className="text-primary hover:text-primary-dark font-bold transition cursor-pointer"
+              className={`${
+                timeLeft > 0 || isOtpResending
+                  ? "text-black-40 cursor-not-allowed"
+                  : "text-primary hover:text-primary-dark cursor-pointer shadow-sm"
+              } font-bold transition`}
             >
-              {isOtpResending ? "Resending..." : "Resend"}
+              {isOtpResending ? "Resending..." : timeLeft > 0 ? `Resend in ${timeLeft}s` : "Resend"}
             </span>
           </div>
         </div>

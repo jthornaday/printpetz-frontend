@@ -25,33 +25,49 @@ const createErrorResponse = (error: AuthError) => {
   return { error: { code: error.code, status: error.status, message } };
 };
 
+const withRetry = async <T>(
+  fn: () => Promise<{ data: T; error: null } | { data: unknown; error: AuthError }>,
+  retries = 3,
+  delay = 1000
+) => {
+  let lastError: AuthError | null = null;
+
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const { data, error } = await fn();
+      if (!error) return { data };
+
+      lastError = error;
+      // Only retry on 500+ errors
+      if (!error.status || error.status < 500) {
+        return createErrorResponse(error);
+      }
+
+      if (i < retries) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    } catch (error) {
+      lastError = error as AuthError;
+      if (i === retries) break;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+
+  return createErrorResponse(lastError!);
+};
+
 export const clientApi = supabaseAuthApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
     signUpWithEmail: builder.mutation({
       async queryFn({ email, password }: ISignupRequest) {
-        try {
-          const { error, data } = await supabase.auth.signUp({ email, password });
-          if (error) return createErrorResponse(error);
-          return { data };
-        } catch (error) {
-          return createErrorResponse(error as AuthError);
-        }
+        return withRetry(() => supabase.auth.signUp({ email, password }));
       },
       invalidatesTags: ["Auth"],
     }),
     signInWithEmail: builder.mutation({
       async queryFn({ email, password }: ILoginRequest) {
-        try {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-          if (error) return createErrorResponse(error);
-          return { data };
-        } catch (error) {
-          return createErrorResponse(error as AuthError);
-        }
+        return withRetry(() => supabase.auth.signInWithPassword({ email, password }));
       },
     }),
     signOut: builder.mutation({
@@ -67,72 +83,47 @@ export const clientApi = supabaseAuthApi.injectEndpoints({
     }),
     resendEmailOtp: builder.mutation({
       async queryFn({ email }: IResendOtpRequest) {
-        try {
-          const { error, data } = await supabase.auth.resend({
-            type: "signup",
-            email,
-          });
-          if (error) return createErrorResponse(error);
-          return { data };
-        } catch (error) {
-          return createErrorResponse(error as AuthError);
-        }
+        return withRetry(() => supabase.auth.resend({ type: "signup", email }));
       },
     }),
     verifyEmailOtp: builder.mutation({
       async queryFn({ email, otp }: IVerifyOtpArgs) {
-        try {
-          const { error, data } = await supabase.auth.verifyOtp({
+        return withRetry(() =>
+          supabase.auth.verifyOtp({
             type: "email",
             token: otp,
             email,
-          });
-          if (error) return createErrorResponse(error);
-          return { data };
-        } catch (error) {
-          return createErrorResponse(error as AuthError);
-        }
+          })
+        );
       },
     }),
     signInWithProvider: builder.mutation({
       async queryFn({ provider, queryParams }: IOAuthArgs) {
-        try {
-          const { data, error } = await supabase.auth.signInWithOAuth({
+        return withRetry(() =>
+          supabase.auth.signInWithOAuth({
             provider,
             options: { queryParams },
-          });
-          if (error) return createErrorResponse(error);
-          return { data };
-        } catch (error) {
-          return createErrorResponse(error as AuthError);
-        }
+          })
+        );
       },
     }),
     forgotPassword: builder.mutation({
       async queryFn({ email, redirectTo }: IForgotPasswordRequest) {
-        try {
-          const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
+        return withRetry(() =>
+          supabase.auth.resetPasswordForEmail(email, {
             redirectTo: redirectTo ?? window.location.href,
-          });
-          if (error) return createErrorResponse(error);
-          return { data };
-        } catch (error) {
-          return createErrorResponse(error as AuthError);
-        }
+          })
+        );
       },
     }),
     updatePassword: builder.mutation({
       async queryFn({ email, password }: IResetPasswordRequest) {
-        try {
-          const { error, data } = await supabase.auth.updateUser({
+        return withRetry(() =>
+          supabase.auth.updateUser({
             email,
             password,
-          });
-          if (error) return createErrorResponse(error);
-          return { data };
-        } catch (error) {
-          return createErrorResponse(error as AuthError);
-        }
+          })
+        );
       },
     }),
   }),

@@ -30,6 +30,8 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
 
   useEffect(() => {
     const handleSession = async (session: Session | null) => {
+      console.log({ session });
+
       try {
         if (session) {
           handleAuthenticated(session);

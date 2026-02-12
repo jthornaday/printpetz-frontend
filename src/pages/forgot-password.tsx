@@ -39,6 +39,8 @@ const ForgotPasswordPage = () => {
     }
 
     toast(EToastType.SUCCESS, "Please check your mail");
+
+    router.push(ROUTES.login);
   });
 
   return (
