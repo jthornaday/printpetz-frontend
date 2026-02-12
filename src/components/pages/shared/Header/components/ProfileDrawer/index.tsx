@@ -8,15 +8,20 @@ import {
 } from "@/components/ui/drawer";
 import { ProfileSection } from "./components/ProfileSection";
 import { ModelSection } from "./components/ModelSection";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { setAppContext } from "@/store/slices/appContextSlice";
 
-type Props = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-};
+export const ProfileDrawer = () => {
+  const dispatch = useAppDispatch();
 
-export const ProfileDrawer = ({ open, onOpenChange }: Props) => {
+  const { isProfileDrawerOpen } = useAppSelector((state) => state.appContext);
+
+  const closeDrawer = () => {
+    dispatch(setAppContext({ isProfileDrawerOpen: false }));
+  };
+
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} direction="right">
+    <Drawer open={isProfileDrawerOpen} onOpenChange={closeDrawer} direction="right">
       <DrawerContent className="bg-black-100 text-white border-l border-black-70">
         {/* Header */}
         <DrawerHeader className="flex flex-row justify-between items-center p-4 border-b border-black-70">

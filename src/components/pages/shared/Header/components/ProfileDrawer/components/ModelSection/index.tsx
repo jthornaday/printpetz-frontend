@@ -1,18 +1,22 @@
 import { MagicSparkIcon, ModelIcon } from "@/components/icons";
-import { ModelTrainingDialog } from "@/components/pages/shared/ModelTrainingDialog";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
-import { useState } from "react";
 import { ModelItem } from "./components/ModelItem";
 import { useGetUser } from "@/hooks/user/useGetUser";
 import { useGetModels } from "@/hooks/model/useGetModels";
+import { useAppDispatch } from "@/store";
+import { setAppContext } from "@/store/slices/appContextSlice";
 
 export const ModelSection = () => {
+  const dispatch = useAppDispatch();
+
   const { user } = useGetUser();
 
   const { models, isModelsFetching } = useGetModels(user?.id);
 
-  const [isTrainingDialogOpen, setIsTrainingDialogOpen] = useState(false);
+  const handleOpenDialog = () => {
+    dispatch(setAppContext({ isModelTrainingDialogOpen: true }));
+  };
 
   return (
     <section className="bg-black-90 rounded-lg p-4">
@@ -34,14 +38,10 @@ export const ModelSection = () => {
         </div>
 
         {/* Button */}
-        <Button onClick={() => setIsTrainingDialogOpen(true)}>
+        <Button onClick={handleOpenDialog}>
           <MagicSparkIcon size={20} /> Create New Model
         </Button>
       </div>
-
-      {isTrainingDialogOpen && (
-        <ModelTrainingDialog onClose={() => setIsTrainingDialogOpen(false)} />
-      )}
     </section>
   );
 };

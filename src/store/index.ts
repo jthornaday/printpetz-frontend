@@ -15,8 +15,10 @@ import {
 
 import { supabaseBaseApi, serverBaseApi, supabaseAuthApi } from "./api/baseApi";
 import storage from "redux-persist/es/storage";
+import appContextReducer from "./slices/appContextSlice";
 
 const rootReducer = combineReducers({
+  appContext: appContextReducer,
   sessionUser: sessionUserReducer,
   [supabaseBaseApi.reducerPath]: supabaseBaseApi.reducer,
   [serverBaseApi.reducerPath]: serverBaseApi.reducer,
@@ -26,7 +28,12 @@ const rootReducer = combineReducers({
 const persistConfig: PersistConfig<RootState> = {
   key: "root",
   storage,
-  blacklist: [serverBaseApi.reducerPath, supabaseAuthApi.reducerPath, supabaseBaseApi.reducerPath], // do not persist these
+  blacklist: [
+    serverBaseApi.reducerPath,
+    supabaseAuthApi.reducerPath,
+    supabaseBaseApi.reducerPath,
+    "appContext",
+  ], // do not persist these
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

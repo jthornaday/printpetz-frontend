@@ -1,6 +1,4 @@
 import { CaretIcon, CreditIcon, LogoutIcon, UserIcon } from "@/components/icons";
-import { Avatar } from "@/components/shared/Avatar";
-import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ui/confirmationDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -9,13 +7,16 @@ import { useSignOutMutation } from "@/store/api/authApi";
 import { useGetUser } from "@/hooks/user/useGetUser";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { UserProfileImage } from "../shared/UserProfileImage";
+import { Loader } from "@/components/ui/loader";
+import { useAppDispatch } from "@/store";
+import { setAppContext } from "@/store/slices/appContextSlice";
 
-type Props = { openProfile: () => void };
-
-export const ProfilePopover = ({ openProfile }: Props) => {
+export const ProfilePopover = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  const { user } = useGetUser();
+  const { user, isUserLoading } = useGetUser();
 
   const [open, setOpen] = useState(false);
 
@@ -26,12 +27,21 @@ export const ProfilePopover = ({ openProfile }: Props) => {
     return true;
   };
 
+  const openProfileDrawer = () => {
+    setOpen(false);
+    dispatch(setAppContext({ isProfileDrawerOpen: true }));
+  };
+
+  if (isUserLoading || !user) return <Loader />;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger className="flex gap-2.5 items-center cursor-pointer">
-        <div className="relative w-10 h-10 rounded-full bg-black-100 flex items-center justify-center text-lg font-semibold overflow-hidden">
-          {user?.profile_image ? <CustomImagePreview image={user?.profile_image} /> : <Avatar />}
-        </div>
+        <UserProfileImage
+          image={user?.profile_image}
+          text={user?.name ?? user.email}
+          className="bg-black-80"
+        />
         <CaretIcon size={18} className="rotate-x-180 transition duration-300" />
       </PopoverTrigger>
 
@@ -43,13 +53,7 @@ export const ProfilePopover = ({ openProfile }: Props) => {
         <div className="p-4 flex flex-col gap-4 border-b-[1px] border-black-70">
           {/* Top Section */}
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-full bg-black-100 flex items-center justify-center text-lg font-semibold overflow-hidden">
-              {user?.profile_image ? (
-                <CustomImagePreview image={user?.profile_image} />
-              ) : (
-                <Avatar />
-              )}
-            </div>
+            <UserProfileImage image={user?.profile_image} text={user?.name ?? user.email} />
             <div>
               {user?.name && <p className="text-white font-black text-sm">{user.name}</p>}
               <p className="text-sm text-black-40">{user?.email}</p>
@@ -71,7 +75,7 @@ export const ProfilePopover = ({ openProfile }: Props) => {
           <Button
             onClick={() => {
               setOpen(false);
-              router.push(ROUTES.pricing);
+              router.push(ROUTES.plan);
             }}
             className="mt-2"
           >
@@ -82,10 +86,7 @@ export const ProfilePopover = ({ openProfile }: Props) => {
         {/* My Account */}
         <div
           className="p-4 w-full flex text-sm items-center gap-3 text-black-40 font-bold border-b-[1px] border-black-70 cursor-pointer"
-          onClick={() => {
-            setOpen(false);
-            openProfile();
-          }}
+          onClick={openProfileDrawer}
         >
           <UserIcon size={20} />
           My Account

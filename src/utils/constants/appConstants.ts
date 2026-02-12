@@ -1,6 +1,6 @@
 import { ROUTES } from "@/routes";
 
-export const authRoutes = [
+export const publicRoutes = [
   ROUTES.login,
   ROUTES.signup,
   ROUTES.verification,
@@ -8,7 +8,7 @@ export const authRoutes = [
   ROUTES.landing,
 ];
 
-export const userRoutes = [ROUTES.create, ROUTES.history, ROUTES.pricing];
+export const protectedRoutes = [ROUTES.create, ROUTES.history, ROUTES.plan];
 
 export const appConstants = {
   modelTraining: {

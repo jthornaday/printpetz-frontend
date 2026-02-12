@@ -9,7 +9,7 @@ import { EToastType } from "@/types/toast";
 
 const features = ["Access to all styles", "Unlimited storage", "Download anytime"];
 
-export const Pricing = () => {
+export const Plan = () => {
   const { data: prices = [], isLoading } = useGetPricesQuery({});
 
   const { toast } = useToast();
@@ -47,7 +47,7 @@ export const Pricing = () => {
           </div>
         </section>
 
-        {/* Pricing cards row */}
+        {/* Plan cards row */}
         <section className="mt-12 flex flex-wrap items-center lg:items-end justify-center gap-8">
           {isLoading ? (
             <div className="w-full min-h-[290px] flex items-center justify-center">

@@ -7,5 +7,5 @@ export const ROUTES = {
   create: "/create",
   landing: "/",
   history: "/history",
-  pricing: "/pricing",
+  plan: "/plan",
 };

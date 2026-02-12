@@ -2,7 +2,7 @@ import React from "react";
 import { Header } from "./components/Header";
 
 import { Footer } from "@/components/shared/Footer";
-import { Pricing } from "@/components/pages/Pricing";
+import { Plan } from "@/components/pages/Plan";
 import { CTA } from "./components/CTA";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
@@ -17,7 +17,7 @@ export const Landing = () => {
         <HowItWorks />
         <div className="relative overflow-hidden py-20">
           <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-80 aspect-square rounded-full bg-primary-dark pointer-events-none blur-[300px]" />
-          <Pricing />
+          <Plan />
         </div>
         <StylesGrid />
         <CTA />

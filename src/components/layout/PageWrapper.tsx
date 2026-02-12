@@ -1,54 +1,62 @@
+import { useMemo } from "react";
 import { useRouter } from "next/router";
-import React from "react";
-import { AnimatedImageSlider } from "../shared/AnimatedImageSlider";
-import { authRoutes, userRoutes } from "@/utils/constants/appConstants";
+
 import { ROUTES } from "@/routes";
+import { cn } from "@/lib/utils";
+import { publicRoutes, protectedRoutes } from "@/utils/constants/appConstants";
+import { AnimatedImageSlider } from "../shared/AnimatedImageSlider";
 import { Header } from "../pages/shared/Header";
 import { Sidebar } from "../pages/shared/Sidebar";
-import { cn } from "@/lib/utils";
+import { ModelTrainingDialog } from "../pages/shared/ModelTrainingDialog";
 
-type Props = {
-  children: React.ReactNode;
-} & React.ComponentProps<"div">;
+type PageWrapperProps = { children: React.ReactNode } & React.ComponentProps<"div">;
 
-const DefaultWrapper = ({ children, className }: Props) => (
+type LayoutVariant = "landing" | "auth" | "protected" | "default";
+
+const AUTH_SLIDER_ROUTES = [...publicRoutes, ROUTES.resetPassword];
+
+const resolveLayout = (pathname: string): LayoutVariant => {
+  if (pathname === ROUTES.landing) return "landing";
+  if (AUTH_SLIDER_ROUTES.includes(pathname)) return "auth";
+  if (protectedRoutes.includes(pathname)) return "protected";
+  return "default";
+};
+
+const Shell = ({ children, className }: PageWrapperProps) => (
   <div className="min-h-screen overflow-hidden bg-black-100">
     <div className={cn("h-screen min-h-[850px]", className)}>{children}</div>
   </div>
 );
 
-export const PageWrapper = ({ children }: Props) => {
-  const router = useRouter();
+const LAYOUT_MAP: Record<LayoutVariant, React.FC<{ children: React.ReactNode }>> = {
+  landing: ({ children }) => <Shell className="overflow-y-auto">{children}</Shell>,
 
-  const showAnimatedSliderRoutes = authRoutes.concat(ROUTES.resetPassword);
+  auth: ({ children }) => (
+    <Shell className="flex">
+      {children}
+      <AnimatedImageSlider />
+    </Shell>
+  ),
 
-  if (router.pathname === ROUTES.landing) {
-    return <DefaultWrapper className="overflow-y-auto">{children}</DefaultWrapper>;
-  }
-
-  if (showAnimatedSliderRoutes.includes(router.pathname)) {
-    return (
-      <DefaultWrapper className="flex">
-        {/* Left Side - Auth Part */}
+  protected: ({ children }) => (
+    <Shell className="flex flex-col">
+      <Header />
+      <div className="flex flex-1 overflow-auto">
+        <Sidebar />
         {children}
+      </div>
 
-        {/* Right Side - Image Gallery */}
-        <AnimatedImageSlider />
-      </DefaultWrapper>
-    );
-  }
+      <ModelTrainingDialog />
+    </Shell>
+  ),
 
-  if (userRoutes.includes(router.pathname)) {
-    return (
-      <DefaultWrapper className="flex flex-col">
-        <Header />
-        <div className="flex flex-1 overflow-auto">
-          <Sidebar />
-          {children} {/* Main Content */}
-        </div>
-      </DefaultWrapper>
-    );
-  }
+  default: ({ children }) => <Shell>{children}</Shell>,
+};
 
-  return <DefaultWrapper>{children}</DefaultWrapper>;
+export const PageWrapper = ({ children }: PageWrapperProps) => {
+  const { pathname } = useRouter();
+  const layout = useMemo(() => resolveLayout(pathname), [pathname]);
+
+  const Layout = LAYOUT_MAP[layout];
+  return <Layout>{children}</Layout>;
 };

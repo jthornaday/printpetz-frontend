@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { ROUTES } from "@/routes";
 import { ProfilePopover } from "./components/ProfilePopover";
 import { ProfileDrawer } from "./components/ProfileDrawer";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useGetUser } from "@/hooks/user/useGetUser";
 
 export const Header = () => {
@@ -15,13 +15,10 @@ export const Header = () => {
   const { user, refetch } = useGetUser();
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      refetch();
-    }, 1000);
+    const timeout = setTimeout(() => refetch(), 1000);
+
     return () => clearTimeout(timeout);
   }, [refetch]);
-
-  const [openProfileDrawer, setOpenProfileDrawer] = useState(false);
 
   return (
     <header className="border-b border-gray-800 px-6 py-3">
@@ -33,7 +30,7 @@ export const Header = () => {
         </div>
         <div className="flex items-center gap-5">
           <Button
-            onClick={() => router.push(ROUTES.pricing)}
+            onClick={() => router.push(ROUTES.plan)}
             variant={"link"}
             className="w-fit p-0 underline underline-offset-2 text-orange font-bold hover:opacity-90 transition"
           >
@@ -44,14 +41,11 @@ export const Header = () => {
               <ThunderIcon size={16} className="text-yellow" />
               <span className="text-white font-semibold">{user?.credits}</span>
             </div>
-
             {/* Profile Popover */}
-            <ProfilePopover openProfile={() => setOpenProfileDrawer(true)} />
+            <ProfilePopover />
 
-            <ProfileDrawer
-              open={openProfileDrawer}
-              onOpenChange={() => setOpenProfileDrawer(false)}
-            />
+            {/* Profile Drawer */}
+            <ProfileDrawer />
           </div>
         </div>
       </div>

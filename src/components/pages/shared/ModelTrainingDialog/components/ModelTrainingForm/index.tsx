@@ -14,17 +14,26 @@ import { useUploadFileMutation } from "@/store/api/fileApi";
 import { useTrainModelMutation } from "@/store/api/modelApi";
 import { EUploadFile } from "@/types/file";
 import { dataURLtoFile } from "@/services/shared/image";
+import { useGetUser } from "@/hooks/user/useGetUser";
+import { useToast } from "@/hooks/useToast";
+import { EToastType } from "@/types/toast";
+import { ApiError } from "@/types/api";
+import { InsufficientCreditsDialog } from "@/components/shared/InsufficientCreditsDialog";
 
 const { min, max } = appConstants.modelTraining.imageSelectionLimit;
 
 type Props = { setIsRequestSubmitted: Dispatch<SetStateAction<boolean>> };
 
 export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
-  const [selectedImages, setSelectedImages] = useState<ImageMetadata[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
+  const [showCreditsDialog, setShowCreditsDialog] = useState(false);
 
-  const [uploadFile] = useUploadFileMutation();
-  const [trainModel] = useTrainModelMutation();
+  const { user } = useGetUser();
+
+  const [selectedImages, setSelectedImages] = useState<ImageMetadata[]>([]);
+
+  const [uploadFile, { isLoading: isUploading }] = useUploadFileMutation();
+  const [trainModel, { isLoading: isTraining }] = useTrainModelMutation();
 
   const methods = useForm<IModelTrainingRequest>({
     defaultValues: { name: "", images: [] },
@@ -32,53 +41,52 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   });
   const { handleSubmit } = methods;
 
+  const uploadImages = async (images: ImageMetadata[]) => {
+    const files = images.map((img) => dataURLtoFile(img.src, img.name));
+
+    const BATCH_SIZE = 2;
+    const batches: File[][] = [];
+    for (let i = 0; i < files.length; i += BATCH_SIZE) {
+      batches.push(files.slice(i, i + BATCH_SIZE));
+    }
+
+    const results = await Promise.all(
+      batches.map((batch) =>
+        uploadFile({ files: batch, type: EUploadFile.TRAINING_IMAGE }).unwrap()
+      )
+    );
+
+    return results.flatMap((result) => result.data?.fileUrls ?? []);
+  };
+
   const onSubmit = handleSubmit(async (formData) => {
+    if (!user) return;
+
+    if (user.credits < 10) {
+      setShowCreditsDialog(true);
+      return;
+    }
+
     try {
-      setIsUploading(true);
+      const imageUrls = await uploadImages(selectedImages);
 
-      // Convert ImageMetadata to File objects
-      const files = selectedImages.map((img) => dataURLtoFile(img.src, img.name));
-
-      // Upload files in batches of 5 in parallel
-      const batchSize = 5;
-      const batches: File[][] = [];
-      
-      for (let i = 0; i < files.length; i += batchSize) {
-        batches.push(files.slice(i, i + batchSize));
-      }
-
-      // Upload all batches in parallel
-      const uploadPromises = batches.map((batch) =>
-        uploadFile({
-          files: batch,
-          type: EUploadFile.TRAINING_IMAGE,
-        }).unwrap()
-      );
-
-      const results = await Promise.all(uploadPromises);
-
-      // Collect all uploaded URLs
-      const uploadedUrls: string[] = [];
-      results.forEach((result) => {
-        if (result.data) {
-          uploadedUrls.push(...result.data.fileUrls);
-        }
-      });
-
-      // Train the model with uploaded image URLs
-      await trainModel({
-        name: formData.name,
-        images: uploadedUrls,
-      }).unwrap();
+      await trainModel({ name: formData.name, images: imageUrls }).unwrap();
 
       setIsRequestSubmitted(true);
     } catch (error) {
-      console.error("Failed to train model:", error);
-      // You might want to show an error toast here
-    } finally {
-      setIsUploading(false);
+      const apiError = error as ApiError;
+
+      if (apiError?.status === 403) {
+        setShowCreditsDialog(true);
+        return;
+      }
+
+      const message = apiError?.data?.message || "Failed to train model";
+      toast(EToastType.ERROR, message);
     }
   });
+
+  const isModelTraining = isUploading || isTraining;
 
   return (
     <div className="flex flex-col gap-3 flex-1 p-4">
@@ -147,11 +155,20 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
                 : "You can upload up to 30 images to train accurate Model."}
             </p>
           )}
-          <Button onClick={onSubmit} disabled={selectedImages.length < min || isUploading} className="mt-2">
-            {isUploading ? "Training Model..." : "Train Model"}
+          <Button
+            onClick={onSubmit}
+            disabled={selectedImages.length < min || isModelTraining}
+            className="mt-2"
+          >
+            {isModelTraining ? "Training Model..." : "Train Model"}
           </Button>
         </div>
       </FormProvider>
+
+      <InsufficientCreditsDialog
+        open={showCreditsDialog}
+        onClose={() => setShowCreditsDialog(false)}
+      />
     </div>
   );
 };

@@ -1,20 +1,20 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { ReduxProvider } from "../components/shared/ReduxProvider";
-import { AuthHandler } from "@/components/shared/AuthHandler";
+import { ReduxProvider } from "../context/ReduxProvider";
+import { AuthGuard } from "@/context/AuthGuard";
 import { PageWrapper } from "@/components/layout/PageWrapper";
-import { ToastProvider } from "@/components/shared/ToastProvider";
+import { ToastProvider } from "@/context/ToastProvider";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <ReduxProvider>
-      <AuthHandler>
+      <AuthGuard>
         <ToastProvider>
           <PageWrapper>
             <Component {...pageProps} />
           </PageWrapper>
         </ToastProvider>
-      </AuthHandler>
+      </AuthGuard>
     </ReduxProvider>
   );
 }

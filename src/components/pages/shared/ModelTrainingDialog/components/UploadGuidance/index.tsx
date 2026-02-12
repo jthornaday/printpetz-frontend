@@ -73,7 +73,9 @@ const UploadExamples = ({ isCorrect }: Props) => {
 export const UploadGuidance = () => {
   return (
     <div className="w-xs bg-black-100 border-r-[1px] border-black-70 overflow-auto h-full">
-      <p className="text-black-50 font-bold text-sm sticky top-0 bg-black-100 p-4 z-1">Upload Guidance</p>
+      <p className="text-black-50 font-bold text-sm sticky top-0 bg-black-100 p-4 z-1">
+        Upload Guidance
+      </p>
       <div className="flex flex-col gap-2 px-4 pb-4 overflow-auto">
         <UploadExamples isCorrect />
         <UploadExamples isCorrect={false} />

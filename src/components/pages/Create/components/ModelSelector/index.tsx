@@ -1,6 +1,5 @@
 import { CaretIcon, MagicSparkIcon, ModelIcon } from "@/components/icons";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { ModelTrainingDialog } from "@/components/pages/shared/ModelTrainingDialog";
 import { ModelSelectionPopover } from "./components/ModelSelectionPopover";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { EModelStatus, IModel } from "@/types/model";
@@ -8,6 +7,8 @@ import { Loader } from "@/components/ui/loader";
 import { useGetUser } from "@/hooks/user/useGetUser";
 import { getModelName } from "@/utils/app_utils";
 import { useGetModels } from "@/hooks/model/useGetModels";
+import { setAppContext } from "@/store/slices/appContextSlice";
+import { useAppDispatch } from "@/store";
 
 type Props = {
   selectedModel: IModel | null;
@@ -16,7 +17,8 @@ type Props = {
 
 // Model Selector Component
 export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
-  const [openModelTrainingDialog, setOpenModelTrainingDialog] = useState(false);
+  const dispatch = useAppDispatch();
+
   const [openModelSelectionPopover, setOpenModelSelectionPopover] = useState(false);
 
   const { user } = useGetUser();
@@ -66,7 +68,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
                 }}
                 onCreateNew={() => {
                   setOpenModelSelectionPopover(false);
-                  setOpenModelTrainingDialog(true);
+                  dispatch(setAppContext({ isModelTrainingDialogOpen: true }));
                 }}
               />
             </PopoverContent>
@@ -74,7 +76,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
         ) : (
           <p
             className="flex gap-2 items-center text-primary cursor-pointer"
-            onClick={() => setOpenModelTrainingDialog(true)}
+            onClick={() => dispatch(setAppContext({ isModelTrainingDialogOpen: true }))}
           >
             <MagicSparkIcon size={18} />
             <span className="font-semibold underline underline-offset-3 text-sm">
@@ -83,10 +85,6 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
           </p>
         )}
       </div>
-
-      {openModelTrainingDialog && (
-        <ModelTrainingDialog onClose={() => setOpenModelTrainingDialog(false)} />
-      )}
     </div>
   );
 };
