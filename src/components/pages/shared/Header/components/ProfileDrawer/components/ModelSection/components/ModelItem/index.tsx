@@ -1,4 +1,3 @@
-import { MagicSparkIcon } from "@/components/icons";
 import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
 import { ConfirmationDialog } from "@/components/ui/confirmationDialog";
 import { DeleteIcon } from "@/components/icons";
@@ -6,6 +5,8 @@ import { EModelStatus, IModel } from "@/types/model";
 import { useUpdateModelMutation } from "@/store/api/modelApi";
 import { getModelName } from "@/utils/app_utils";
 import { Loader } from "@/components/ui/loader";
+import { ErrorIcon } from "@/components/icons";
+import { cn } from "@/lib/utils";
 
 export const ModelItem = ({ model }: { model: IModel }) => {
   const [updateModel, { isLoading: isDeleting }] = useUpdateModelMutation();
@@ -20,14 +21,27 @@ export const ModelItem = ({ model }: { model: IModel }) => {
     }
   };
 
+  const isError = model.status === EModelStatus.ERROR;
   const isTraining = model.status === EModelStatus.TRAINING;
 
   return (
     <div className="w-full flex gap-4 items-center p-1.5 rounded-lg hover:bg-black-80">
       <div className="relative w-10 bg-black-100 aspect-square rounded-sm overflow-hidden">
-        {model.training_images?.[0] && <CustomImagePreview image={model.training_images[0]} />}
+        {isError ? (
+          <ErrorIcon
+            size={24}
+            className="text-red-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          />
+        ) : (
+          model.training_images?.[0] && <CustomImagePreview image={model.training_images[0]} />
+        )}
       </div>
-      <p className={`text-sm font-semibold flex-1 ${isTraining ? "text-white/30" : ""}`}>
+      <p
+        className={cn("text-sm font-semibold flex-1", {
+          "text-white/30": isTraining,
+          "text-white/50": isError,
+        })}
+      >
         {getModelName(model.name)}
       </p>
       {isTraining ? (

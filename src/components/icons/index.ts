@@ -23,3 +23,4 @@ export { CreditIcon } from "@/components/icons/CreditIcon";
 export { LoadingIcon } from "@/components/icons/LoadingIcon";
 export { EyeIcon } from "@/components/icons/EyeIcon";
 export { EyeOffIcon } from "@/components/icons/EyeOffIcon";
+export { ErrorIcon } from "@/components/icons/ErrorIcon";

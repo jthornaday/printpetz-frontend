@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { ImageMetadata } from "@/types/common";
 import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
 import { appConstants } from "@/utils/constants/appConstants";
-import { CancelIcon } from "@/components/icons";
+import { CancelIcon, CreditIcon } from "@/components/icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { modelTrainingSchema } from "@/lib/validations/modelTraining";
 import { IModelTrainingRequest } from "@/types/modelTraining";
@@ -62,7 +62,8 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const onSubmit = handleSubmit(async (formData) => {
     if (!user) return;
 
-    if (user.credits < 10) {
+    // check if user has enough credits (If we do not check here then all images will upload and then backend give us 403 error for insufficient credits)
+    if (user.credits < appConstants.modelTrainingCredit) {
       setShowCreditsDialog(true);
       return;
     }
@@ -162,6 +163,18 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
           >
             {isModelTraining ? "Training Model..." : "Train Model"}
           </Button>
+          <div className="mt-4 flex items-center justify-center">
+            <div className="flex items-center gap-2 px-4 py-2 bg-yellow/5 border border-yellow/10 rounded-2xl transition-all hover:bg-yellow/10">
+              <CreditIcon size={18} className="text-yellow" />
+              <p className="text-sm font-medium text-black-40">
+                Model training will charge{" "}
+                <span className="text-white font-bold">
+                  {appConstants.modelTrainingCredit} credits
+                </span>{" "}
+                from your account.
+              </p>
+            </div>
+          </div>
         </div>
       </FormProvider>
 

@@ -17,6 +17,7 @@ export const appConstants = {
   storage: {
     bucket: "decat",
   },
+  modelTrainingCredit: 30,
 };
 
 export const supabaseErrors: Record<string, string> = {

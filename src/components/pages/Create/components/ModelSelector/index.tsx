@@ -60,7 +60,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
               className="rounded-xl bg-black-90 border-none h-fit -mt-5 p-2"
             >
               <ModelSelectionPopover
-                models={models.filter((m) => m.status !== EModelStatus.ERROR)}
+                models={models}
                 selectedModel={selectedModel}
                 onSelection={(model) => {
                   setSelectedModel(model);

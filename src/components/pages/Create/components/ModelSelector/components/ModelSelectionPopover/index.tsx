@@ -1,6 +1,7 @@
-import { MagicSparkIcon } from "@/components/icons";
+import { ErrorIcon, MagicSparkIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/ui/loader";
+import { cn } from "@/lib/utils";
 import { EModelStatus, IModel } from "@/types/model";
 import { getModelName } from "@/utils/app_utils";
 
@@ -25,14 +26,19 @@ export const ModelSelectionPopover = ({
           model.status
         );
         const isCompleted = model.status === EModelStatus.COMPLETED;
+        const isError = model.status === EModelStatus.ERROR;
 
         return (
           <div
             key={model.id}
             onClick={() => isCompleted && onSelection(model)}
-            className={`w-full p-3.5 transition text-sm flex items-center justify-between rounded-lg cursor-pointer ${
-              isSelected ? "bg-black-80" : "hover:bg-black-80/80"
-            }`}
+            className={cn(
+              "w-full p-3.5 transition text-sm flex items-center justify-between rounded-lg cursor-pointer",
+              {
+                "bg-black-80": isSelected,
+                "hover:bg-black-80/80": !isError && !isSelected,
+              }
+            )}
           >
             <div className="flex items-center gap-2">
               {isModelTraining && <Loader size={16} />}
@@ -41,6 +47,7 @@ export const ModelSelectionPopover = ({
               </span>
             </div>
             {isSelected && <span className="text-white">✓</span>}
+            {isError && <ErrorIcon size={18} className="text-red" />}
           </div>
         );
       })}
