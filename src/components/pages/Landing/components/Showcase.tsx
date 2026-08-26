@@ -33,7 +33,7 @@ export const Showcase = () => {
                 <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center">
                   <ImageIcon size={18} />
                 </div>
-                <span>Decat</span>
+                <span>PrintPetz</span>
               </div>
 
               <div className="space-y-1">

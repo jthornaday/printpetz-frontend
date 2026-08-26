@@ -8,4 +8,5 @@ export const ROUTES = {
   landing: "/",
   history: "/history",
   plan: "/plan",
+  shop: "/shop",
 };
