@@ -1,5 +1,4 @@
-import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
-import Logo from "@/utils/images/logo.png";
+import { PrintPetzWordmark } from "@/components/shared/PrintPetzWordmark";
 import { Button } from "@/components/ui/button";
 import { ThunderIcon } from "@/components/icons";
 import { useRouter } from "next/router";
@@ -24,8 +23,8 @@ export const Header = () => {
     <header className="border-b border-gray-800 px-6 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="relative w-33 h-13 text-center">
-            <CustomImagePreview image={Logo} />
+          <div className="flex h-13 items-center">
+            <PrintPetzWordmark className="text-3xl" />
           </div>
         </div>
         <div className="flex items-center gap-5">
