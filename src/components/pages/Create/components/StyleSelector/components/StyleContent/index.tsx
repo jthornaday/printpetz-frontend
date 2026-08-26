@@ -4,10 +4,20 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useGetStylesQuery } from "@/store/api/styleApi";
 import { ECategory, IStyle } from "@/types/style";
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { StaticImageData } from "next/image";
+import americanFootballImage from "@/utils/images/sports/american-football.png";
+import boxingImage from "@/utils/images/sports/boxing.png";
+import cricketImage from "@/utils/images/sports/cricket.png";
+
+const correctedSportsImages: Record<string, StaticImageData> = {
+  football: americanFootballImage,
+  boxing: boxingImage,
+  cricket: cricketImage,
+};
 
 type ItemProps = {
   name: string;
-  image: string;
+  image: string | StaticImageData;
   isSelected?: boolean;
   onClick: () => void;
 };
@@ -105,7 +115,7 @@ export const StyleContent = ({
                   <StyleItem
                     key={style.id}
                     name={style.name}
-                    image={style.image}
+                    image={correctedSportsImages[style.name.trim().toLowerCase()] ?? style.image}
                     isSelected={selectedStyle?.id === style.id}
                     onClick={() => setSelectedStyle(style)}
                   />

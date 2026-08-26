@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import type { Session } from "@supabase/supabase-js";
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 import { ROUTES } from "@/routes";
 import { supabase } from "@/services/supabase";
@@ -26,15 +26,14 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
   // Ref keeps `sessionUserId` fresh inside the callback without
   // triggering effect re-runs or re-creating the subscription.
   const sessionUserIdRef = useRef(sessionUserId);
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   sessionUserIdRef.current = sessionUserId;
 
   useEffect(() => {
-    const handleSession = async (session: Session | null) => {
-      console.log({ session });
-
+    const handleSession = (event: AuthChangeEvent, session: Session | null) => {
       try {
         if (session) {
-          handleAuthenticated(session);
+          handleAuthenticated(event, session);
         } else {
           handleUnauthenticated();
         }
@@ -47,15 +46,28 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       }
     };
 
-    const handleAuthenticated = (session: Session) => {
+    const scheduleRedirect = (route: string) => {
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+
+      // Supabase recommends returning from onAuthStateChange before starting
+      // work that may read the newly-created session. Deferring navigation by
+      // one tick prevents profile queries from racing the SIGNED_IN event.
+      redirectTimerRef.current = setTimeout(() => router.replace(route), 0);
+    };
+
+    const handleAuthenticated = (event: AuthChangeEvent, session: Session) => {
       const isNewUser = sessionUserIdRef.current !== session.user.id;
       if (isNewUser) dispatch(setSessionUser(session.user));
+
+      if (event === "SIGNED_IN" || isNewUser) {
+        dispatch(supabaseBaseApi.util.resetApiState());
+      }
 
       // Redirect authenticated users away from public routes (login, signup, etc.)
       // but skip during signup OTP flow where email isn't confirmed yet.
       const isEmailConfirmed = !!session.user.email_confirmed_at;
       if (isEmailConfirmed && isPublicRoute(router.pathname)) {
-        router.replace(ROUTES.create);
+        scheduleRedirect(ROUTES.create);
       }
     };
 
@@ -67,11 +79,14 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       router.replace(ROUTES.login);
     };
 
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      handleSession(session);
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      handleSession(event, session);
     });
 
-    return () => data.subscription.unsubscribe();
+    return () => {
+      data.subscription.unsubscribe();
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current);
+    };
   }, [router, dispatch]);
 
   // Show loader while initializing OR while redirecting an unauthenticated

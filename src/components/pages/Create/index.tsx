@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/useToast";
 import { EToastType } from "@/types/toast";
 import { ApiError } from "@/types/api";
 import { useGetGenerationViews } from "@/hooks/generation/useGetGenerationViews";
+import { Loader } from "@/components/ui/loader";
 
 export const Create = () => {
   const { toast } = useToast();
@@ -22,7 +23,7 @@ export const Create = () => {
   const [numberOfGenerations, setNumberOfGenerations] = useState(2);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
 
-  const { user, refetch: refetchUser } = useGetUser();
+  const { user, isUserLoading, refetch: refetchUser } = useGetUser();
 
   const { refetchGenerationViews } = useGetGenerationViews(user?.id);
 
@@ -59,6 +60,30 @@ export const Create = () => {
   };
 
   const isGenerateButtonDisabled = !selectedModel || !selectedStyle || isGenerating;
+
+  if (isUserLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-1 items-center justify-center px-6 text-center">
+        <div className="max-w-md rounded-2xl border border-black-70 bg-black-90 p-8">
+          <h1 className="text-xl font-bold text-white">We couldn&apos;t load your account</h1>
+          <p className="mt-2 text-sm leading-6 text-black-40">
+            Your login is safe. Try loading your profile again to continue creating.
+          </p>
+          <Button className="mt-6" onClick={() => refetchUser()}>
+            Try again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex w-full">
