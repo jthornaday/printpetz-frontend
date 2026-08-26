@@ -162,28 +162,3 @@ body {
   font-optical-sizing: auto;
   user-select: none;
 }
-
-.slide_b-t .slider-mover {
-  animation: track 50s ease-in-out infinite alternate;
-}
-.slide_t-b .slider-mover {
-  animation: track-r 50s ease-in-out infinite alternate;
-}
-
-@keyframes track {
-  0% {
-    transform: translateY(40%);
-  }
-  100% {
-    transform: translateY(0%);
-  }
-}
-
-@keyframes track-r {
-  0% {
-    transform: translateY(-40%);
-  }
-  100% {
-    transform: translateY(0%);
-  }
-}
