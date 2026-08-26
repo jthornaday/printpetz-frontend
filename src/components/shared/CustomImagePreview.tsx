@@ -24,7 +24,7 @@ export const CustomImagePreview = ({ image, className, alt }: Props) => {
       fill
       priority
       src={image}
-      alt={alt ?? "Decat Image"}
+      alt={alt ?? "PrintPetz image"}
       className={cn(
         `${!isImgLoad && "opacity-0"} transition-all duration-500 pointer-events-none`,
         className

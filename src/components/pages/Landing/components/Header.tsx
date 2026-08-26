@@ -14,19 +14,19 @@ export const Header = () => {
         </div>
 
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-300">
-          <Link href="#" className="hover:text-white transition-colors">
-            Privacy Policy
+          <Link href={ROUTES.shop} className="hover:text-white transition-colors">
+            Shop
           </Link>
-          <Link href="#" className="hover:text-white transition-colors">
-            Terms and Conditions
-          </Link>
-          <Link href="#" className="hover:text-white transition-colors">
-            Contact Us
+          <Link href="#how-it-works" className="hover:text-white transition-colors">
+            How It Works
           </Link>
           <Link href={ROUTES.login}>
             <Button>Sign In</Button>
           </Link>
         </nav>
+        <Link href={ROUTES.shop} className="md:hidden">
+          <Button size="sm">Shop</Button>
+        </Link>
       </div>
     </header>
   );

@@ -77,7 +77,7 @@ const LoginPage = () => {
 
         {/* Welcome Text */}
         <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-1.5">Welcome to Decat</h2>
+          <h2 className="text-2xl font-semibold mb-1.5">Welcome to PrintPetz</h2>
           <p className="text-black-40">Please enter your Email & Password to sign in</p>
         </div>
 
