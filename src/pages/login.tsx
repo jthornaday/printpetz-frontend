@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import Logo from "../utils/images/logo.png";
-import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
+import { PrintPetzWordmark } from "@/components/shared/PrintPetzWordmark";
 import { Button } from "@/components/ui/button";
 import { GoogleIcon } from "@/components/icons";
 import { Input } from "@/components/ui/input";
@@ -68,12 +67,14 @@ const LoginPage = () => {
     <div className="relative w-full lg:w-1/2 flex items-center justify-center px-6 md:px-12 py-12">
       <div className="w-full max-w-md flex flex-col items-center gap-14 mb-20">
         {/* Logo */}
-        <div
-          className="relative w-44 h-[68px] text-center cursor-pointer"
+        <button
+          type="button"
+          aria-label="Go to PrintPetz home"
+          className="flex h-[68px] items-center justify-center cursor-pointer"
           onClick={() => router.push(ROUTES.landing)}
         >
-          <CustomImagePreview image={Logo} />
-        </div>
+          <PrintPetzWordmark />
+        </button>
 
         {/* Welcome Text */}
         <div className="text-center">
