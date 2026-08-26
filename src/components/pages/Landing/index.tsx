@@ -2,20 +2,20 @@ import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, ChevronRight, ImagePlus, PackageCheck, Sparkles } from "lucide-react";
 import { ROUTES } from "@/routes";
-import boxer from "@/utils/images/landingPage/styles/boxing.png";
-import king from "@/utils/images/landingPage/styles/king.png";
-import queen from "@/utils/images/landingPage/styles/queen.png";
-import astronaut from "@/utils/images/landingPage/styles/astronaut.png";
-import skateboard from "@/utils/images/landingPage/styles/skateboard.png";
-import police from "@/utils/images/landingPage/styles/police-officer.png";
+import champion from "@/utils/images/sliderImages/1.png";
+import king from "@/utils/images/sliderImages/10.png";
+import queen from "@/utils/images/sliderImages/5.png";
+import explorer from "@/utils/images/sliderImages/14.png";
+import coolKid from "@/utils/images/sliderImages/22.png";
+import hero from "@/utils/images/sliderImages/17.png";
 
 const styles: { name: string; image: StaticImageData; color: string }[] = [
-  { name: "The Champion", image: boxer, color: "bg-[#e8e2ff]" },
+  { name: "The Champion", image: champion, color: "bg-[#e8e2ff]" },
   { name: "The King", image: king, color: "bg-[#fff0ca]" },
   { name: "The Queen", image: queen, color: "bg-[#ffe1ea]" },
-  { name: "The Explorer", image: astronaut, color: "bg-[#dff4ff]" },
-  { name: "The Cool Kid", image: skateboard, color: "bg-[#dcf6e8]" },
-  { name: "The Hero", image: police, color: "bg-[#e2eaff]" },
+  { name: "The Explorer", image: explorer, color: "bg-[#dff4ff]" },
+  { name: "The Cool Kid", image: coolKid, color: "bg-[#dcf6e8]" },
+  { name: "The Hero", image: hero, color: "bg-[#e2eaff]" },
 ];
 
 const Wordmark = () => (
@@ -74,11 +74,11 @@ export const Landing = () => (
 
           <div className="relative mx-auto grid w-full max-w-[560px] grid-cols-2 gap-4">
             <div className="relative mt-12 aspect-[.82] rotate-[-3deg] overflow-hidden rounded-[34px] border-[8px] border-white bg-[#e8e2ff] shadow-[0_24px_60px_rgba(55,40,116,.18)]">
-              <Image src={boxer} alt="Champion pet portrait" fill className="object-cover" priority />
+              <Image src={champion} alt="Champion pet portrait" fill className="object-cover" quality={95} sizes="(min-width: 1024px) 270px, 45vw" priority />
               <span className="absolute bottom-4 left-4 rounded-full bg-white px-4 py-2 text-sm font-black shadow-lg">The Champion 🏆</span>
             </div>
             <div className="relative aspect-[.82] rotate-3 overflow-hidden rounded-[34px] border-[8px] border-white bg-[#fff0ca] shadow-[0_24px_60px_rgba(55,40,116,.18)]">
-              <Image src={king} alt="Royal pet portrait" fill className="object-cover" priority />
+              <Image src={king} alt="Royal pet portrait" fill className="object-cover" quality={95} sizes="(min-width: 1024px) 270px, 45vw" priority />
               <span className="absolute bottom-4 left-4 rounded-full bg-white px-4 py-2 text-sm font-black shadow-lg">The Royal 👑</span>
             </div>
             <div className="absolute -right-4 top-1/2 z-10 rotate-6 rounded-2xl bg-[#ffcc4d] px-5 py-3 font-black shadow-lg">So. Much. Personality.</div>
@@ -122,7 +122,7 @@ export const Landing = () => (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
             {styles.map((style, index) => (
               <Link href={ROUTES.create} key={style.name} className={`group relative aspect-[.82] overflow-hidden rounded-[24px] ${style.color} ${index % 2 ? "md:mt-8" : ""}`}>
-                <Image src={style.image} alt={style.name} fill className="object-cover transition duration-500 group-hover:scale-105" />
+                <Image src={style.image} alt={style.name} fill className="object-cover transition duration-500 group-hover:scale-105" quality={95} sizes="(min-width: 1024px) 190px, (min-width: 768px) 33vw, 50vw" />
                 <span className="absolute inset-x-3 bottom-3 rounded-xl bg-white/90 px-3 py-2 text-center text-sm font-black shadow-sm backdrop-blur">{style.name}</span>
               </Link>
             ))}
