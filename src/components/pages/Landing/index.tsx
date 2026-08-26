@@ -2,7 +2,7 @@ import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, ChevronRight, ImagePlus, PackageCheck, Sparkles } from "lucide-react";
 import { ROUTES } from "@/routes";
-import champion from "@/utils/images/sliderImages/1.png";
+import champion from "@/utils/images/sports/american-football.png";
 import king from "@/utils/images/sliderImages/10.png";
 import queen from "@/utils/images/sliderImages/5.png";
 import explorer from "@/utils/images/sliderImages/14.png";
