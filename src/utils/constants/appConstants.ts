@@ -12,7 +12,7 @@ export const protectedRoutes = [ROUTES.create, ROUTES.history, ROUTES.plan];
 
 export const appConstants = {
   modelTraining: {
-    imageSelectionLimit: { min: 15, max: 30 },
+    imageSelectionLimit: { min: 3, max: 30 },
   },
   storage: {
     bucket: "decat",
