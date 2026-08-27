@@ -55,7 +55,7 @@ export const ProfilePopover = () => {
           <div className="flex items-center gap-3">
             <UserProfileImage image={user?.profile_image} text={user?.name ?? user.email} />
             <div>
-              {user?.name && <p className="text-white font-black text-sm">{user.name}</p>}
+              {user?.name && <p className="text-[#171524] font-black text-sm">{user.name}</p>}
               <p className="text-sm text-black-40">{user?.email}</p>
             </div>
           </div>
@@ -64,7 +64,7 @@ export const ProfilePopover = () => {
         {/* Credit Usage */}
         <div className="p-4 border-b-[1px] border-black-70 bg-black-80">
           <div className="flex justify-between mb-1">
-            <span className="text-gray-300 text-sm flex items-center gap-2 font-bold">
+            <span className="text-[#403a4b] text-sm flex items-center gap-2 font-bold">
               <CreditIcon size={20} />
               Credit Usage
             </span>

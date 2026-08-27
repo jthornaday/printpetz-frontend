@@ -42,7 +42,7 @@ function DrawerContent({
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
   return (
     <DrawerPortal data-slot="drawer-portal">
-      <DrawerOverlay className="backdrop-blur-xs bg-gradient-radial bg-black-100/60 from-black-100 to-black-100/80" />
+      <DrawerOverlay className="backdrop-blur-xs bg-[#171524]/55" />
       <DrawerPrimitive.Content
         data-slot="drawer-content"
         className={cn(
@@ -89,7 +89,7 @@ function DrawerTitle({ className, ...props }: React.ComponentProps<typeof Drawer
   return (
     <DrawerPrimitive.Title
       data-slot="drawer-title"
-      className={cn("text-white font-semibold", className)}
+      className={cn("text-[#171524] font-semibold", className)}
       {...props}
     />
   );

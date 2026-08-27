@@ -10,7 +10,7 @@ export const NoHistory = () => {
     <div className="w-sm flex flex-col items-center gap-8">
       <HistoryIcon size={46} />
       <div className="text-center">
-        <h3 className="font-bold text-white">Your creation History will appear here</h3>
+        <h3 className="font-bold text-[#171524]">Your creation history will appear here</h3>
         <p className="text-sm text-black-40">Start creating amazing images of your Pet</p>
       </div>
       <Button className="w-fit" onClick={() => router.push(ROUTES.create)}>

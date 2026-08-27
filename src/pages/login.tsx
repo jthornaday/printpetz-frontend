@@ -64,7 +64,7 @@ const LoginPage = () => {
   const isSigningIn = isSignInButtonLoading || isResendEmailOtpLoading;
 
   return (
-    <div className="relative w-full lg:w-1/2 flex items-center justify-center px-6 md:px-12 py-12">
+    <div className="relative w-full lg:w-1/2 flex items-center justify-center bg-white px-6 md:px-12 py-12">
       <div className="w-full max-w-md flex flex-col items-center gap-14 mb-20">
         {/* Logo */}
         <button
@@ -109,9 +109,9 @@ const LoginPage = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 bg-black-90 border border-black-50 rounded-sm focus:ring focus:ring-primary cursor-pointer accent-primary"
+                  className="w-4 h-4 bg-white border border-black-60 rounded-sm focus:ring focus:ring-primary cursor-pointer accent-primary"
                 />
-                <span className="text-sm text-gray-400">Remember me</span>
+                <span className="text-sm text-black-40">Remember me</span>
               </label>
               <p
                 onClick={() => !isBtnDisabled && router.push(ROUTES.forgotPassword)}

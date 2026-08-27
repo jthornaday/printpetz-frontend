@@ -23,7 +23,7 @@ export const GenerationControls = ({ numberOfGenerations, setNumberOfGenerations
         >
           -
         </Button>
-        <span className="text-white font-semibold w-3 text-center">{numberOfGenerations}</span>
+        <span className="text-[#171524] font-semibold w-3 text-center">{numberOfGenerations}</span>
         <Button
           variant={"link"}
           onClick={() => setNumberOfGenerations((pre) => Math.min(4, pre + 1))}

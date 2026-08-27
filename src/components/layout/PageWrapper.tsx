@@ -23,7 +23,7 @@ const resolveLayout = (pathname: string): LayoutVariant => {
 };
 
 const Shell = ({ children, className }: PageWrapperProps) => (
-  <div className="min-h-screen overflow-hidden bg-black-100">
+  <div className="min-h-screen overflow-hidden bg-[#fcfbff] text-[#171524]">
     <div className={cn("h-screen min-h-[850px]", className)}>{children}</div>
   </div>
 );

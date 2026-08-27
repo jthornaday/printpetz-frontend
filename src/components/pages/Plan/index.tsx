@@ -68,7 +68,7 @@ export const Plan = () => {
 
         {/* Feature list */}
         <section className="mt-12 flex items-center justify-center">
-          <div className="w-full text-nowrap max-w-4xl bg-[#111217]/40 backdrop-blur-xl border border-gray-800/50 px-8 py-6 rounded-3xl flex flex-wrap items-center justify-center gap-6">
+          <div className="w-full text-nowrap max-w-4xl bg-white border border-[#e7e2ee] px-8 py-6 rounded-3xl flex flex-wrap items-center justify-center gap-6 shadow-[0_14px_40px_rgba(52,41,91,.08)]">
             {features.map((feature) => (
               <FeaturePill key={feature} feature={feature} />
             ))}

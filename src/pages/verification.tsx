@@ -111,7 +111,7 @@ const OtpField = ({ handleSetOtp }: Props) => {
           onChange={(e) => handleChange(e.target.value, index)}
           onKeyDown={(e) => handleKeyDown(e, index)}
           ref={otpBoxReference[index]}
-          className={`border w-[50px] aspect-square text-white p-3 text-center rounded-lg focus:text-primary caret-transparent focus:border-primary focus:outline-none appearance-none border-black-70 ${
+          className={`border w-[50px] aspect-square text-[#171524] p-3 text-center rounded-lg focus:text-primary caret-transparent focus:border-primary focus:outline-none appearance-none border-black-70 ${
             digit ? "bg-black-80" : ""
           }`}
           onPaste={handlePaste}
@@ -213,7 +213,8 @@ const VerificationPage = () => {
 
         <div className="text-center">
           <p className="text-black-40 max-w-sm">
-            please enter the code we sent to <span className="text-white">{email}</span>
+            please enter the code we sent to{" "}
+            <span className="font-semibold text-[#171524]">{email}</span>
           </p>
         </div>
 

@@ -54,7 +54,7 @@ export const PlanCard = ({ price, onSelect, isLoading, selectedPriceId }: Props)
         } px-6 py-6`}
       >
         <div>
-          <h3 className="text-white text-xl font-bold">{price.name}</h3>
+          <h3 className="text-[#171524] text-xl font-bold">{price.name}</h3>
           <p className="text-black-40 text-sm mt-1">{price.description}</p>
         </div>
 
@@ -77,7 +77,7 @@ export const PlanCard = ({ price, onSelect, isLoading, selectedPriceId }: Props)
           <div className="text-5xl font-bold leading-none">${price.amount}</div>
         </div>
         <div className="text-right">
-          <div className="text-white font-semibold">{price.credits} Credits</div>
+          <div className="text-[#171524] font-semibold">{price.credits} Credits</div>
           <div className="text-black-40 text-xs">
             ${currentAmountPerCredit.toFixed(2)} per credit
           </div>

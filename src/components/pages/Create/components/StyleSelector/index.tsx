@@ -27,7 +27,7 @@ export const StyleSelector = ({ selectedStyle, setSelectedStyle }: Props) => {
           placeholder="Search style"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-grow p-0 h-8 text-sm text-white font-semibold rounded-lg focus-visible:ring-0 focus-visible:border-transparent"
+          className="flex-grow p-0 h-8 text-sm text-[#171524] font-semibold rounded-lg focus-visible:ring-0 focus-visible:border-transparent"
         />
       </div>
 

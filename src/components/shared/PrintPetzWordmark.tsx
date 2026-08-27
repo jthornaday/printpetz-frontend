@@ -5,7 +5,7 @@ type Props = {
   darkText?: boolean;
 };
 
-export const PrintPetzWordmark = ({ className, darkText = false }: Props) => (
+export const PrintPetzWordmark = ({ className, darkText = true }: Props) => (
   <span
     aria-label="PrintPetz"
     className={cn("inline-flex items-baseline text-4xl font-black tracking-[-.06em]", className)}

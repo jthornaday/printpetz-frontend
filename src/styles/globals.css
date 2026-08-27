@@ -45,16 +45,16 @@
   --orange: #f39122;
   --green: #4cc25e;
   --white: #ffffff;
-  --black-10: #eeeff5;
-  --black-20: #ddddea;
-  --black-30: #babad6;
-  --black-40: #a7a7c7;
-  --black-50: #717290;
-  --black-60: #3b3c50;
-  --black-70: #2f3040;
-  --black-80: #242430;
-  --black-90: #1c1d26;
-  --black-100: #15161d;
+  --black-10: #26222f;
+  --black-20: #403a4b;
+  --black-30: #595264;
+  --black-40: #716a7c;
+  --black-50: #817a8d;
+  --black-60: #d2ccdc;
+  --black-70: #e2ddeb;
+  --black-80: #eeeaf4;
+  --black-90: #f7f5fa;
+  --black-100: #ffffff;
 
   --2xs: 280px;
   /* --3xl: 1792px;
@@ -126,7 +126,7 @@
     @apply border-border outline-ring/50 box-border;
   }
   body {
-    @apply bg-black-100 text-white;
+    @apply bg-[#fcfbff] text-[#171524];
   }
 }
 
@@ -143,18 +143,18 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2f3040; /* subtle thumb */
+  background: #c8c1d3; /* subtle thumb */
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2f3040;
+  background: #aaa2b8;
 }
 
 /* Firefox (using modern scrollbar API) */
 * {
   scrollbar-width: thin; /* thinner scrollbar */
-  scrollbar-color: #2f3040 transparent;
+  scrollbar-color: #c8c1d3 transparent;
 }
 
 body {

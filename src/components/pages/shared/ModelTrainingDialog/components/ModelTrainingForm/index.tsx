@@ -169,7 +169,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
               <CreditIcon size={18} className="text-yellow" />
               <p className="text-sm font-medium text-black-40">
                 Model training will charge{" "}
-                <span className="text-white font-bold">
+                <span className="text-[#171524] font-bold">
                   {appConstants.modelTrainingCredit} credits
                 </span>{" "}
                 from your account.
