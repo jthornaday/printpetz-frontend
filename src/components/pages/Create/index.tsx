@@ -14,9 +14,13 @@ import { EToastType } from "@/types/toast";
 import { ApiError } from "@/types/api";
 import { useGetGenerationViews } from "@/hooks/generation/useGetGenerationViews";
 import { Loader } from "@/components/ui/loader";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import { ROUTES } from "@/routes";
 
 export const Create = () => {
   const { toast } = useToast();
+  const router = useRouter();
 
   const [selectedModel, setSelectedModel] = useState<IModel | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<IStyle | null>(null);
@@ -28,6 +32,14 @@ export const Create = () => {
   const { refetchGenerationViews } = useGetGenerationViews(user?.id);
 
   const [generateImage, { isLoading: isGenerating }] = useGenerateImageMutation();
+
+  useEffect(() => {
+    if (!router.isReady || router.query.purchase !== "success") return;
+
+    refetchUser();
+    toast(EToastType.SUCCESS, "Credits added—you're ready to create!");
+    router.replace(ROUTES.create, undefined, { shallow: true });
+  }, [refetchUser, router, toast]);
 
   const handleGenerate = async () => {
     if (!selectedModel || !selectedStyle) return;
