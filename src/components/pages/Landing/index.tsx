@@ -21,20 +21,20 @@ import { ROUTES } from "@/routes";
 import mug from "@/utils/images/mockups/mug.png";
 import pillow from "@/utils/images/mockups/pillow.png";
 import shirt from "@/utils/images/mockups/t-shirt.png";
-import champion from "@/utils/images/sports/american-football.png";
 import king from "@/utils/images/sliderImages/10.png";
 import explorer from "@/utils/images/sliderImages/14.png";
-import hero from "@/utils/images/sliderImages/17.png";
 import coolKid from "@/utils/images/sliderImages/22.png";
 import queen from "@/utils/images/sliderImages/5.png";
+import cowboyDog from "@/utils/images/sliderImages/9.png";
+import footballDog from "@/utils/images/sports/american-football-dog.webp";
 
 const styles: { name: string; image: StaticImageData; color: string }[] = [
-  { name: "Game Day", image: champion, color: "bg-[#e8e2ff]" },
+  { name: "Game Day", image: footballDog, color: "bg-[#e8e2ff]" },
   { name: "Royal", image: king, color: "bg-[#fff0ca]" },
-  { name: "Adventure", image: explorer, color: "bg-[#dff4ff]" },
+  { name: "Adventure", image: cowboyDog, color: "bg-[#dff4ff]" },
   { name: "Cool Kid", image: coolKid, color: "bg-[#dcf6e8]" },
   { name: "Queen", image: queen, color: "bg-[#ffe1ea]" },
-  { name: "Hero", image: hero, color: "bg-[#e2eaff]" },
+  { name: "Explorer", image: explorer, color: "bg-[#e2eaff]" },
 ];
 
 const products = [
@@ -207,7 +207,7 @@ export const Landing = () => (
           <div className="relative mx-auto w-full max-w-[570px] pb-20 pt-4 sm:px-14">
             <div className="relative mx-auto aspect-[.88] max-w-[410px] rotate-2 overflow-hidden rounded-[38px] border-[9px] border-white bg-[#e8e2ff] shadow-[0_28px_70px_rgba(55,40,116,.22)]">
               <Image
-                src={champion}
+                src={footballDog}
                 alt="Custom PrintPetz character ready for personalized products"
                 fill
                 className="object-cover"
