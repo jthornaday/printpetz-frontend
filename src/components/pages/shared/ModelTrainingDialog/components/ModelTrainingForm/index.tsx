@@ -103,7 +103,8 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
             <div>
               <p className="text-sm font-semibold">Upload Your Pet`s Images</p>
               <p className="text-xs text-black-40 mt-1.5">
-                Upload 3 or more clear photos of your pet. Different angles can improve results.
+                Upload at least 3 clear photos. For the closest likeness, we recommend 6-10 photos
+                from different angles.
               </p>
             </div>
             <div className="w-full h-full flex-1 flex justify-center overflow-auto">
@@ -153,7 +154,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
             >
               {selectedImages.length < min
                 ? `Please upload at least ${min} images to continue.`
-                : `Ready to continue. You can add up to ${max} images for more variety.`}
+                : `Ready to continue. More clear angles can improve your pet's likeness (up to ${max}).`}
             </p>
           )}
           <Button
