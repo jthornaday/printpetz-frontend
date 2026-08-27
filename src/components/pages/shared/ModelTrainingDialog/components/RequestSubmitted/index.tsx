@@ -11,8 +11,8 @@ export const RequestSubmitted = () => {
         Your <span className="text-primary">AI request</span> has been submitted
       </p>
       <p className="text-sm text-black-40 text-center max-w-[520px] leading-4.5">
-        We&apos;re now training your pet&apos;s AI model. This usually takes around 10–15 minutes.
-        You&apos;ll get an email as soon as your Model is ready!
+        Fast training is underway. Most pets are ready in about 2–3 minutes. You can close this
+        window and keep exploring—we&apos;ll email you as soon as your model is ready.
       </p>
     </div>
   );
