@@ -73,7 +73,7 @@ export const Create = () => {
     return (
       <div className="flex flex-1 items-center justify-center px-6 text-center">
         <div className="max-w-md rounded-2xl border border-black-70 bg-black-90 p-8">
-          <h1 className="text-xl font-bold text-white">We couldn&apos;t load your account</h1>
+          <h1 className="text-xl font-bold text-[#171524]">We couldn&apos;t load your account</h1>
           <p className="mt-2 text-sm leading-6 text-black-40">
             Your login is safe. Try loading your profile again to continue creating.
           </p>
@@ -88,8 +88,8 @@ export const Create = () => {
   return (
     <div className="flex w-full">
       {/* Left Panel - Controls */}
-      <div className="w-100 h-full border-r border-gray-800 flex flex-col gap-3 p-5">
-        <h1 className="text-white text-xl font-bold">Generate Images</h1>
+      <div className="w-100 h-full border-r border-[#e7e2ee] bg-white flex flex-col gap-3 p-5">
+        <h1 className="text-[#171524] text-xl font-bold">Create your pet artwork</h1>
 
         <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
 

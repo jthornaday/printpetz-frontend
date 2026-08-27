@@ -40,7 +40,7 @@ const StyleItem = ({ name, image, isSelected, onClick }: ItemProps) => (
     </div>
     <label
       className={`text-xs cursor-pointer font-semibold text-center px-1 py-2 ${
-        isSelected ? "text-white font-bold" : "text-black-30"
+        isSelected ? "text-primary font-bold" : "text-black-30"
       }`}
     >
       {name}

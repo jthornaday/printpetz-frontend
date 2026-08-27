@@ -22,10 +22,10 @@ export const ProfileDrawer = () => {
 
   return (
     <Drawer open={isProfileDrawerOpen} onOpenChange={closeDrawer} direction="right">
-      <DrawerContent className="bg-black-100 text-white border-l border-black-70">
+      <DrawerContent className="bg-white text-[#171524] border-l border-black-70">
         {/* Header */}
         <DrawerHeader className="flex flex-row justify-between items-center p-4 border-b border-black-70">
-          <DrawerTitle className="text-white text-lg font-bold">My Account</DrawerTitle>
+          <DrawerTitle className="text-[#171524] text-lg font-bold">My Account</DrawerTitle>
 
           {/* Close Button */}
           <DrawerClose className="cursor-pointer opacity-70 hover:opacity-100">

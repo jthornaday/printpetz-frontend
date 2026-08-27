@@ -37,7 +37,7 @@ const ExampleItem = ({ photoWithName }: { photoWithName: PhotoWithName }) => {
       <div className="relative flex-grow">
         <CustomImagePreview image={photoWithName.image} />
       </div>
-      <label className="text-xs cursor-pointer font-semibold text-center px- py-2 text-white">
+      <label className="text-xs cursor-pointer font-semibold text-center px- py-2 text-[#171524]">
         {photoWithName.name}
       </label>
     </div>

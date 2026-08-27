@@ -38,8 +38,8 @@ export const ModelItem = ({ model }: { model: IModel }) => {
       </div>
       <p
         className={cn("text-sm font-semibold flex-1", {
-          "text-white/30": isTraining,
-          "text-white/50": isError,
+          "text-black-50": isTraining,
+          "text-black-40": isError,
         })}
       >
         {getModelName(model.name)}

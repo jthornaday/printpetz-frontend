@@ -48,7 +48,7 @@ export const GenerationItem = ({ generation, onClick }: Props) => {
               handleDownloadImage(generation.image);
             }}
             variant={"link"}
-            className="p-1.5 min-h-fit h-fit backdrop-blur-sm bg-black-100/70 hover:bg-black-100/80 text-white"
+            className="p-1.5 min-h-fit h-fit backdrop-blur-sm bg-[#171524]/70 hover:bg-[#171524]/85 text-white"
           >
             <DownloadIcon size={22} />
           </Button>

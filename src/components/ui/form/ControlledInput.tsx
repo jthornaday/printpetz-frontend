@@ -31,7 +31,7 @@ export function ControlledInput<T extends FieldValues>(input: ControlledInputPro
   return (
     <div className="flex flex-col gap-2.5">
       {label && (
-        <Label htmlFor={name} className="text-sm w-fit font-semibold text-white">
+        <Label htmlFor={name} className="text-sm w-fit font-semibold text-[#171524]">
           {label}
         </Label>
       )}
@@ -48,8 +48,9 @@ export function ControlledInput<T extends FieldValues>(input: ControlledInputPro
                 id={name}
                 type={type}
                 placeholder={placeholder}
-                className={cn("pr-10 text-white", className, {
-                  "border-red-500 focus:ring-red-500 focus-visible:border-red-500": fieldState.error,
+                className={cn("pr-10 bg-white text-[#171524]", className, {
+                  "border-red-500 focus:ring-red-500 focus-visible:border-red-500":
+                    fieldState.error,
                 })}
               />
               {renderRight && (

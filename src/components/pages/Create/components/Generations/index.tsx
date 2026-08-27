@@ -87,7 +87,7 @@ export const Generations = () => {
       <div className="flex-1 flex flex-col gap-6 items-center justify-center">
         <MagicSparkIcon size={48} />
         <div className="text-center">
-          <p className="text-white font-bold text-lg">Your creations will appear here</p>
+          <p className="text-[#171524] font-bold text-lg">Your creations will appear here</p>
           <p className="text-black-40">Start creating amazing images of your Pet</p>
         </div>
       </div>

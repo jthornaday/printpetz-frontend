@@ -42,11 +42,11 @@ export const ModelSelectionPopover = ({
           >
             <div className="flex items-center gap-2">
               {isModelTraining && <Loader size={16} />}
-              <span className={`${isSelected ? "text-white" : "text-black-40"}`}>
+              <span className={`${isSelected ? "text-primary font-semibold" : "text-black-40"}`}>
                 {getModelName(model.name)}
               </span>
             </div>
-            {isSelected && <span className="text-white">✓</span>}
+            {isSelected && <span className="text-primary">✓</span>}
             {isError && <ErrorIcon size={18} className="text-red" />}
           </div>
         );

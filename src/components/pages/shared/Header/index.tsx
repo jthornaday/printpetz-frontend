@@ -20,7 +20,7 @@ export const Header = () => {
   }, [refetch]);
 
   return (
-    <header className="border-b border-gray-800 px-6 py-3">
+    <header className="border-b border-[#e7e2ee] bg-white px-6 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-13 items-center">
@@ -38,7 +38,7 @@ export const Header = () => {
           <div className="flex items-center gap-2.5">
             <div className="flex items-center gap-3 pl-2.5 pr-4 py-2 rounded-full border border-black-70">
               <ThunderIcon size={16} className="text-yellow" />
-              <span className="text-white font-semibold">{user?.credits}</span>
+              <span className="font-semibold text-[#171524]">{user?.credits}</span>
             </div>
             {/* Profile Popover */}
             <ProfilePopover />

@@ -20,14 +20,16 @@ export const Sidebar = () => {
   const router = useRouter();
 
   return (
-    <div className="border-r border-gray-800 flex flex-col items-center p-4 gap-4 lg:gap-5">
+    <div className="border-r border-[#e7e2ee] bg-white flex flex-col items-center p-4 gap-4 lg:gap-5">
       {navbarOptions.map((option, index) => {
         const isCurrent = option.path === router.pathname;
         return (
           <div
             key={index}
             className={`lg:w-19 p-2.5 flex flex-col items-center gap-2 rounded-lg transition ${
-              isCurrent ? "text-white bg-black-90" : "text-black-40 cursor-pointer"
+              isCurrent
+                ? "text-primary bg-[#f0ecff]"
+                : "text-black-40 cursor-pointer hover:bg-black-90"
             }`}
             onClick={() => !isCurrent && router.push(option.path)}
           >

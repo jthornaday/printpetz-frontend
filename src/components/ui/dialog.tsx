@@ -60,11 +60,7 @@ function DialogContent({
       <DialogOverlay
         onClick={onOutsideClick}
         className={
-          blurBg
-            ? `${
-                container ? "absolute" : ""
-              } backdrop-blur-xs bg-gradient-radial bg-black-100/60 from-black-100 to-black-100/80`
-            : undefined
+          blurBg ? `${container ? "absolute" : ""} backdrop-blur-xs bg-[#171524]/55` : undefined
         }
       />
 
