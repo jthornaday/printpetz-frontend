@@ -103,7 +103,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
             <div>
               <p className="text-sm font-semibold">Upload Your Pet`s Images</p>
               <p className="text-xs text-black-40 mt-1.5">
-                Please Upload 15-30 Images, We will be used it to generate model.
+                Upload 3 or more clear photos of your pet. Different angles can improve results.
               </p>
             </div>
             <div className="w-full h-full flex-1 flex justify-center overflow-auto">
@@ -148,12 +148,12 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
           {!!selectedImages.length && (
             <p
               className={`text-center text-sm ${
-                selectedImages.length < 15 ? "text-red" : "text-black-40"
+                selectedImages.length < min ? "text-red" : "text-black-40"
               }`}
             >
-              {selectedImages.length < 15
-                ? "Please upload at least 15 images to train accurate Model."
-                : "You can upload up to 30 images to train accurate Model."}
+              {selectedImages.length < min
+                ? `Please upload at least ${min} images to continue.`
+                : `Ready to continue. You can add up to ${max} images for more variety.`}
             </p>
           )}
           <Button
