@@ -1,5 +1,5 @@
 import { CaretIcon, MagicSparkIcon, ModelIcon } from "@/components/icons";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { ModelSelectionPopover } from "./components/ModelSelectionPopover";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { EModelStatus, IModel } from "@/types/model";
@@ -20,6 +20,8 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
   const dispatch = useAppDispatch();
 
   const [openModelSelectionPopover, setOpenModelSelectionPopover] = useState(false);
+  const knownCompletedModelIds = useRef<Set<number>>(new Set());
+  const hasInitializedCompletedModels = useRef(false);
 
   const { user } = useGetUser();
 
@@ -27,11 +29,38 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
 
   useEffect(() => {
     const completeModels = models.filter((m) => m.status === EModelStatus.COMPLETED);
+    const completeModelIds = new Set(completeModels.map((model) => model.id));
 
-    if (!selectedModel && completeModels[0]) {
+    // On first load, keep the existing behavior: select the first completed model
+    // only when the user has not already selected one.
+    if (!hasInitializedCompletedModels.current) {
+      knownCompletedModelIds.current = completeModelIds;
+      hasInitializedCompletedModels.current = true;
+
+      if (!selectedModel && completeModels[0]) {
+        setSelectedModel(completeModels[0]);
+      }
+      return;
+    }
+
+    // When a model finishes training while the Create page is open, automatically
+    // switch to that newly completed model. This keeps the currently selected style
+    // (for example Boxing) paired with the model the user just trained.
+    const newlyCompletedModels = completeModels.filter(
+      (model) => !knownCompletedModelIds.current.has(model.id)
+    );
+
+    if (newlyCompletedModels.length) {
+      const newestCompletedModel = newlyCompletedModels.reduce((newest, model) =>
+        model.id > newest.id ? model : newest
+      );
+      setSelectedModel(newestCompletedModel);
+    } else if (!selectedModel && completeModels[0]) {
       setSelectedModel(completeModels[0]);
     }
-  }, [models]);
+
+    knownCompletedModelIds.current = completeModelIds;
+  }, [models, selectedModel, setSelectedModel]);
 
   return (
     <div className="relative">
