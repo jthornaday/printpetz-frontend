@@ -15,15 +15,15 @@ interface AutoSmartMockupProps {
 const AutoSmartMockup: React.FC<AutoSmartMockupProps> = ({ mockupConfig, design }) => {
   // If no mockup → return plain generated image
   if (!mockupConfig) {
-    return <CustomImagePreview image={design} />;
+    return <CustomImagePreview image={design} className="object-cover object-[56%_center]" />;
   }
 
   // Use configuration
   const designStyle: React.CSSProperties = {
-    position: "relative",
-    width: `${mockupConfig.width}px`,
-    left: `${mockupConfig.left}px`,
-    top: `${mockupConfig.top}px`,
+    position: "absolute",
+    width: `${mockupConfig.width}%`,
+    left: `${mockupConfig.left}%`,
+    top: `${mockupConfig.top}%`,
     aspectRatio: "4/5",
   };
 
@@ -34,7 +34,7 @@ const AutoSmartMockup: React.FC<AutoSmartMockupProps> = ({ mockupConfig, design 
 
       {/* Auto-placed generated artwork */}
       <div style={designStyle}>
-        <CustomImagePreview image={design} className="object-cover object-center" />
+        <CustomImagePreview image={design} className="object-cover object-[56%_center]" />
       </div>
     </>
   );
