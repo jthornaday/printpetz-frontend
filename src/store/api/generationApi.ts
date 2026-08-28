@@ -20,12 +20,19 @@ const createErrorResponse = (error: PostgrestError) => {
 export const serverGenerationApi = serverBaseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
-    // ----------------------------------------------------------
-    // Generate Image
-    // ----------------------------------------------------------
     generateImage: builder.mutation<ApiResponse<GenerateImageResponse>, GenerateImageRequest>({
       query: (data) => ({
         url: `generation/create`,
+        method: "POST",
+        body: data,
+      }),
+    }),
+    removeImageBackground: builder.mutation<
+      ApiResponse<{ imageUrl: string }>,
+      { imageUrl: string }
+    >({
+      query: (data) => ({
+        url: `generation/remove-background`,
         method: "POST",
         body: data,
       }),
@@ -36,9 +43,6 @@ export const serverGenerationApi = serverBaseApi.injectEndpoints({
 export const supabaseGenerationApi = supabaseBaseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
-    // ----------------------------------------------------------
-    // Get Generation Views
-    // ----------------------------------------------------------
     getInfiniteGenerationViews: builder.infiniteQuery<
       IGenerationView[],
       GetGenerationsRequest,
@@ -66,9 +70,6 @@ export const supabaseGenerationApi = supabaseBaseApi.injectEndpoints({
         }
       },
     }),
-    // ----------------------------------------------------------
-    // Get Generation By ID
-    // ----------------------------------------------------------
     getGenerationById: builder.query<IGeneration, GetGenerationByIdRequest>({
       async queryFn({ id }) {
         try {
@@ -88,6 +89,10 @@ export const supabaseGenerationApi = supabaseBaseApi.injectEndpoints({
   }),
 });
 
-export const { useGenerateImageMutation, usePrefetch: useAuthPrefetch } = serverGenerationApi;
+export const {
+  useGenerateImageMutation,
+  useRemoveImageBackgroundMutation,
+  usePrefetch: useAuthPrefetch,
+} = serverGenerationApi;
 export const { useLazyGetGenerationByIdQuery, useGetInfiniteGenerationViewsInfiniteQuery } =
   supabaseGenerationApi;
