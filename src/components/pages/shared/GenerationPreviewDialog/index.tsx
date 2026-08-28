@@ -105,10 +105,12 @@ export const GenerationPreviewDialog = ({ generation, chips, onClose }: Props) =
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent
         showCloseButton={false}
-        className={cn("rounded-xl bg-black-90 border-none max-w-xl")}
+        className={cn(
+          "max-h-[90dvh] w-[calc(100%_-_1.5rem)] min-w-0 max-w-xl overflow-y-auto rounded-xl border-none bg-black-90 p-4 sm:w-14/16 sm:p-5"
+        )}
       >
-        <DialogHeader className="flex-row justify-between items-center">
-          <DialogTitle className="flex gap-3">
+        <DialogHeader className="flex-row justify-between items-start">
+          <DialogTitle className="flex min-w-0 flex-wrap gap-2 sm:gap-3">
             {chips.map((item, i) => (
               <div key={i} className="bg-black-80 px-4 py-2 rounded-lg text-sm">
                 {item}
@@ -120,7 +122,7 @@ export const GenerationPreviewDialog = ({ generation, chips, onClose }: Props) =
           </DialogClose>
         </DialogHeader>
 
-        <div className="w-full flex gap-5">
+        <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:gap-5">
           <div className="flex-1 flex flex-col gap-2">
             <div className="w-full aspect-[4/5] relative flex-1 rounded-lg overflow-hidden bg-black-100">
               {generation.image && <CustomImagePreview image={generation.image} />}
@@ -143,7 +145,7 @@ export const GenerationPreviewDialog = ({ generation, chips, onClose }: Props) =
               </Button> */}
             </div>
           </div>
-          <div className="flex flex-col gap-3 w-[110px]">
+          <div className="grid grid-cols-4 gap-2 sm:flex sm:w-[110px] sm:flex-col sm:gap-3">
             {[null, ...mockupConfigs].map((mockupConfig, i) => (
               <div
                 key={i}

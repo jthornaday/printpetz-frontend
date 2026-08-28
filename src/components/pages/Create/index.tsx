@@ -98,9 +98,9 @@ export const Create = () => {
   }
 
   return (
-    <div className="flex w-full">
+    <div className="flex min-w-0 flex-1 flex-col lg:flex-row">
       {/* Left Panel - Controls */}
-      <div className="w-100 h-full border-r border-[#e7e2ee] bg-white flex flex-col gap-3 p-5">
+      <div className="w-full shrink-0 border-b border-[#e7e2ee] bg-white flex flex-col gap-3 p-4 sm:p-5 lg:h-full lg:w-100 lg:border-b-0 lg:border-r">
         <h1 className="text-[#171524] text-xl font-bold">Create your pet artwork</h1>
 
         <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
@@ -128,7 +128,10 @@ export const Create = () => {
       </div>
 
       {/* Right Panel - Results */}
-      <div id="generations-portal" className="relative flex-1 flex flex-col">
+      <div
+        id="generations-portal"
+        className="relative min-h-[55vh] min-w-0 flex-1 flex flex-col bg-[#fcfbff]"
+      >
         <Generations />
       </div>
 

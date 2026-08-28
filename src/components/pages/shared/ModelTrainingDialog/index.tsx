@@ -29,7 +29,9 @@ export const ModelTrainingDialog = () => {
     <Dialog open={isModelTrainingDialogOpen} onOpenChange={handleOnClose}>
       <DialogContent
         showCloseButton={false}
-        className={cn("rounded-xl bg-black-90 border-none max-w-5xl gap-0 p-0 h-2/3")}
+        className={cn(
+          "h-[90dvh] w-[calc(100%_-_1.5rem)] max-w-5xl min-w-0 gap-0 overflow-hidden rounded-xl border-none bg-black-90 p-0 sm:w-14/16 lg:h-2/3"
+        )}
       >
         <DialogHeader className="flex-row justify-between items-center p-4 border-b-[1px] border-black-70">
           <DialogTitle>Train Your Model</DialogTitle>
@@ -38,7 +40,7 @@ export const ModelTrainingDialog = () => {
           </DialogClose>
         </DialogHeader>
 
-        <div className="w-full flex flex-1 overflow-auto">
+        <div className="flex w-full min-h-0 flex-1 flex-col overflow-y-auto md:flex-row">
           {isRequestSubmitted ? (
             <RequestSubmitted />
           ) : (
