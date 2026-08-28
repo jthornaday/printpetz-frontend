@@ -108,7 +108,77 @@ export const Create = () => {
   return (
     <div className="min-w-0 flex-1 bg-[#f8f7fb]">
       <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-5 p-4 sm:p-6 xl:flex-row xl:items-start xl:p-8">
-        <section className="min-w-0 flex-1 order-2 xl:order-1">
+        <aside className="order-1 w-full shrink-0 xl:sticky xl:top-5 xl:w-[430px]">
+          <div className="rounded-2xl border border-[#e7e2ee] bg-white shadow-sm xl:max-h-[calc(100vh-7rem)] xl:overflow-y-auto">
+            <div className="p-4 sm:p-5">
+              <div className="mb-4">
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-black-40">Create setup</p>
+                <h2 className="mt-1 text-lg font-bold text-[#171524]">Build your look</h2>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">1</span>
+                    <span className="text-sm font-bold text-[#171524]">Choose your pet</span>
+                  </div>
+                  <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
+                </div>
+
+                <div>
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">2</span>
+                    <span className="text-sm font-bold text-[#171524]">Choose a style</span>
+                  </div>
+                  <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} />
+                </div>
+
+                <div>
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">3</span>
+                    <span className="text-sm font-bold text-[#171524]">Fine-tune it</span>
+                  </div>
+                  <GenerationControls
+                    numberOfGenerations={numberOfGenerations}
+                    setNumberOfGenerations={setNumberOfGenerations}
+                    cutenessLevel={cutenessLevel}
+                    setCutenessLevel={setCutenessLevel}
+                  />
+                </div>
+
+                <div className="rounded-xl border border-[#e7e2ee] bg-[#fcfbff] p-3">
+                  <div className="mb-3 flex items-center justify-between gap-3 text-sm">
+                    <span className="font-semibold text-black-40">Your setup</span>
+                    <span className="font-bold text-[#171524]">
+                      {numberOfGenerations * 2} credits
+                    </span>
+                  </div>
+                  <div className="mb-3 grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-lg bg-white p-2">
+                      <p className="text-black-40">Pet</p>
+                      <p className="truncate font-bold text-[#171524]">{selectedModel?.name ?? "Not selected"}</p>
+                    </div>
+                    <div className="rounded-lg bg-white p-2">
+                      <p className="text-black-40">Style</p>
+                      <p className="truncate font-bold text-[#171524]">{selectedStyle?.name ?? "Not selected"}</p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleGenerate}
+                    disabled={isGenerateButtonDisabled}
+                    loading={isGenerating}
+                    className="w-full rounded-xl py-3 text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {selectedModel && selectedStyle ? `Create ${numberOfGenerations} image${numberOfGenerations > 1 ? "s" : ""}` : "Choose pet & style"}
+                  </Button>
+                  <p className="mt-2 text-center text-xs text-black-40">2 credits per image</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <section className="order-2 min-w-0 flex-1">
           <div className="mb-4 rounded-2xl border border-[#e7e2ee] bg-white p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -139,76 +209,6 @@ export const Create = () => {
             <Generations />
           </div>
         </section>
-
-        <aside className="order-1 w-full shrink-0 xl:order-2 xl:sticky xl:top-5 xl:w-[430px]">
-          <div className="rounded-2xl border border-[#e7e2ee] bg-white p-4 shadow-sm sm:p-5">
-            <div className="mb-4">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-black-40">Create setup</p>
-              <h2 className="mt-1 text-lg font-bold text-[#171524]">Build your look</h2>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">1</span>
-                  <span className="text-sm font-bold text-[#171524]">Choose your pet</span>
-                </div>
-                <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
-              </div>
-
-              <div>
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">2</span>
-                  <span className="text-sm font-bold text-[#171524]">Choose a style</span>
-                </div>
-                <div className="max-h-[440px] overflow-hidden">
-                  <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} />
-                </div>
-              </div>
-
-              <div>
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">3</span>
-                  <span className="text-sm font-bold text-[#171524]">Fine-tune it</span>
-                </div>
-                <GenerationControls
-                  numberOfGenerations={numberOfGenerations}
-                  setNumberOfGenerations={setNumberOfGenerations}
-                  cutenessLevel={cutenessLevel}
-                  setCutenessLevel={setCutenessLevel}
-                />
-              </div>
-
-              <div className="rounded-xl border border-[#e7e2ee] bg-[#fcfbff] p-3">
-                <div className="mb-3 flex items-center justify-between gap-3 text-sm">
-                  <span className="font-semibold text-black-40">Your setup</span>
-                  <span className="font-bold text-[#171524]">
-                    {numberOfGenerations * 2} credits
-                  </span>
-                </div>
-                <div className="mb-3 grid grid-cols-2 gap-2 text-xs">
-                  <div className="rounded-lg bg-white p-2">
-                    <p className="text-black-40">Pet</p>
-                    <p className="truncate font-bold text-[#171524]">{selectedModel?.name ?? "Not selected"}</p>
-                  </div>
-                  <div className="rounded-lg bg-white p-2">
-                    <p className="text-black-40">Style</p>
-                    <p className="truncate font-bold text-[#171524]">{selectedStyle?.name ?? "Not selected"}</p>
-                  </div>
-                </div>
-                <Button
-                  onClick={handleGenerate}
-                  disabled={isGenerateButtonDisabled}
-                  loading={isGenerating}
-                  className="w-full rounded-xl py-3 text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {selectedModel && selectedStyle ? `Create ${numberOfGenerations} image${numberOfGenerations > 1 ? "s" : ""}` : "Choose pet & style"}
-                </Button>
-                <p className="mt-2 text-center text-xs text-black-40">2 credits per image</p>
-              </div>
-            </div>
-          </div>
-        </aside>
       </div>
 
       <InsufficientCreditsDialog
