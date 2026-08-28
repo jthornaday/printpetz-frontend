@@ -25,21 +25,21 @@ type Props = {
 const mockupConfigs = [
   {
     mockup: mugMockup,
-    width: 60,
-    left: 35,
-    top: 32,
+    width: 51,
+    left: 30,
+    top: 21,
   },
   {
     mockup: pillowMockup,
-    width: 84,
-    left: 16,
-    top: 32,
+    width: 72,
+    left: 14,
+    top: 21,
   },
   {
     mockup: tShirtMockup,
-    width: 62,
-    left: 24,
-    top: 38,
+    width: 53,
+    left: 21,
+    top: 25,
   },
 ];
 
