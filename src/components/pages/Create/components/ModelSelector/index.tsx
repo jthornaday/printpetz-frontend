@@ -45,7 +45,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
 
     // When a model finishes training while the Create page is open, automatically
     // switch to that newly completed model. This keeps the currently selected style
-    // (for example Boxing) paired with the model the user just trained.
+    // paired with the model the user just trained.
     const newlyCompletedModels = completeModels.filter(
       (model) => !knownCompletedModelIds.current.has(model.id)
     );
@@ -63,7 +63,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
   }, [models, selectedModel, setSelectedModel]);
 
   return (
-    <div className="relative">
+    <div className="relative flex flex-col gap-3">
       <div className="w-full bg-black-90 p-4 rounded-lg flex items-center justify-between">
         <div className="flex gap-4 items-center">
           <ModelIcon size={20} />
@@ -114,6 +114,36 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
           </p>
         )}
       </div>
+
+      {selectedModel?.training_images?.length ? (
+        <div className="rounded-xl border border-[#e7e2ee] bg-white p-3">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-bold text-[#171524]">{getModelName(selectedModel.name)}</p>
+              <p className="text-xs text-black-40">Photos used to train this pet model</p>
+            </div>
+            <span className="text-xs font-semibold text-black-40">
+              {selectedModel.training_images.length} photos
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
+            {selectedModel.training_images.map((image, index) => (
+              <div
+                key={`${selectedModel.id}-${index}`}
+                className="aspect-[4/5] overflow-hidden rounded-lg bg-black-80"
+              >
+                <img
+                  src={image}
+                  alt={`${getModelName(selectedModel.name)} training photo ${index + 1}`}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
