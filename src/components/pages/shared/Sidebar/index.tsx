@@ -20,7 +20,7 @@ export const Sidebar = () => {
   const router = useRouter();
 
   return (
-    <div className="border-r border-[#e7e2ee] bg-white flex flex-col items-center p-4 gap-4 lg:gap-5">
+    <div className="border-r border-[#e7e2ee] bg-white flex flex-col items-center p-2 sm:p-4 gap-4 lg:gap-5">
       {navbarOptions.map((option, index) => {
         const isCurrent = option.path === router.pathname;
         return (

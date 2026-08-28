@@ -90,7 +90,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const isModelTraining = isUploading || isTraining;
 
   return (
-    <div className="flex flex-col gap-3 flex-1 p-4">
+    <div className="order-1 flex min-w-0 flex-col gap-3 p-4 md:order-2 md:flex-1">
       <FormProvider {...methods}>
         <div className="flex-1 flex flex-col gap-5 overflow-auto">
           <ControlledInput
@@ -109,7 +109,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
             </div>
             <div className="w-full h-full flex-1 flex justify-center overflow-auto">
               {!!selectedImages.length ? (
-                <div className="grid grid-cols-7 w-full h-fit gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 w-full h-fit gap-2">
                   {selectedImages.map((file, index) => {
                     return (
                       <div key={index} className="h-fit">
@@ -138,7 +138,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
                   )}
                 </div>
               ) : (
-                <div className="w-full rounded-2xl border-2 h-40 m-2 border-dashed border-black-60 overflow-hidden">
+                <div className="w-full rounded-2xl border-2 h-40 border-dashed border-black-60 overflow-hidden">
                   <InputMultipleImages setSelectedImages={setSelectedImages} />
                 </div>
               )}

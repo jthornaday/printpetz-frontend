@@ -41,7 +41,7 @@ const LAYOUT_MAP: Record<LayoutVariant, React.FC<{ children: React.ReactNode }>>
   protected: ({ children }) => (
     <Shell className="flex flex-col">
       <Header />
-      <div className="flex flex-1 overflow-auto">
+      <div className="flex flex-1 min-w-0 overflow-auto">
         <Sidebar />
         {children}
       </div>

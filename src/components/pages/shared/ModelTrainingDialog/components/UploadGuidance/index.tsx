@@ -72,7 +72,7 @@ const UploadExamples = ({ isCorrect }: Props) => {
 
 export const UploadGuidance = () => {
   return (
-    <div className="w-xs bg-black-100 border-r-[1px] border-black-70 overflow-auto h-full">
+    <div className="order-2 w-full shrink-0 border-t border-black-70 bg-black-100 md:order-1 md:h-full md:w-xs md:border-r md:border-t-0 md:overflow-auto">
       <p className="text-black-50 font-bold text-sm sticky top-0 bg-black-100 p-4 z-1">
         Upload Guidance
       </p>

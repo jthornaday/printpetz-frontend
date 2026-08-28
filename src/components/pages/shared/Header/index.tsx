@@ -20,23 +20,23 @@ export const Header = () => {
   }, [refetch]);
 
   return (
-    <header className="border-b border-[#e7e2ee] bg-white px-6 py-3">
+    <header className="border-b border-[#e7e2ee] bg-white px-3 py-3 sm:px-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-13 items-center">
-            <PrintPetzWordmark className="text-3xl" />
+            <PrintPetzWordmark className="text-2xl sm:text-3xl" />
           </div>
         </div>
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-2 sm:gap-5">
           <Button
             onClick={() => router.push(ROUTES.plan)}
             variant={"link"}
-            className="w-fit p-0 underline underline-offset-2 text-orange font-bold hover:opacity-90 transition"
+            className="w-fit p-0 text-xs underline underline-offset-2 text-orange font-bold hover:opacity-90 transition sm:text-sm"
           >
             Buy more
           </Button>
           <div className="flex items-center gap-2.5">
-            <div className="flex items-center gap-3 pl-2.5 pr-4 py-2 rounded-full border border-black-70">
+            <div className="flex items-center gap-2 px-2 py-2 rounded-full border border-black-70 sm:gap-3 sm:pl-2.5 sm:pr-4">
               <ThunderIcon size={16} className="text-yellow" />
               <span className="font-semibold text-[#171524]">{user?.credits}</span>
             </div>
