@@ -13,6 +13,8 @@ const cutenessLabels: Record<number, string> = {
   1: "Natural",
   2: "Cute",
   3: "Extra Cute",
+  4: "Super Cute",
+  5: "Stop It, Cute!",
 };
 
 // Generation Controls Component
@@ -63,16 +65,18 @@ export const GenerationControls = ({
           aria-label="Cuteness level"
           type="range"
           min={1}
-          max={3}
+          max={5}
           step={1}
           value={cutenessLevel}
           onChange={(event) => setCutenessLevel(Number(event.target.value))}
           className="w-full cursor-pointer accent-primary"
         />
-        <div className="mt-1 flex justify-between text-[11px] font-medium text-black-40">
+        <div className="mt-1 grid grid-cols-5 gap-1 text-center text-[10px] font-medium text-black-40">
           <span>Natural</span>
           <span>Cute</span>
           <span>Extra Cute</span>
+          <span>Super Cute</span>
+          <span>Stop It, Cute!</span>
         </div>
       </div>
     </div>
