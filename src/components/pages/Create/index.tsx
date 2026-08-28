@@ -25,6 +25,7 @@ export const Create = () => {
   const [selectedModel, setSelectedModel] = useState<IModel | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<IStyle | null>(null);
   const [numberOfGenerations, setNumberOfGenerations] = useState(2);
+  const [cutenessLevel, setCutenessLevel] = useState(2);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
 
   const { user, isUserLoading, refetch: refetchUser } = useGetUser();
@@ -49,6 +50,7 @@ export const Create = () => {
         modelId: selectedModel.id,
         styleId: selectedStyle.id,
         numberOfImages: numberOfGenerations,
+        cutenessLevel,
       }).unwrap();
       const { success, data, message } = response;
       if (!success || !data) {
@@ -112,6 +114,8 @@ export const Create = () => {
         <GenerationControls
           numberOfGenerations={numberOfGenerations}
           setNumberOfGenerations={setNumberOfGenerations}
+          cutenessLevel={cutenessLevel}
+          setCutenessLevel={setCutenessLevel}
         />
 
         <div>
