@@ -17,6 +17,8 @@ import { Loader } from "@/components/ui/loader";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { ROUTES } from "@/routes";
+import { useAppDispatch } from "@/store";
+import { setAppContext } from "@/store/slices/appContextSlice";
 
 const cutenessLabels: Record<number, string> = {
   1: "Natural",
@@ -29,6 +31,7 @@ const cutenessLabels: Record<number, string> = {
 export const Create = () => {
   const { toast } = useToast();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const [selectedModel, setSelectedModel] = useState<IModel | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<IStyle | null>(null);
@@ -44,9 +47,10 @@ export const Create = () => {
     if (!router.isReady || router.query.purchase !== "success") return;
 
     refetchUser();
-    toast(EToastType.SUCCESS, "Credits added—you're ready to create!");
+    toast(EToastType.SUCCESS, "You're all set — time to create your pet!");
+    dispatch(setAppContext({ isModelTrainingDialogOpen: true }));
     router.replace(ROUTES.create, undefined, { shallow: true });
-  }, [refetchUser, router, toast]);
+  }, [dispatch, refetchUser, router, toast]);
 
   const handleGenerate = async () => {
     if (!selectedModel || !selectedStyle) return;
