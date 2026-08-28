@@ -48,6 +48,7 @@ export interface GenerateImageRequest {
   styleId: number;
   modelId: number;
   numberOfImages: number;
+  cutenessLevel: number;
 }
 
 export interface GenerateImageResponse {
