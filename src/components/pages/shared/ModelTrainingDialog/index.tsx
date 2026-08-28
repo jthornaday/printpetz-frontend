@@ -22,6 +22,7 @@ export const ModelTrainingDialog = () => {
   const [isRequestSubmitted, setIsRequestSubmitted] = useState(false);
 
   const handleOnClose = () => {
+    setIsRequestSubmitted(false);
     dispatch(setAppContext({ isModelTrainingDialogOpen: false }));
   };
 
