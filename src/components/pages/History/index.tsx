@@ -141,6 +141,8 @@ export const History = () => {
         <GenerationPreviewDialog
           generation={selectedGeneration}
           chips={[selectedGeneration.style.name, getModelName(selectedGeneration.model.name)]}
+          modelId={selectedGeneration.model.id}
+          styleId={selectedGeneration.style.id}
           onClose={() => setSelectedGeneration(null)}
         />
       )}
