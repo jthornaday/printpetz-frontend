@@ -32,14 +32,12 @@ export const Generations = () => {
   } = useGetGenerationViews(user?.id);
   const [fetchGenerationById] = useLazyGetGenerationByIdQuery();
 
-  // Infinite scroll hook
   const { observerTarget, isLoadingMore } = useInfiniteScroll({
     hasMore: hasNextPage,
     isFetching: isGenerationViewsFetching,
     onLoadMore: () => fetchNextPage(),
   });
 
-  // Get IDs of generations currently in generating status
   const generatingIds = useMemo(() => {
     const ids: number[] = [];
     generationViews?.forEach((view) => {
@@ -52,12 +50,10 @@ export const Generations = () => {
     return ids;
   }, [generationViews]);
 
-  // Poll for generating status
   useEffect(() => {
     if (!user?.id || generatingIds.length === 0) return;
 
     const interval = setInterval(async () => {
-      // Fetch each generating generation individually
       for (const id of generatingIds) {
         try {
           const result = await fetchGenerationById({ id }).unwrap();
@@ -130,7 +126,6 @@ export const Generations = () => {
         })}
       </div>
 
-      {/* Infinite scroll trigger */}
       <div ref={observerTarget} className="flex justify-center items-center min-h-[20px]">
         {hasNextPage && isLoadingMore && <Loader size={16} />}
       </div>
@@ -139,6 +134,8 @@ export const Generations = () => {
         <GenerationPreviewDialog
           generation={selectedGeneration}
           chips={[selectedGeneration.style.name, getModelName(selectedGeneration.model.name)]}
+          modelId={selectedGeneration.model.id}
+          styleId={selectedGeneration.style.id}
           onClose={() => setSelectedGeneration(null)}
         />
       )}
