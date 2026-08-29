@@ -20,7 +20,7 @@ import { ROUTES } from "@/routes";
 import { useAppDispatch } from "@/store";
 import { setAppContext } from "@/store/slices/appContextSlice";
 
-const DEFAULT_LOOK_LEVEL = 2; // Mascot
+const DEFAULT_LOOK_LEVEL = 1; // Natural
 
 export const Create = () => {
   const { toast } = useToast();
@@ -190,7 +190,7 @@ export const Create = () => {
                 <span className="rounded-full bg-black-90 px-3 py-1.5 text-black-30">
                   {selectedStyle?.name ?? "Choose style"}
                 </span>
-                <span className="rounded-full bg-primary/10 px-3 py-1.5 text-primary">Mascot</span>
+                <span className="rounded-full bg-primary/10 px-3 py-1.5 text-primary">Natural</span>
               </div>
             </div>
           </div>
