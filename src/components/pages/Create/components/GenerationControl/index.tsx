@@ -38,8 +38,8 @@ export const GenerationControls = ({
         </div>
       </div>
       <p className="text-xs text-black-40">
-        New creations start with the PrintPetz Mascot look. You can switch between Natural,
-        Mascot, and Cartoon from the image editor after generation.
+        New creations start with the PrintPetz Natural look. You can switch between Natural,
+        Mascot, and Cartoon from the image editor after generation at no extra credit cost.
       </p>
     </div>
   );
