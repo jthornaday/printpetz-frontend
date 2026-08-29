@@ -20,13 +20,7 @@ import { ROUTES } from "@/routes";
 import { useAppDispatch } from "@/store";
 import { setAppContext } from "@/store/slices/appContextSlice";
 
-const cutenessLabels: Record<number, string> = {
-  1: "Natural",
-  2: "Cute",
-  3: "Extra Cute",
-  4: "Super Cute",
-  5: "Stop It, Cute!",
-};
+const DEFAULT_LOOK_LEVEL = 2; // Mascot
 
 export const Create = () => {
   const { toast } = useToast();
@@ -36,7 +30,6 @@ export const Create = () => {
   const [selectedModel, setSelectedModel] = useState<IModel | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<IStyle | null>(null);
   const [numberOfGenerations, setNumberOfGenerations] = useState(2);
-  const [cutenessLevel, setCutenessLevel] = useState(2);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
 
   const { user, isUserLoading, refetch: refetchUser } = useGetUser();
@@ -60,7 +53,7 @@ export const Create = () => {
         modelId: selectedModel.id,
         styleId: selectedStyle.id,
         numberOfImages: numberOfGenerations,
-        cutenessLevel,
+        cutenessLevel: DEFAULT_LOOK_LEVEL,
       }).unwrap();
       const { success, data, message } = response;
       if (!success || !data) {
@@ -140,13 +133,11 @@ export const Create = () => {
                 <div>
                   <div className="mb-2 flex items-center gap-2">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">3</span>
-                    <span className="text-sm font-bold text-[#171524]">Fine-tune it</span>
+                    <span className="text-sm font-bold text-[#171524]">Generate</span>
                   </div>
                   <GenerationControls
                     numberOfGenerations={numberOfGenerations}
                     setNumberOfGenerations={setNumberOfGenerations}
-                    cutenessLevel={cutenessLevel}
-                    setCutenessLevel={setCutenessLevel}
                   />
                 </div>
 
@@ -189,7 +180,7 @@ export const Create = () => {
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">PrintPetz Studio</p>
                 <h1 className="mt-1 text-2xl font-bold text-[#171524]">Create your pet artwork</h1>
                 <p className="mt-1 text-sm text-black-40">
-                  Pick your pet, choose a look, set the cuteness, then generate.
+                  Pick your pet and role, then refine the finished character in the editor.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 text-xs font-semibold">
@@ -199,9 +190,7 @@ export const Create = () => {
                 <span className="rounded-full bg-black-90 px-3 py-1.5 text-black-30">
                   {selectedStyle?.name ?? "Choose style"}
                 </span>
-                <span className="rounded-full bg-primary/10 px-3 py-1.5 text-primary">
-                  {cutenessLabels[cutenessLevel]}
-                </span>
+                <span className="rounded-full bg-primary/10 px-3 py-1.5 text-primary">Mascot</span>
               </div>
             </div>
           </div>
