@@ -21,6 +21,8 @@ import { useState } from "react";
 type Props = {
   generation: IGenerationViewItem;
   chips: string[];
+  modelId: number;
+  styleId: number;
   onClose: () => void;
 };
 
@@ -30,7 +32,7 @@ const mockupConfigs = [
   { mockup: tShirtMockup, width: 53, left: 21, top: 25 },
 ];
 
-export const GenerationPreviewDialog = ({ generation, chips, onClose }: Props) => {
+export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, onClose }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
 
   const handleShare = async () => {
@@ -104,7 +106,12 @@ export const GenerationPreviewDialog = ({ generation, chips, onClose }: Props) =
         </DialogHeader>
 
         {isEditing && generation.image ? (
-          <ImageEditorPanel image={generation.image} onBack={() => setIsEditing(false)} />
+          <ImageEditorPanel
+            image={generation.image}
+            modelId={modelId}
+            styleId={styleId}
+            onBack={() => setIsEditing(false)}
+          />
         ) : (
           <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:gap-5">
             <div className="flex flex-1 flex-col gap-2">
