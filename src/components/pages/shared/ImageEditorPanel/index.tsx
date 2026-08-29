@@ -1,11 +1,42 @@
 import { Button } from "@/components/ui/button";
-import { useRemoveImageBackgroundMutation } from "@/store/api/generationApi";
+import {
+  useGenerateImageMutation,
+  useRemoveImageBackgroundMutation,
+} from "@/store/api/generationApi";
+import { useGetGenerationViews } from "@/hooks/generation/useGetGenerationViews";
+import { useGetUser } from "@/hooks/user/useGetUser";
 import { useMemo, useState } from "react";
 
 type Props = {
   image: string;
+  modelId: number;
+  styleId: number;
   onBack: () => void;
 };
+
+type LookLevel = 1 | 2 | 3;
+
+const LOOKS: Array<{
+  value: LookLevel;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: 1,
+    label: "Natural",
+    description: "Real-pet facial proportions and detail, with the same full role and anthropomorphic body.",
+  },
+  {
+    value: 2,
+    label: "Mascot",
+    description: "Faithful pet identity with polished professional mascot styling.",
+  },
+  {
+    value: 3,
+    label: "Cartoon",
+    description: "More illustrated and animated while keeping the pet recognizable.",
+  },
+];
 
 const Slider = ({
   label,
@@ -41,7 +72,7 @@ const Slider = ({
   </label>
 );
 
-export const ImageEditorPanel = ({ image, onBack }: Props) => {
+export const ImageEditorPanel = ({ image, modelId, styleId, onBack }: Props) => {
   const [workingImage, setWorkingImage] = useState(image);
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
@@ -50,6 +81,11 @@ export const ImageEditorPanel = ({ image, onBack }: Props) => {
   const [brightness, setBrightness] = useState(100);
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
   const [backgroundRemoved, setBackgroundRemoved] = useState(false);
+  const [selectedLook, setSelectedLook] = useState<LookLevel>(2);
+
+  const { user, refetch: refetchUser } = useGetUser();
+  const { refetchGenerationViews } = useGetGenerationViews(user?.id);
+  const [generateImage, { isLoading: isChangingLook }] = useGenerateImageMutation();
   const [removeBackground, { isLoading: isRemovingBackground }] =
     useRemoveImageBackgroundMutation();
 
@@ -68,6 +104,30 @@ export const ImageEditorPanel = ({ image, onBack }: Props) => {
     setBrightness(100);
     setBackgroundColor("#ffffff");
     setBackgroundRemoved(false);
+    setSelectedLook(2);
+  };
+
+  const handleChangeLook = async () => {
+    try {
+      const response = await generateImage({
+        modelId,
+        styleId,
+        numberOfImages: 1,
+        cutenessLevel: selectedLook,
+      }).unwrap();
+
+      if (!response.success || !response.data) {
+        alert(response.message ?? "Could not create the new look.");
+        return;
+      }
+
+      refetchUser();
+      refetchGenerationViews();
+      alert(`${LOOKS.find((look) => look.value === selectedLook)?.label} version is generating and will appear in your Studio.`);
+    } catch (error) {
+      console.error("Failed to change look", error);
+      alert("Could not create the new look. Please try again.");
+    }
   };
 
   const handleRemoveBackground = async () => {
@@ -146,8 +206,10 @@ export const ImageEditorPanel = ({ image, onBack }: Props) => {
     }
   };
 
+  const activeLook = LOOKS.find((look) => look.value === selectedLook)!;
+
   return (
-    <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_280px]">
+    <div className="grid min-w-0 gap-4 md:grid-cols-[minmax(0,1fr)_300px]">
       <div className="min-w-0">
         <div
           className="relative mx-auto aspect-[4/5] w-full max-w-[520px] overflow-hidden rounded-xl border border-[#e7e2ee]"
@@ -169,6 +231,40 @@ export const ImageEditorPanel = ({ image, onBack }: Props) => {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">PrintPetz Editor</p>
           <h3 className="mt-1 text-lg font-bold text-[#171524]">Make it yours</h3>
+        </div>
+
+        <div className="rounded-xl border border-[#e7e2ee] bg-[#fcfbff] p-3">
+          <div className="mb-3">
+            <p className="text-sm font-bold text-[#171524]">Change Look</p>
+            <p className="mt-1 text-xs leading-5 text-black-40">
+              The pet stays fully anthropomorphic in the same role. Only the face and rendering treatment change.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {LOOKS.map((look) => (
+              <button
+                key={look.value}
+                type="button"
+                onClick={() => setSelectedLook(look.value)}
+                className={`rounded-lg border px-2 py-2 text-xs font-bold transition ${
+                  selectedLook === look.value
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-[#e7e2ee] bg-white text-[#171524]"
+                }`}
+              >
+                {look.label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 min-h-10 text-xs leading-5 text-black-40">{activeLook.description}</p>
+          <Button
+            className="mt-2 w-full"
+            loading={isChangingLook}
+            disabled={isChangingLook}
+            onClick={handleChangeLook}
+          >
+            Create {activeLook.label} version — 2 credits
+          </Button>
         </div>
 
         <Slider label="Zoom" value={zoom} min={60} max={180} onChange={setZoom} suffix="%" />
