@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
 import {
-  useGenerateImageMutation,
+  useEditImageLookMutation,
   useRemoveImageBackgroundMutation,
 } from "@/store/api/generationApi";
-import { useGetGenerationViews } from "@/hooks/generation/useGetGenerationViews";
-import { useGetUser } from "@/hooks/user/useGetUser";
 import { useMemo, useState } from "react";
 
 type Props = {
@@ -16,23 +14,29 @@ type Props = {
 
 type LookLevel = 1 | 2 | 3;
 
+type LookKey = "natural" | "mascot" | "cartoon";
+
 const LOOKS: Array<{
   value: LookLevel;
+  key: LookKey;
   label: string;
   description: string;
 }> = [
   {
     value: 1,
+    key: "natural",
     label: "Natural",
     description: "Real-pet facial proportions and detail, with the same full role and anthropomorphic body.",
   },
   {
     value: 2,
+    key: "mascot",
     label: "Mascot",
     description: "Faithful pet identity with polished professional mascot styling.",
   },
   {
     value: 3,
+    key: "cartoon",
     label: "Cartoon",
     description: "More illustrated and animated while keeping the pet recognizable.",
   },
@@ -72,7 +76,8 @@ const Slider = ({
   </label>
 );
 
-export const ImageEditorPanel = ({ image, modelId, styleId, onBack }: Props) => {
+export const ImageEditorPanel = (props: Props) => {
+  const { image, onBack } = props;
   const [workingImage, setWorkingImage] = useState(image);
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
@@ -81,11 +86,9 @@ export const ImageEditorPanel = ({ image, modelId, styleId, onBack }: Props) => 
   const [brightness, setBrightness] = useState(100);
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
   const [backgroundRemoved, setBackgroundRemoved] = useState(false);
-  const [selectedLook, setSelectedLook] = useState<LookLevel>(2);
+  const [selectedLook, setSelectedLook] = useState<LookLevel>(1);
 
-  const { user, refetch: refetchUser } = useGetUser();
-  const { refetchGenerationViews } = useGetGenerationViews(user?.id);
-  const [generateImage, { isLoading: isChangingLook }] = useGenerateImageMutation();
+  const [editImageLook, { isLoading: isChangingLook }] = useEditImageLookMutation();
   const [removeBackground, { isLoading: isRemovingBackground }] =
     useRemoveImageBackgroundMutation();
 
@@ -104,29 +107,28 @@ export const ImageEditorPanel = ({ image, modelId, styleId, onBack }: Props) => 
     setBrightness(100);
     setBackgroundColor("#ffffff");
     setBackgroundRemoved(false);
-    setSelectedLook(2);
+    setSelectedLook(1);
   };
 
   const handleChangeLook = async () => {
+    const activeLook = LOOKS.find((look) => look.value === selectedLook)!;
+
     try {
-      const response = await generateImage({
-        modelId,
-        styleId,
-        numberOfImages: 1,
-        cutenessLevel: selectedLook,
+      const response = await editImageLook({
+        imageUrl: workingImage,
+        look: activeLook.key,
       }).unwrap();
 
-      if (!response.success || !response.data) {
-        alert(response.message ?? "Could not create the new look.");
+      if (!response.success || !response.data?.imageUrl) {
+        alert(response.message ?? "Could not apply the new look.");
         return;
       }
 
-      refetchUser();
-      refetchGenerationViews();
-      alert(`${LOOKS.find((look) => look.value === selectedLook)?.label} version is generating and will appear in your Studio.`);
+      setWorkingImage(response.data.imageUrl);
+      setBackgroundRemoved(false);
     } catch (error) {
       console.error("Failed to change look", error);
-      alert("Could not create the new look. Please try again.");
+      alert("Could not apply the new look. Please try again.");
     }
   };
 
@@ -237,7 +239,7 @@ export const ImageEditorPanel = ({ image, modelId, styleId, onBack }: Props) => 
           <div className="mb-3">
             <p className="text-sm font-bold text-[#171524]">Change Look</p>
             <p className="mt-1 text-xs leading-5 text-black-40">
-              The pet stays fully anthropomorphic in the same role. Only the face and rendering treatment change.
+              Change the existing image without creating a new generation or using credits.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2">
@@ -263,7 +265,7 @@ export const ImageEditorPanel = ({ image, modelId, styleId, onBack }: Props) => 
             disabled={isChangingLook}
             onClick={handleChangeLook}
           >
-            Create {activeLook.label} version — 2 credits
+            Apply {activeLook.label} look — Free
           </Button>
         </div>
 
