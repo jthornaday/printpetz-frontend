@@ -62,7 +62,6 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const onSubmit = handleSubmit(async (formData) => {
     if (!user) return;
 
-    // check if user has enough credits (If we do not check here then all images will upload and then backend give us 403 error for insufficient credits)
     if (user.credits < appConstants.modelTrainingCredit) {
       setShowCreditsDialog(true);
       return;
@@ -71,7 +70,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
     try {
       const imageUrls = await uploadImages(selectedImages);
 
-      await trainModel({ name: formData.name, images: imageUrls }).unwrap();
+      await trainModel({ name: formData.name.trim(), images: imageUrls }).unwrap();
 
       setIsRequestSubmitted(true);
     } catch (error) {
@@ -93,12 +92,17 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
     <div className="order-1 flex min-w-0 flex-col gap-3 p-4 md:order-2 md:flex-1">
       <FormProvider {...methods}>
         <div className="flex-1 flex flex-col gap-5 overflow-auto">
-          <ControlledInput
-            name="name"
-            label="What would you like to call this model?"
-            placeholder="Enter Model name (Ex. Ketty, Max)"
-            className="text-sm"
-          />
+          <div>
+            <ControlledInput
+              name="name"
+              label="What is your pet's name?"
+              placeholder="Pet name (Ex. Max)"
+              className="text-sm"
+            />
+            <p className="mt-1.5 text-xs text-black-40">
+              We can use your pet&apos;s name naturally on jerseys, boxing trunks, name badges, and other role-appropriate gear.
+            </p>
+          </div>
           <div className="overflow-auto flex-1 flex flex-col gap-4">
             <div>
               <p className="text-sm font-semibold">Upload Your Pet`s Images</p>
