@@ -27,6 +27,13 @@ export const serverGenerationApi = serverBaseApi.injectEndpoints({
         body: data,
       }),
     }),
+    downloadGenerationImage: builder.mutation<Blob, { id: number }>({
+      query: ({ id }) => ({
+        url: `generation/${id}/download`,
+        method: "GET",
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
     editImageLook: builder.mutation<
       ApiResponse<{ imageUrl: string }>,
       { imageUrl: string; look: "natural" | "mascot" | "cartoon" }
@@ -120,6 +127,7 @@ export const supabaseGenerationApi = supabaseBaseApi.injectEndpoints({
 
 export const {
   useGenerateImageMutation,
+  useDownloadGenerationImageMutation,
   useEditImageLookMutation,
   useRemoveImageBackgroundMutation,
   usePrefetch: useAuthPrefetch,
