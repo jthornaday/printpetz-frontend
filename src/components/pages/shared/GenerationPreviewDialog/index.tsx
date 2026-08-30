@@ -15,9 +15,11 @@ import { IGenerationViewItem } from "@/types/generation";
 import mugMockup from "@/utils/images/mockups/mug.png";
 import pillowMockup from "@/utils/images/mockups/pillow.png";
 import tShirtMockup from "@/utils/images/mockups/t-shirt.png";
-import { handleDownloadImage } from "@/services/shared/image";
 import { useState } from "react";
-import { useDeleteGenerationMutation } from "@/store/api/generationApi";
+import {
+  useDeleteGenerationMutation,
+  useDownloadGenerationImageMutation,
+} from "@/store/api/generationApi";
 import { useGetUser } from "@/hooks/user/useGetUser";
 
 type Props = {
@@ -34,9 +36,21 @@ const mockupConfigs = [
   { mockup: tShirtMockup, width: 53, left: 21, top: 25 },
 ];
 
+const getBlobExtension = (blob: Blob) => {
+  const mimeToExt: Record<string, string> = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/webp": "webp",
+    "image/gif": "gif",
+  };
+  return mimeToExt[blob.type] || "png";
+};
+
 export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, onClose }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
   const [deleteGeneration, { isLoading: isDeleting }] = useDeleteGenerationMutation();
+  const [downloadGenerationImage, { isLoading: isDownloading }] = useDownloadGenerationImageMutation();
   const { user } = useGetUser();
 
   const handleShare = async () => {
@@ -45,24 +59,7 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
     try {
       const response = await fetch(generation.image, { cache: "no-store" });
       const blob = await response.blob();
-
-      const getFileExtension = () => {
-        if (blob.type) {
-          const mimeToExt: Record<string, string> = {
-            "image/png": "png",
-            "image/jpeg": "jpg",
-            "image/jpg": "jpg",
-            "image/webp": "webp",
-            "image/gif": "gif",
-          };
-          return mimeToExt[blob.type] || "png";
-        }
-
-        const urlParts = generation.image!.split("?")[0].split(".");
-        return urlParts[urlParts.length - 1] || "png";
-      };
-
-      const extension = getFileExtension();
+      const extension = getBlobExtension(blob);
       const filename = `printpetz_${Date.now()}.${extension}`;
       const file = new File([blob], filename, { type: blob.type || "image/png" });
 
@@ -84,6 +81,25 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
     } catch (error) {
       console.error("Error sharing image:", error);
       alert("Failed to share image. Please try downloading instead.");
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      const blob = await downloadGenerationImage({ id: generation.id }).unwrap();
+      const extension = getBlobExtension(blob);
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = `printpetz_${generation.id}_${Date.now()}.${extension}`;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      alert("Failed to download this image. Please try again.");
     }
   };
 
@@ -153,9 +169,13 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
                 >
                   Edit image
                 </Button>
-                <Button className="min-w-[120px] flex-1" onClick={() => handleDownloadImage(generation.image)}>
+                <Button
+                  className="min-w-[120px] flex-1"
+                  onClick={handleDownload}
+                  disabled={isDownloading || !generation.image}
+                >
                   <DownloadIcon size={22} />
-                  Download
+                  {isDownloading ? "Downloading..." : "Download"}
                 </Button>
                 <Button
                   variant="secondary"
