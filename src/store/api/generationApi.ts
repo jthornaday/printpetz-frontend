@@ -58,6 +58,7 @@ export const supabaseGenerationApi = supabaseBaseApi.injectEndpoints({
       GetGenerationsRequest,
       number
     >({
+      providesTags: ["Generation"],
       infiniteQueryOptions: {
         initialPageParam: 0,
         getNextPageParam: (lastPage, allPages, lastPageParam) =>
@@ -81,6 +82,7 @@ export const supabaseGenerationApi = supabaseBaseApi.injectEndpoints({
       },
     }),
     getGenerationById: builder.query<IGeneration, GetGenerationByIdRequest>({
+      providesTags: ["Generation"],
       async queryFn({ id }) {
         try {
           const { data, error } = await supabase
@@ -96,6 +98,23 @@ export const supabaseGenerationApi = supabaseBaseApi.injectEndpoints({
         }
       },
     }),
+    deleteGeneration: builder.mutation<void, { id: number; user_id: string }>({
+      invalidatesTags: ["Generation"],
+      async queryFn({ id, user_id }) {
+        try {
+          const { error } = await supabase
+            .from("generations")
+            .delete()
+            .eq("id", id)
+            .eq("user_id", user_id);
+
+          if (error) return createErrorResponse(error);
+          return { data: undefined };
+        } catch (error) {
+          return createErrorResponse(error as PostgrestError);
+        }
+      },
+    }),
   }),
 });
 
@@ -105,5 +124,8 @@ export const {
   useRemoveImageBackgroundMutation,
   usePrefetch: useAuthPrefetch,
 } = serverGenerationApi;
-export const { useLazyGetGenerationByIdQuery, useGetInfiniteGenerationViewsInfiniteQuery } =
-  supabaseGenerationApi;
+export const {
+  useLazyGetGenerationByIdQuery,
+  useGetInfiniteGenerationViewsInfiniteQuery,
+  useDeleteGenerationMutation,
+} = supabaseGenerationApi;
