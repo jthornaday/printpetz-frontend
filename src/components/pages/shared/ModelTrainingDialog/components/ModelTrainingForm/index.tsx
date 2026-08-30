@@ -36,7 +36,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const [trainModel, { isLoading: isTraining }] = useTrainModelMutation();
 
   const methods = useForm<IModelTrainingRequest>({
-    defaultValues: { name: "", images: [] },
+    defaultValues: { petName: "", name: "", images: [] },
     resolver: yupResolver(modelTrainingSchema),
   });
   const { handleSubmit } = methods;
@@ -70,7 +70,11 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
     try {
       const imageUrls = await uploadImages(selectedImages);
 
-      await trainModel({ name: formData.name.trim(), images: imageUrls }).unwrap();
+      await trainModel({
+        name: formData.name.trim(),
+        petName: formData.petName.trim(),
+        images: imageUrls,
+      }).unwrap();
 
       setIsRequestSubmitted(true);
     } catch (error) {
@@ -92,16 +96,29 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
     <div className="order-1 flex min-w-0 flex-col gap-3 p-4 md:order-2 md:flex-1">
       <FormProvider {...methods}>
         <div className="flex-1 flex flex-col gap-5 overflow-auto">
-          <div>
-            <ControlledInput
-              name="name"
-              label="What is your pet's name?"
-              placeholder="Pet name (Ex. Max)"
-              className="text-sm"
-            />
-            <p className="mt-1.5 text-xs text-black-40">
-              We can use your pet&apos;s name naturally on jerseys, boxing trunks, name badges, and other role-appropriate gear.
-            </p>
+          <div className="flex flex-col gap-4">
+            <div>
+              <ControlledInput
+                name="petName"
+                label="Your pet's name"
+                placeholder="Max"
+                className="text-sm"
+              />
+              <p className="mt-1.5 text-xs text-black-40">
+                This name may appear on jerseys, uniforms, badges, trunks, and other personalized artwork.
+              </p>
+            </div>
+            <div>
+              <ControlledInput
+                name="name"
+                label="Name this pet model"
+                placeholder="Max Baseball"
+                className="text-sm"
+              />
+              <p className="mt-1.5 text-xs text-black-40">
+                This is just to help you organize your saved pet models. It will not be used as the pet&apos;s name in artwork.
+              </p>
+            </div>
           </div>
           <div className="overflow-auto flex-1 flex flex-col gap-4">
             <div>
