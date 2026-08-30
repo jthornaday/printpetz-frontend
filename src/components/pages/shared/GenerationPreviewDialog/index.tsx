@@ -17,6 +17,8 @@ import pillowMockup from "@/utils/images/mockups/pillow.png";
 import tShirtMockup from "@/utils/images/mockups/t-shirt.png";
 import { handleDownloadImage } from "@/services/shared/image";
 import { useState } from "react";
+import { useDeleteGenerationMutation } from "@/store/api/generationApi";
+import { useGetUser } from "@/hooks/user/useGetUser";
 
 type Props = {
   generation: IGenerationViewItem;
@@ -34,6 +36,8 @@ const mockupConfigs = [
 
 export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, onClose }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [deleteGeneration, { isLoading: isDeleting }] = useDeleteGenerationMutation();
+  const { user } = useGetUser();
 
   const handleShare = async () => {
     if (!generation.image) return;
@@ -80,6 +84,21 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
     } catch (error) {
       console.error("Error sharing image:", error);
       alert("Failed to share image. Please try downloading instead.");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!user) return;
+
+    const confirmed = window.confirm("Are you sure? This can't be undone.");
+    if (!confirmed) return;
+
+    try {
+      await deleteGeneration({ id: generation.id, user_id: user.id }).unwrap();
+      onClose();
+    } catch (error) {
+      console.error("Error deleting generation:", error);
+      alert("Failed to delete this image. Please try again.");
     }
   };
 
@@ -137,6 +156,14 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
                 <Button className="min-w-[120px] flex-1" onClick={() => handleDownloadImage(generation.image)}>
                   <DownloadIcon size={22} />
                   Download
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="min-w-[110px] flex-1"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? "Deleting..." : "Delete"}
                 </Button>
               </div>
             </div>
