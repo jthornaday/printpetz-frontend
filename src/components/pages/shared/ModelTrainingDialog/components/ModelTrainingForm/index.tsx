@@ -29,9 +29,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
 
   const { user } = useGetUser();
-
   const [selectedImages, setSelectedImages] = useState<ImageMetadata[]>([]);
-
   const [uploadFile, { isLoading: isUploading }] = useUploadFileMutation();
   const [trainModel, { isLoading: isTraining }] = useTrainModelMutation();
 
@@ -43,9 +41,9 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
 
   const uploadImages = async (images: ImageMetadata[]) => {
     const files = images.map((img) => dataURLtoFile(img.src, img.name));
-
     const BATCH_SIZE = 2;
     const batches: File[][] = [];
+
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
       batches.push(files.slice(i, i + BATCH_SIZE));
     }
@@ -96,7 +94,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
     <div className="order-1 flex min-w-0 flex-col gap-3 p-4 md:order-2 md:flex-1">
       <FormProvider {...methods}>
         <div className="flex-1 flex flex-col gap-5 overflow-auto">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 rounded-xl border border-black-80 p-3">
             <div>
               <ControlledInput
                 name="petName"
@@ -105,21 +103,22 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
                 className="text-sm"
               />
               <p className="mt-1.5 text-xs text-black-40">
-                This name may appear on jerseys, uniforms, badges, trunks, and other personalized artwork.
+                This is your pet&apos;s real name. It may appear on jerseys, uniforms, badges, trunks, and other personalized artwork.
               </p>
             </div>
             <div>
               <ControlledInput
                 name="name"
                 label="Name this pet model"
-                placeholder="Max Baseball"
+                placeholder="Max Baseball v2"
                 className="text-sm"
               />
               <p className="mt-1.5 text-xs text-black-40">
-                This is just to help you organize your saved pet models. It will not be used as the pet&apos;s name in artwork.
+                This is only for organizing your saved models. It will not appear in the artwork.
               </p>
             </div>
           </div>
+
           <div className="overflow-auto flex-1 flex flex-col gap-4">
             <div>
               <p className="text-sm font-semibold">Upload Your Pet`s Images</p>
@@ -131,29 +130,23 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
             <div className="w-full h-full flex-1 flex justify-center overflow-auto">
               {!!selectedImages.length ? (
                 <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 w-full h-fit gap-2">
-                  {selectedImages.map((file, index) => {
-                    return (
-                      <div key={index} className="h-fit">
+                  {selectedImages.map((file, index) => (
+                    <div key={index} className="h-fit">
+                      <div className="relative group w-full aspect-[4/5] overflow-clip rounded-lg bg-black-80">
                         <div
-                          className={`relative group w-full aspect-[4/5] overflow-clip rounded-lg bg-black-80`}
+                          onClick={() =>
+                            setSelectedImages((pre) => pre.filter((_, i) => i !== index))
+                          }
+                          className="bg-black-50 border-2 border-black-90 group-hover:opacity-100 absolute z-10 -top-0.5 -right-0.5 rounded-full opacity-0 p-1 transition-all cursor-pointer"
                         >
-                          <div
-                            onClick={() =>
-                              setSelectedImages((pre) => pre.filter((_, i) => i !== index))
-                            }
-                            className="bg-black-50 border-2 border-black-90 group-hover:opacity-100 absolute z-10 -top-0.5 -right-0.5 rounded-full opacity-0 p-1 transition-all cursor-pointer"
-                          >
-                            <CancelIcon size={12} className="[&>*]:stroke-[3]" />
-                          </div>
-                          <CustomImagePreview image={file.src} />
+                          <CancelIcon size={12} className="[&>*]:stroke-[3]" />
                         </div>
+                        <CustomImagePreview image={file.src} />
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                   {selectedImages.length < max && (
-                    <div
-                      className={`w-full aspect-[4/5] border-2 border-dashed border-black-60 rounded-lg`}
-                    >
+                    <div className="w-full aspect-[4/5] border-2 border-dashed border-black-60 rounded-lg">
                       <InputMultipleImages isSmall setSelectedImages={setSelectedImages} />
                     </div>
                   )}
@@ -166,6 +159,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
             </div>
           </div>
         </div>
+
         <div>
           {!!selectedImages.length && (
             <p
