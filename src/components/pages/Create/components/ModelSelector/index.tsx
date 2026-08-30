@@ -27,6 +27,11 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
 
   const { models, isModelsFetching } = useGetModels(user?.id);
 
+  const openModelTraining = () => {
+    setOpenModelSelectionPopover(false);
+    dispatch(setAppContext({ isModelTrainingDialogOpen: true }));
+  };
+
   useEffect(() => {
     const completeModels = models.filter((m) => m.status === EModelStatus.COMPLETED);
     const completeModelIds = new Set(completeModels.map((model) => model.id));
@@ -64,54 +69,55 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
 
   return (
     <div className="relative flex flex-col gap-3">
-      <div className="w-full bg-black-90 p-4 rounded-lg flex items-center justify-between">
-        <div className="flex gap-4 items-center">
-          <ModelIcon size={20} />
-          <span className="font-bold">Model</span>
-        </div>
-        {isModelsFetching ? (
-          <Loader size={18} />
-        ) : !!models?.length ? (
-          <Popover open={openModelSelectionPopover} onOpenChange={setOpenModelSelectionPopover}>
-            <PopoverTrigger className="flex gap-2.5 items-center cursor-pointer">
-              <div className="flex gap-2.5 items-center cursor-pointer text-black-40">
-                <span className="font-semibold text-sm">
-                  {selectedModel ? getModelName(selectedModel.name) : "Select Model"}
-                </span>
-                <CaretIcon size={14} className="rotate-90" />
-              </div>
-            </PopoverTrigger>
+      <div className="w-full rounded-lg bg-black-90 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-4">
+            <ModelIcon size={20} />
+            <span className="font-bold">Model</span>
+          </div>
 
-            <PopoverContent
-              align="start"
-              side="right"
-              sideOffset={45}
-              className="rounded-xl bg-black-90 border-none h-fit -mt-5 p-2"
-            >
-              <ModelSelectionPopover
-                models={models}
-                selectedModel={selectedModel}
-                onSelection={(model) => {
-                  setSelectedModel(model);
-                  setOpenModelSelectionPopover(false);
-                }}
-                onCreateNew={() => {
-                  setOpenModelSelectionPopover(false);
-                  dispatch(setAppContext({ isModelTrainingDialogOpen: true }));
-                }}
-              />
-            </PopoverContent>
-          </Popover>
-        ) : (
-          <p
-            className="flex gap-2 items-center text-primary cursor-pointer"
-            onClick={() => dispatch(setAppContext({ isModelTrainingDialogOpen: true }))}
+          {isModelsFetching ? (
+            <Loader size={18} />
+          ) : !!models?.length ? (
+            <Popover open={openModelSelectionPopover} onOpenChange={setOpenModelSelectionPopover}>
+              <PopoverTrigger className="flex cursor-pointer items-center gap-2.5">
+                <div className="flex cursor-pointer items-center gap-2.5 text-black-40">
+                  <span className="text-sm font-semibold">
+                    {selectedModel ? getModelName(selectedModel.name) : "Select Model"}
+                  </span>
+                  <CaretIcon size={14} className="rotate-90" />
+                </div>
+              </PopoverTrigger>
+
+              <PopoverContent
+                align="start"
+                side="right"
+                sideOffset={45}
+                className="-mt-5 h-fit rounded-xl border-none bg-black-90 p-2"
+              >
+                <ModelSelectionPopover
+                  models={models}
+                  selectedModel={selectedModel}
+                  onSelection={(model) => {
+                    setSelectedModel(model);
+                    setOpenModelSelectionPopover(false);
+                  }}
+                  onCreateNew={openModelTraining}
+                />
+              </PopoverContent>
+            </Popover>
+          ) : null}
+        </div>
+
+        {!isModelsFetching && (
+          <button
+            type="button"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/15"
+            onClick={openModelTraining}
           >
             <MagicSparkIcon size={18} />
-            <span className="font-semibold underline underline-offset-3 text-sm">
-              Create New Model
-            </span>
-          </p>
+            Create My Model
+          </button>
         )}
       </div>
 
