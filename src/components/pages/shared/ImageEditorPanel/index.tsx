@@ -26,7 +26,7 @@ const LOOKS: Array<{
     value: 1,
     key: "natural",
     label: "Natural",
-    description: "Real-pet facial proportions and detail, with the same full role and anthropomorphic body.",
+    description: "Original generated pet identity and natural facial detail.",
   },
   {
     value: 2,
@@ -113,9 +113,19 @@ export const ImageEditorPanel = (props: Props) => {
   const handleChangeLook = async () => {
     const activeLook = LOOKS.find((look) => look.value === selectedLook)!;
 
+    // Natural is the exact original generated image. Never ask an AI editor to
+    // "recreate" it, because that can silently replace the pet with a lookalike.
+    if (activeLook.key === "natural") {
+      setWorkingImage(image);
+      setBackgroundRemoved(false);
+      return;
+    }
+
     try {
       const response = await editImageLook({
-        imageUrl: workingImage,
+        // Always restyle from the original generation instead of chaining edits.
+        // Chaining mascot -> cartoon -> natural compounds identity drift.
+        imageUrl: image,
         look: activeLook.key,
       }).unwrap();
 
@@ -239,7 +249,7 @@ export const ImageEditorPanel = (props: Props) => {
           <div className="mb-3">
             <p className="text-sm font-bold text-[#171524]">Change Look</p>
             <p className="mt-1 text-xs leading-5 text-black-40">
-              Change the existing image without creating a new generation or using credits.
+              Natural always restores your original pet image. Mascot and Cartoon restyle that original image without using credits.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-2">
@@ -261,11 +271,13 @@ export const ImageEditorPanel = (props: Props) => {
           <p className="mt-2 min-h-10 text-xs leading-5 text-black-40">{activeLook.description}</p>
           <Button
             className="mt-2 w-full"
-            loading={isChangingLook}
-            disabled={isChangingLook}
+            loading={activeLook.key !== "natural" && isChangingLook}
+            disabled={activeLook.key !== "natural" && isChangingLook}
             onClick={handleChangeLook}
           >
-            Apply {activeLook.label} look — Free
+            {activeLook.key === "natural"
+              ? "Restore original Natural look — Free"
+              : `Apply ${activeLook.label} look — Free`}
           </Button>
         </div>
 
