@@ -29,7 +29,9 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
 
   const { user } = useGetUser();
+
   const [selectedImages, setSelectedImages] = useState<ImageMetadata[]>([]);
+
   const [uploadFile, { isLoading: isUploading }] = useUploadFileMutation();
   const [trainModel, { isLoading: isTraining }] = useTrainModelMutation();
 
@@ -41,9 +43,9 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
 
   const uploadImages = async (images: ImageMetadata[]) => {
     const files = images.map((img) => dataURLtoFile(img.src, img.name));
+
     const BATCH_SIZE = 2;
     const batches: File[][] = [];
-
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
       batches.push(files.slice(i, i + BATCH_SIZE));
     }
@@ -91,10 +93,10 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const isModelTraining = isUploading || isTraining;
 
   return (
-    <div className="order-1 flex min-w-0 flex-col gap-3 p-4 md:order-2 md:flex-1">
+    <div className="order-1 min-h-0 min-w-0 flex-1 overflow-y-auto p-4 md:order-2 md:h-full">
       <FormProvider {...methods}>
-        <div className="flex-1 flex flex-col gap-5 overflow-auto">
-          <div className="flex flex-col gap-4 rounded-xl border border-black-80 p-3">
+        <div className="flex min-h-full flex-col gap-5 pb-2">
+          <div className="flex flex-col gap-4">
             <div>
               <ControlledInput
                 name="petName"
@@ -110,7 +112,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
               <ControlledInput
                 name="name"
                 label="Name this pet model"
-                placeholder="Max Baseball v2"
+                placeholder="Max Baseball"
                 className="text-sm"
               />
               <p className="mt-1.5 text-xs text-black-40">
@@ -119,76 +121,78 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
             </div>
           </div>
 
-          <div className="overflow-auto flex-1 flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <div>
-              <p className="text-sm font-semibold">Upload Your Pet`s Images</p>
-              <p className="text-xs text-black-40 mt-1.5">
+              <p className="text-sm font-semibold">Upload Your Pet&apos;s Images</p>
+              <p className="mt-1.5 text-xs text-black-40">
                 Upload at least 3 clear photos. For the closest likeness, we recommend 6-10 photos
                 from different angles.
               </p>
             </div>
-            <div className="w-full h-full flex-1 flex justify-center overflow-auto">
+            <div className="flex w-full justify-center">
               {!!selectedImages.length ? (
-                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 w-full h-fit gap-2">
-                  {selectedImages.map((file, index) => (
-                    <div key={index} className="h-fit">
-                      <div className="relative group w-full aspect-[4/5] overflow-clip rounded-lg bg-black-80">
-                        <div
-                          onClick={() =>
-                            setSelectedImages((pre) => pre.filter((_, i) => i !== index))
-                          }
-                          className="bg-black-50 border-2 border-black-90 group-hover:opacity-100 absolute z-10 -top-0.5 -right-0.5 rounded-full opacity-0 p-1 transition-all cursor-pointer"
-                        >
-                          <CancelIcon size={12} className="[&>*]:stroke-[3]" />
+                <div className="grid h-fit w-full grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+                  {selectedImages.map((file, index) => {
+                    return (
+                      <div key={index} className="h-fit">
+                        <div className="group relative aspect-[4/5] w-full overflow-clip rounded-lg bg-black-80">
+                          <div
+                            onClick={() =>
+                              setSelectedImages((pre) => pre.filter((_, i) => i !== index))
+                            }
+                            className="absolute -right-0.5 -top-0.5 z-10 cursor-pointer rounded-full border-2 border-black-90 bg-black-50 p-1 opacity-0 transition-all group-hover:opacity-100"
+                          >
+                            <CancelIcon size={12} className="[&>*]:stroke-[3]" />
+                          </div>
+                          <CustomImagePreview image={file.src} />
                         </div>
-                        <CustomImagePreview image={file.src} />
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {selectedImages.length < max && (
-                    <div className="w-full aspect-[4/5] border-2 border-dashed border-black-60 rounded-lg">
+                    <div className="aspect-[4/5] w-full rounded-lg border-2 border-dashed border-black-60">
                       <InputMultipleImages isSmall setSelectedImages={setSelectedImages} />
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="w-full rounded-2xl border-2 h-40 border-dashed border-black-60 overflow-hidden">
+                <div className="h-40 w-full overflow-hidden rounded-2xl border-2 border-dashed border-black-60">
                   <InputMultipleImages setSelectedImages={setSelectedImages} />
                 </div>
               )}
             </div>
           </div>
-        </div>
 
-        <div>
-          {!!selectedImages.length && (
-            <p
-              className={`text-center text-sm ${
-                selectedImages.length < min ? "text-red" : "text-black-40"
-              }`}
-            >
-              {selectedImages.length < min
-                ? `Please upload at least ${min} images to continue.`
-                : `Ready to continue. More clear angles can improve your pet's likeness (up to ${max}).`}
-            </p>
-          )}
-          <Button
-            onClick={onSubmit}
-            disabled={selectedImages.length < min || isModelTraining}
-            className="mt-2"
-          >
-            {isModelTraining ? "Training Model..." : "Train Model"}
-          </Button>
-          <div className="mt-4 flex items-center justify-center">
-            <div className="flex items-center gap-2 px-4 py-2 bg-yellow/5 border border-yellow/10 rounded-2xl transition-all hover:bg-yellow/10">
-              <CreditIcon size={18} className="text-yellow" />
-              <p className="text-sm font-medium text-black-40">
-                Model training will charge{" "}
-                <span className="text-[#171524] font-bold">
-                  {appConstants.modelTrainingCredit} credits
-                </span>{" "}
-                from your account.
+          <div className="mt-auto pt-2">
+            {!!selectedImages.length && (
+              <p
+                className={`text-center text-sm ${
+                  selectedImages.length < min ? "text-red" : "text-black-40"
+                }`}
+              >
+                {selectedImages.length < min
+                  ? `Please upload at least ${min} images to continue.`
+                  : `Ready to continue. More clear angles can improve your pet's likeness (up to ${max}).`}
               </p>
+            )}
+            <Button
+              onClick={onSubmit}
+              disabled={selectedImages.length < min || isModelTraining}
+              className="mt-2"
+            >
+              {isModelTraining ? "Training Model..." : "Train Model"}
+            </Button>
+            <div className="mt-4 flex items-center justify-center pb-2">
+              <div className="flex items-center gap-2 rounded-2xl border border-yellow/10 bg-yellow/5 px-4 py-2 transition-all hover:bg-yellow/10">
+                <CreditIcon size={18} className="text-yellow" />
+                <p className="text-sm font-medium text-black-40">
+                  Model training will charge{" "}
+                  <span className="font-bold text-[#171524]">
+                    {appConstants.modelTrainingCredit} credits
+                  </span>{" "}
+                  from your account.
+                </p>
+              </div>
             </div>
           </div>
         </div>
