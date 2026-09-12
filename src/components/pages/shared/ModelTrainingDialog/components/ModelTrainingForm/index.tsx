@@ -36,7 +36,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const [trainModel, { isLoading: isTraining }] = useTrainModelMutation();
 
   const methods = useForm<IModelTrainingRequest>({
-    defaultValues: { petName: "", name: "", images: [] },
+    defaultValues: { petName: "", petDescription: "", name: "", images: [] },
     resolver: yupResolver(modelTrainingSchema),
   });
   const { handleSubmit } = methods;
@@ -73,6 +73,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
       await trainModel({
         name: formData.name.trim(),
         petName: formData.petName.trim(),
+        petDescription: formData.petDescription?.trim() || undefined,
         images: imageUrls,
       }).unwrap();
 
@@ -106,6 +107,19 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
               />
               <p className="mt-1.5 text-xs text-black-40">
                 This is your pet&apos;s real name. It may appear on jerseys, uniforms, badges, trunks, and other personalized artwork.
+              </p>
+            </div>
+            <div>
+              <ControlledInput
+                name="petDescription"
+                label="Describe your pet"
+                placeholder="e.g. black cat with yellow eyes, or golden retriever with white paws"
+                className="text-sm"
+                maxLength={150}
+              />
+              <p className="mt-1.5 text-xs text-black-40">
+                Optional, but it helps. Describing the coat colour and markings keeps them accurate
+                in the artwork.
               </p>
             </div>
             <div>
