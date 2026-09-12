@@ -13,6 +13,7 @@ type ControlledInputProps<T extends FieldValues> = {
   rules?: UseControllerProps["rules"];
   renderRight?: ReactNode; // e.g., eye icon for password toggle
   disabled?: boolean;
+  maxLength?: number;
 };
 
 export function ControlledInput<T extends FieldValues>(input: ControlledInputProps<T>) {
@@ -25,6 +26,7 @@ export function ControlledInput<T extends FieldValues>(input: ControlledInputPro
     rules,
     renderRight,
     disabled,
+    maxLength,
   } = input;
   const { control } = useFormContext();
 
@@ -48,6 +50,7 @@ export function ControlledInput<T extends FieldValues>(input: ControlledInputPro
                 id={name}
                 type={type}
                 placeholder={placeholder}
+                maxLength={maxLength}
                 className={cn("pr-10 bg-white text-[#171524]", className, {
                   "border-red-500 focus:ring-red-500 focus-visible:border-red-500":
                     fieldState.error,
