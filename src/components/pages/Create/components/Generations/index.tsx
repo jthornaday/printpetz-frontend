@@ -58,7 +58,10 @@ export const Generations = () => {
         try {
           const result = await fetchGenerationById({ id }).unwrap();
 
-          if (result.status === EGenerationStatus.GENERATING) return;
+          // `continue`, not `return`: one image still generating must not stop
+          // us checking the rest of the batch, or a finished image stays hidden
+          // until every image before it has also finished.
+          if (result.status === EGenerationStatus.GENERATING) continue;
 
           refetchGenerationViews();
         } catch (error) {
