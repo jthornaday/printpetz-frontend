@@ -18,7 +18,15 @@ export const styleApi = supabaseBaseApi.injectEndpoints({
     getStyles: builder.query<IStyle[], GetStylesParams>({
       async queryFn() {
         try {
-          const { data, error } = await supabase.from("styles").select("*").order("id");
+          // is_active is the picker's only gate. A theme is hidden by setting
+          // the flag false, never by deleting the row or changing its category:
+          // generations.style_id references these rows and past orders would
+          // break.
+          const { data, error } = await supabase
+            .from("styles")
+            .select("*")
+            .eq("is_active", true)
+            .order("id");
 
           if (error) return createErrorResponse(error);
           return { data: data as IStyle[] };
