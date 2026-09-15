@@ -22,10 +22,16 @@ export const styleApi = supabaseBaseApi.injectEndpoints({
           // the flag false, never by deleting the row or changing its category:
           // generations.style_id references these rows and past orders would
           // break.
+          //
+          // "not false" rather than "= true" on purpose. eq("is_active", true)
+          // also drops rows where the flag is NULL, which is what any row
+          // predating the column looks like if it was added without a
+          // backfill -- and a theme with no flag set is a theme nobody has
+          // hidden. Only an explicit false hides anything.
           const { data, error } = await supabase
             .from("styles")
             .select("*")
-            .eq("is_active", true)
+            .not("is_active", "is", false)
             .order("id");
 
           if (error) return createErrorResponse(error);

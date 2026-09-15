@@ -2,18 +2,31 @@ import { CustomImagePreview } from "@/components/shared/CustomImagePreview";
 import { Loader } from "@/components/ui/loader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useGetStylesQuery } from "@/store/api/styleApi";
-import { ECategory, IStyle } from "@/types/style";
+import { IStyle } from "@/types/style";
 import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 
-// Tab order. The catalogue grew from 3 categories to 8 and the tabs were
-// rendering in whatever order the rows came back in, which put Sports and
-// Professions off the left edge of a 430px sidebar.
+// Tab order and display labels.
 //
-// Categories are still DERIVED FROM THE DATA, not from this list: a category
-// with no styles never gets a tab, so hiding themes stays the job of the
-// is_active filter in getStyles. This only decides the order of what survives.
-// Anything not listed here sorts to the end rather than disappearing, so a new
-// category shows up in the picker the day it is added to the table.
+// The table does not spell its categories the way the picker does: the
+// original 24 themes are filed under 'Profession' (singular) and 'themes'
+// (lowercase), while the 47 expansion themes use 'Christmas', 'Historical' and
+// so on. Matching those raw strings against a hardcoded list is what sorted
+// two real categories to the end of the tab row under labels nobody
+// recognised. Everything below therefore keys off a case-insensitive lookup,
+// and the tab shows the canonical label rather than whatever the row says.
+const CATEGORY_LABELS: Record<string, string> = {
+  sports: "Sports",
+  profession: "Professions",
+  professions: "Professions",
+  theme: "Themes",
+  themes: "Themes",
+  christmas: "Christmas",
+  thanksgiving: "Thanksgiving",
+  "4th of july": "4th of July",
+  historical: "Historical",
+  heroes: "Heroes",
+};
+
 const CATEGORY_ORDER: string[] = [
   "Sports",
   "Professions",
@@ -23,8 +36,14 @@ const CATEGORY_ORDER: string[] = [
   "4th of July",
 ];
 
-const categoryRank = (category: string) => {
-  const index = CATEGORY_ORDER.indexOf(category);
+// An unrecognised category keeps its raw name rather than being swallowed, so
+// a value added to the table shows up in the picker the same day -- misspelled
+// if need be, but visible and clickable.
+const categoryLabel = (category: string) =>
+  CATEGORY_LABELS[category?.trim().toLowerCase() ?? ""] ?? category;
+
+const categoryRank = (label: string) => {
+  const index = CATEGORY_ORDER.indexOf(label);
   return index === -1 ? CATEGORY_ORDER.length : index;
 };
 
@@ -77,10 +96,12 @@ export const StyleContent = ({
     [styles, searchTerm]
   );
 
+  // Tabs are keyed by the display label, so 'Profession' and a future
+  // 'Professions' collapse into one tab instead of two half-full ones.
   const categories = useMemo(() => {
-    if (!styles) return [] as ECategory[];
+    if (!styles) return [] as string[];
 
-    const seen = Array.from(new Set(styles.map((style) => style.category)));
+    const seen = Array.from(new Set(styles.map((style) => categoryLabel(style.category))));
     return seen.sort((a, b) => categoryRank(a) - categoryRank(b));
   }, [styles]);
 
@@ -115,7 +136,9 @@ export const StyleContent = ({
             {category}
             <span
               className={`w-1 h-1 rounded-full bg-orange ${
-                selectedStyle?.category === category ? "opacity-100" : "opacity-0"
+                selectedStyle && categoryLabel(selectedStyle.category) === category
+                  ? "opacity-100"
+                  : "opacity-0"
               } `}
             />
           </TabsTrigger>
@@ -123,7 +146,9 @@ export const StyleContent = ({
       </TabsList>
 
       {categories.map((category) => {
-        const categoryStyles = filteredStyles?.filter((s) => s.category === category);
+        const categoryStyles = filteredStyles?.filter(
+          (s) => categoryLabel(s.category) === category
+        );
 
         return (
           <TabsContent key={category} value={category} className="overflow-auto p-1">
