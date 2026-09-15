@@ -3,21 +3,34 @@ import { Loader } from "@/components/ui/loader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useGetStylesQuery } from "@/store/api/styleApi";
 import { ECategory, IStyle } from "@/types/style";
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
-import { StaticImageData } from "next/image";
-import americanFootballImage from "@/utils/images/sports/american-football.png";
-import boxingImage from "@/utils/images/sports/boxing.png";
-import cricketImage from "@/utils/images/sports/cricket.png";
+import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 
-const correctedSportsImages: Record<string, StaticImageData> = {
-  football: americanFootballImage,
-  boxing: boxingImage,
-  cricket: cricketImage,
+// Tab order. The catalogue grew from 3 categories to 8 and the tabs were
+// rendering in whatever order the rows came back in, which put Sports and
+// Professions off the left edge of a 430px sidebar.
+//
+// Categories are still DERIVED FROM THE DATA, not from this list: a category
+// with no styles never gets a tab, so hiding themes stays the job of the
+// is_active filter in getStyles. This only decides the order of what survives.
+// Anything not listed here sorts to the end rather than disappearing, so a new
+// category shows up in the picker the day it is added to the table.
+const CATEGORY_ORDER: string[] = [
+  "Sports",
+  "Professions",
+  "Themes",
+  "Christmas",
+  "Thanksgiving",
+  "4th of July",
+];
+
+const categoryRank = (category: string) => {
+  const index = CATEGORY_ORDER.indexOf(category);
+  return index === -1 ? CATEGORY_ORDER.length : index;
 };
 
 type ItemProps = {
   name: string;
-  image: string | StaticImageData;
+  image: string;
   isSelected?: boolean;
   onClick: () => void;
 };
@@ -31,12 +44,15 @@ type StyleContentProps = {
 const StyleItem = ({ name, image, isSelected, onClick }: ItemProps) => (
   <div
     onClick={onClick}
-    className={`flex flex-col aspect-[4/5] rounded-lg overflow-hidden transition cursor-pointer border ${
+    className={`flex flex-col rounded-lg overflow-hidden transition cursor-pointer border ${
       isSelected ? "border-primary bg-black-90" : "bg-black-80 border-transparent"
     }`}
   >
-    <div className="relative flex-grow">
-      <CustomImagePreview image={image} />
+    {/* Square rather than 4/5. The thumbnails are rendered 1:1, so a taller box
+        was letting next/image stretch them — object-cover keeps them honest at
+        whatever width the column lands on. */}
+    <div className="relative aspect-square w-full">
+      <CustomImagePreview image={image} alt={name} className="object-cover" />
     </div>
     <label
       className={`text-xs cursor-pointer font-semibold text-center px-1 py-2 ${
@@ -53,8 +69,6 @@ export const StyleContent = ({
   setSelectedStyle,
   searchTerm,
 }: StyleContentProps) => {
-  const [categories, setCategories] = useState<ECategory[]>([]);
-
   const { data: styles, isFetching } = useGetStylesQuery({});
 
   const filteredStyles = useMemo(
@@ -63,18 +77,15 @@ export const StyleContent = ({
     [styles, searchTerm]
   );
 
+  const categories = useMemo(() => {
+    if (!styles) return [] as ECategory[];
+
+    const seen = Array.from(new Set(styles.map((style) => style.category)));
+    return seen.sort((a, b) => categoryRank(a) - categoryRank(b));
+  }, [styles]);
+
   useEffect(() => {
     if (!styles) return;
-
-    const cats = styles.reduce((acc: ECategory[], curr) => {
-      if (acc.includes(curr.category)) {
-        return acc;
-      }
-      acc.push(curr.category);
-      return acc;
-    }, [] as ECategory[]);
-
-    setCategories(cats);
 
     if (!selectedStyle && styles[0]) {
       setSelectedStyle(styles[0]);
@@ -91,9 +102,16 @@ export const StyleContent = ({
 
   return (
     <Tabs defaultValue={categories[0]} className="h-full gap-1.5">
-      <TabsList className="w-full">
+      {/* Wraps to as many rows as it takes. flex-none on the trigger undoes the
+          flex-1 in the base component: equal-width tabs stretched to fill one
+          line is exactly what pushed the later categories off-screen. */}
+      <TabsList className="flex w-full flex-wrap justify-start gap-x-1">
         {categories.map((category) => (
-          <TabsTrigger key={category} value={category} className="gap-1 items-start">
+          <TabsTrigger
+            key={category}
+            value={category}
+            className="h-auto flex-none gap-1 items-start"
+          >
             {category}
             <span
               className={`w-1 h-1 rounded-full bg-orange ${
@@ -110,12 +128,16 @@ export const StyleContent = ({
         return (
           <TabsContent key={category} value={category} className="overflow-auto p-1">
             {categoryStyles?.length ? (
-              <div className="grid grid-cols-3 gap-1.5">
+              // Two up on mobile; from md the columns size themselves so a card
+              // lands near 200px wide. In the 430px create-page sidebar that is
+              // two columns, and the full-width layout below xl gets four or
+              // more from the same rule.
+              <div className="grid grid-cols-2 gap-3 md:[grid-template-columns:repeat(auto-fill,minmax(180px,1fr))]">
                 {categoryStyles.map((style) => (
                   <StyleItem
                     key={style.id}
                     name={style.name}
-                    image={correctedSportsImages[style.name.trim().toLowerCase()] ?? style.image}
+                    image={style.image}
                     isSelected={selectedStyle?.id === style.id}
                     onClick={() => setSelectedStyle(style)}
                   />
