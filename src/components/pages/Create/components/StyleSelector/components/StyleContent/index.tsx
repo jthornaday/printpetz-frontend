@@ -154,10 +154,9 @@ export const StyleContent = ({
           <TabsContent key={category} value={category} className="overflow-auto p-1">
             {categoryStyles?.length ? (
               // Two up on mobile; from md the columns size themselves so a card
-              // lands near 200px wide. In the 430px create-page sidebar that is
-              // two columns, and the full-width layout below xl gets four or
-              // more from the same rule.
-              <div className="grid grid-cols-2 gap-3 md:[grid-template-columns:repeat(auto-fill,minmax(180px,1fr))]">
+              // is never narrower than 240px. Beside the pet panel on xl that is
+              // two to four columns depending on screen width.
+              <div className="grid grid-cols-2 gap-4 md:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
                 {categoryStyles.map((style) => (
                   <StyleItem
                     key={style.id}
