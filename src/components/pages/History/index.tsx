@@ -1,12 +1,8 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { NoHistory } from "./components/NoHistory";
 import { GenerationItem } from "../shared/GenerationItem";
 import { GenerationPreviewDialog } from "../shared/GenerationPreviewDialog";
-import {
-  EGenerationStatus,
-  IGenerationViewDateGroup,
-  IGenerationViewItem,
-} from "@/types/generation";
+import { IGenerationViewDateGroup, IGenerationViewItem } from "@/types/generation";
 import { IStyle } from "@/types/style";
 import { IModel } from "@/types/model";
 import { Loader } from "@/components/ui/loader";
@@ -34,46 +30,32 @@ export const History = () => {
   } = useGetGenerationViews(user?.id);
 
   const [selectedGeneration, setSelectedGeneration] = useState<IExtendedGeneration | null>(null);
-  const [generationViewsGroupedByDate, setGenerationViewsGroupedByDate] = useState<
-    IGenerationViewDateGroup[]
-  >([]);
 
   // Infinite scroll hook
-  const { observerTarget, isLoadingMore } = useInfiniteScroll({
+  const { observerTarget, scrollRoot, isLoadingMore } = useInfiniteScroll({
     hasMore: hasNextPage,
     isFetching: isGenerationViewsFetching,
     onLoadMore: () => fetchNextPage(),
   });
 
-  useEffect(() => {
-    if (!generationViews) return;
+  // Headings come from group_id, the field the list is sorted by, and a new
+  // group starts whenever the day changes, so headings always follow list order.
+  const generationViewsGroupedByDate = useMemo(
+    () =>
+      generationViews.reduce((acc, genView) => {
+        const displayDate = formatDateForDisplay(genView.group_id);
+        const lastDateGroup = acc[acc.length - 1];
 
-    const timer = setTimeout(() => {
-      const formattedData = generationViews.reduce((acc, genView) => {
-        const displayDate = formatDateForDisplay(new Date(genView.created_at));
-        const existingDateGroup = acc.find((v) => v.displayDate === displayDate);
-
-        if (existingDateGroup) {
-          existingDateGroup.generationViews.push(genView);
-          return acc;
-        }
-
-        // add only if generation is not generating
-        const hasOtherThanGenerating = genView.generations.some(
-          (g) => g.status !== EGenerationStatus.GENERATING
-        );
-        if (hasOtherThanGenerating) {
+        if (lastDateGroup?.displayDate === displayDate) {
+          lastDateGroup.generationViews.push(genView);
+        } else {
           acc.push({ displayDate, generationViews: [genView] });
         }
 
         return acc;
-      }, [] as IGenerationViewDateGroup[]);
-
-      setGenerationViewsGroupedByDate(formattedData);
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [generationViews]);
+      }, [] as IGenerationViewDateGroup[]),
+    [generationViews]
+  );
 
   if (isGenerationViewsLoading) {
     return (
@@ -93,27 +75,30 @@ export const History = () => {
 
   return (
     <>
-      <div className="relative flex-1 flex flex-col gap-1.5 overflow-y-auto p-5 pb-1">
+      <div
+        ref={scrollRoot}
+        className="relative flex-1 flex flex-col gap-1.5 overflow-y-auto p-5 pb-1"
+      >
         <div className="flex flex-col gap-6">
           {generationViewsGroupedByDate.map((generationViewGroup) => {
             const { generationViews, displayDate } = generationViewGroup;
 
             return (
-              <div key={displayDate}>
+              <div key={generationViews[0].group_id}>
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-black-50 text-sm font-semibold">{displayDate}</p>
                   <span className="flex-1 h-[1px] bg-black-60" />
                 </div>
                 <div className="mt-2 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-2 bg-black-90 p-2 rounded-lg">
                   {generationViews.map((generationView) => {
-                    const generations = generationView.generations.filter(
-                      (g) => g.status !== EGenerationStatus.GENERATING
-                    );
+                    const { model, style } = generationView;
+                    const caption = `${model.pet_name ?? model.name} · ${style.name}`;
 
-                    return generations.map((generation) => (
+                    return generationView.generations.map((generation) => (
                       <GenerationItem
                         key={generation.id}
                         generation={generation}
+                        caption={caption}
                         onClick={() =>
                           setSelectedGeneration({
                             ...generation,

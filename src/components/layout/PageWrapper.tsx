@@ -24,12 +24,12 @@ const resolveLayout = (pathname: string): LayoutVariant => {
 
 const Shell = ({ children, className }: PageWrapperProps) => (
   <div className="min-h-screen overflow-hidden bg-[#fcfbff] text-[#171524]">
-    <div className={cn("h-screen min-h-[850px]", className)}>{children}</div>
+    <div className={cn("min-h-screen", className)}>{children}</div>
   </div>
 );
 
 const LAYOUT_MAP: Record<LayoutVariant, React.FC<{ children: React.ReactNode }>> = {
-  landing: ({ children }) => <Shell className="overflow-y-auto">{children}</Shell>,
+  landing: ({ children }) => <Shell className="h-screen overflow-y-auto">{children}</Shell>,
 
   auth: ({ children }) => (
     <Shell className="flex">
@@ -39,7 +39,7 @@ const LAYOUT_MAP: Record<LayoutVariant, React.FC<{ children: React.ReactNode }>>
   ),
 
   protected: ({ children }) => (
-    <Shell className="flex flex-col">
+    <Shell className="h-screen flex flex-col">
       <Header />
       <div className="flex flex-1 min-w-0 overflow-auto">
         <Sidebar />
