@@ -19,7 +19,7 @@ import { Loader } from "@/components/ui/loader";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { ROUTES } from "@/routes";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { setAppContext } from "@/store/slices/appContextSlice";
 
 const DEFAULT_LOOK_LEVEL = 1; // Natural
@@ -43,7 +43,9 @@ export const Create = () => {
   // this session started and treat it as in progress until none of its images
   // is still generating. A batch not in the list yet is one whose refetch
   // hasn't landed, so it counts as in progress too.
-  const [activeGroupId, setActiveGroupId] = useState<number | null>(null);
+  const activeGeneration = useAppSelector((state) => state.appContext.activeGeneration);
+  const activeGroupId =
+    activeGeneration && activeGeneration.userId === user?.id ? activeGeneration.groupId : null;
   const activeView = generationViews.find((view) => view.group_id === activeGroupId);
   const isBatchGenerating =
     activeGroupId !== null &&
@@ -51,7 +53,7 @@ export const Create = () => {
       activeView.generations.some((gen) => gen.status === EGenerationStatus.GENERATING));
   const isGenerating = isSubmitting || isBatchGenerating;
 
-  // The gallery that used to poll lives on History now. Without polling here the
+  // The gallery that used to poll lives on Gallery now. Without polling here the
   // batch would never be seen to finish and Generate would stay disabled.
   usePollGeneratingViews(generationViews, refetchGenerationViews);
 
@@ -85,10 +87,15 @@ export const Create = () => {
       }
 
       const groupId = data.generations.find(Boolean)?.group_id;
-      if (groupId) setActiveGroupId(groupId);
+      if (groupId && user) {
+        dispatch(setAppContext({ activeGeneration: { userId: user.id, groupId } }));
+      }
 
       refetchUser();
       refetchGenerationViews();
+      // In-progress and finished images show on Gallery. Only on success, so
+      // errors and the out-of-credits dialog still appear here.
+      router.push(ROUTES.history);
     } catch (error: unknown) {
       const apiError = error as ApiError;
 
@@ -139,7 +146,7 @@ export const Create = () => {
   return (
     <div className="min-w-0 flex-1 bg-[#f8f7fb]">
       {/* One column at every width: pet, then style, then review and generate.
-          Past creations live on History. */}
+          Past creations live on Gallery. */}
       <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-5 p-4 sm:p-6 xl:p-8">
         <div className="rounded-2xl border border-[#e7e2ee] bg-white p-4 sm:p-5">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">PrintPetz Studio</p>

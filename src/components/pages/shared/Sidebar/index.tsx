@@ -9,7 +9,7 @@ const navbarOptions = [
     icon: <MagicSparkIcon />,
   },
   {
-    name: "History",
+    name: "Gallery",
     path: ROUTES.history,
     icon: <HistoryIcon />,
   },
