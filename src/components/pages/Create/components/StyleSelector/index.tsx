@@ -14,7 +14,7 @@ export const StyleSelector = ({ selectedStyle, setSelectedStyle }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <div className="h-full max-h-[600px] bg-black-90 rounded-lg p-1 flex flex-col">
+    <div className="h-full max-h-[820px] bg-black-90 rounded-lg p-1 flex flex-col">
       <div className="flex gap-4 items-center p-3">
         <LayersIcon size={20} />
         <span className="font-bold">Style</span>
