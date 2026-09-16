@@ -84,7 +84,9 @@ export const History = () => {
         ref={scrollRoot}
         className="relative flex-1 flex flex-col gap-1.5 overflow-y-auto p-5 pb-1"
       >
-        <div className="flex flex-col gap-6">
+        <h1 className="text-2xl font-bold text-[#171524]">Gallery</h1>
+
+        <div className="mt-3 flex flex-col gap-6">
           {generationViewsGroupedByDate.map((generationViewGroup) => {
             const { generationViews, displayDate } = generationViewGroup;
 
