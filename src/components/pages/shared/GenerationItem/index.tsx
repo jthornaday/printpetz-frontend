@@ -12,6 +12,18 @@ type Props = {
   caption?: string;
 };
 
+// `error` holds whatever the backend saved from fal: sometimes a string,
+// sometimes a detail object like { reason, message }. React can't render an
+// object, so pull the text out of it.
+const errorText = (error: unknown): string | undefined => {
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object" && "message" in error) {
+    const { message } = error as { message: unknown };
+    if (typeof message === "string") return message;
+  }
+  return undefined;
+};
+
 export const GenerationItem = ({ generation, onClick, caption }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -32,7 +44,7 @@ export const GenerationItem = ({ generation, onClick, caption }: Props) => {
         <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
           <ThunderIcon className="text-red-500 mb-2" size={32} />
           <p className="text-xs text-red-400 line-clamp-3">
-            {generation.error || "Generation failed"}
+            {errorText(generation.error) || "Generation failed"}
           </p>
         </div>
       )}
