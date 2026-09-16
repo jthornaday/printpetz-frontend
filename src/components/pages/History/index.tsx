@@ -10,6 +10,7 @@ import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useGetUser } from "@/hooks/user/useGetUser";
 import { formatDateForDisplay, getModelName } from "@/utils/app_utils";
 import { useGetGenerationViews } from "@/hooks/generation/useGetGenerationViews";
+import { usePollGeneratingViews } from "@/hooks/generation/usePollGeneratingViews";
 
 // Extended interface to include style and model from the view
 interface IExtendedGeneration extends IGenerationViewItem {
@@ -27,7 +28,11 @@ export const History = () => {
     isGenerationViewsLoading,
     hasNextPage,
     fetchNextPage,
+    refetchGenerationViews,
   } = useGetGenerationViews(user?.id);
+
+  // Spinners turn into images without a reload.
+  usePollGeneratingViews(generationViews, refetchGenerationViews);
 
   const [selectedGeneration, setSelectedGeneration] = useState<IExtendedGeneration | null>(null);
 
