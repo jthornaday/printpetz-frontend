@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 /**
  * Function to generate model name from user name
  * @param name
@@ -9,27 +11,27 @@ export const getModelName = (name: string): string => {
 };
 
 /**
- * Function to format date for display
+ * Function to format date for display, in the viewer's local timezone:
+ * "Today", "Yesterday", "Mon 15 Sep" (year appended when not the current year),
+ * or "Earlier" when the date is missing or invalid.
  * @param dateInput
  * @returns
  */
-export const formatDateForDisplay = (dateInput: Date | string): string => {
-  const date = new Date(dateInput);
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
+export const formatDateForDisplay = (
+  dateInput: Date | string | number | null | undefined
+): string => {
+  if (dateInput === null || dateInput === undefined) return "Earlier";
 
-  const toYYYYMMDD = (d: Date) => d.toISOString().split("T")[0];
+  // Postgres can emit a two-digit UTC offset ("+00"), which Date can't parse.
+  const normalised =
+    typeof dateInput === "string" ? dateInput.replace(/([+-]\d{2})$/, "$1:00") : dateInput;
 
-  const dateString = toYYYYMMDD(date);
-  const todayString = toYYYYMMDD(today);
-  const yesterdayString = toYYYYMMDD(yesterday);
+  const date = dayjs(normalised);
+  if (!date.isValid()) return "Earlier";
 
-  if (dateString === todayString) {
-    return "Today";
-  } else if (dateString === yesterdayString) {
-    return "Yesterday";
-  } else {
-    return dateString;
-  }
+  const today = dayjs();
+  if (date.isSame(today, "day")) return "Today";
+  if (date.isSame(today.subtract(1, "day"), "day")) return "Yesterday";
+
+  return date.format(date.isSame(today, "year") ? "ddd D MMM" : "ddd D MMM YYYY");
 };

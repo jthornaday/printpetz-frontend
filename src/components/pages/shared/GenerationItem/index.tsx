@@ -8,12 +8,14 @@ import { useState } from "react";
 type Props = {
   generation: IGenerationViewItem;
   onClick: () => void;
+  // Always-visible single line under the image. Omit to render the bare tile.
+  caption?: string;
 };
 
-export const GenerationItem = ({ generation, onClick }: Props) => {
+export const GenerationItem = ({ generation, onClick, caption }: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  return (
+  const tile = (
     <div
       className="relative aspect-[4/5] rounded-md overflow-hidden bg-gray-800"
       onMouseEnter={() => setIsHovered(true)}
@@ -54,6 +56,15 @@ export const GenerationItem = ({ generation, onClick }: Props) => {
           </Button>
         </div>
       )}
+    </div>
+  );
+
+  if (!caption) return tile;
+
+  return (
+    <div className="min-w-0 flex flex-col gap-1">
+      {tile}
+      <p className="truncate px-0.5 text-xs font-medium text-black-40">{caption}</p>
     </div>
   );
 };

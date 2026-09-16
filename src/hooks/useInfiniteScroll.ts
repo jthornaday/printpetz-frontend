@@ -7,57 +7,50 @@ interface UseInfiniteScrollOptions {
   threshold?: number;
 }
 
+/**
+ * Loads the next page while the sentinel (`observerTarget`) is visible.
+ * Attach `scrollRoot` to the scrolling container the sentinel lives in;
+ * without it, visibility is measured against the viewport.
+ */
 export const useInfiniteScroll = ({
   hasMore,
   isFetching,
   onLoadMore,
   threshold = 0.1,
 }: UseInfiniteScrollOptions) => {
-  const observerTarget = useRef<HTMLDivElement>(null);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  // Callback refs (state setters) so the observer is created once the
+  // elements actually mount, e.g. after a loading state.
+  const [target, observerTarget] = useState<HTMLDivElement | null>(null);
+  const [root, scrollRoot] = useState<HTMLDivElement | null>(null);
+  const [isIntersecting, setIsIntersecting] = useState(false);
 
+  // Latest callback without re-running effects when callers pass an inline arrow.
+  const onLoadMoreRef = useRef(onLoadMore);
   useEffect(() => {
-    // Disconnect existing observer
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
+    onLoadMoreRef.current = onLoadMore;
+  });
 
-    // Don't create observer if already loading or no more data
-    if (isFetching || isLoadingMore || !hasMore) {
-      return;
-    }
+  // The observer stays attached for the lifetime of the elements, including
+  // while a page is being fetched.
+  useEffect(() => {
+    if (!target) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        // Only trigger if intersecting and not already loading
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !isFetching) {
-          setIsLoadingMore(true);
-          onLoadMore();
-          // Disconnect immediately after triggering to prevent multiple calls
-          observer.disconnect();
-        }
-      },
-      { threshold }
+      ([entry]) => setIsIntersecting(entry.isIntersecting),
+      { root, threshold }
     );
+    observer.observe(target);
 
-    observerRef.current = observer;
+    return () => observer.disconnect();
+  }, [target, root, threshold]);
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [hasMore, isLoadingMore, isFetching, onLoadMore, threshold]);
-
-  // Reset loading flag when loading completes
+  // Also re-runs when a fetch finishes, so a sentinel that is still visible
+  // after a page lands loads the next one.
   useEffect(() => {
-    if (!isFetching && isLoadingMore) {
-      setIsLoadingMore(false);
+    if (isIntersecting && hasMore && !isFetching) {
+      onLoadMoreRef.current();
     }
-  }, [isFetching, isLoadingMore]);
+  }, [isIntersecting, hasMore, isFetching]);
 
-  return { observerTarget, isLoadingMore };
+  return { observerTarget, scrollRoot, isLoadingMore: isIntersecting && isFetching };
 };
