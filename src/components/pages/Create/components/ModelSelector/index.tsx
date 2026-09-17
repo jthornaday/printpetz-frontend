@@ -1,4 +1,4 @@
-import { CaretIcon, MagicSparkIcon, ModelIcon } from "@/components/icons";
+import { CaretIcon, ModelIcon } from "@/components/icons";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { ModelSelectionPopover } from "./components/ModelSelectionPopover";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -70,30 +70,37 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
   return (
     <div className="relative flex flex-col gap-3">
       <div className="w-full rounded-lg bg-black-90 p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-4">
-            <ModelIcon size={20} />
-            <span className="font-bold">Your saved pets</span>
-          </div>
+        <div className="flex items-center gap-4">
+          <ModelIcon size={20} />
+          <span className="font-bold">Your saved pets</span>
+        </div>
 
+        <div className="mt-3">
           {isModelsFetching ? (
-            <Loader size={18} />
-          ) : !!models?.length ? (
+            <div className="flex min-h-11 items-center justify-center rounded-lg border border-black-70 bg-white px-4">
+              <Loader size={18} />
+            </div>
+          ) : (
             <Popover open={openModelSelectionPopover} onOpenChange={setOpenModelSelectionPopover}>
-              <PopoverTrigger className="flex cursor-pointer items-center gap-2.5">
-                <div className="flex cursor-pointer items-center gap-2.5 text-black-40">
-                  <span className="text-sm font-semibold">
-                    {selectedModel ? getModelName(selectedModel.name) : "Choose a pet"}
+              <PopoverTrigger className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 rounded-lg border border-primary/30 bg-white px-4 py-2.5 text-left transition hover:bg-primary/5">
+                <div className="min-w-0">
+                  <span className="block text-sm font-semibold text-primary">Previous models</span>
+                  <span className="block truncate text-xs text-black-40">
+                    {selectedModel
+                      ? getModelName(selectedModel.name)
+                      : models.length
+                        ? "Select a previous pet model"
+                        : "No previous models found for this account"}
                   </span>
-                  <CaretIcon size={14} className="rotate-90" />
                 </div>
+                <CaretIcon size={14} className="shrink-0 rotate-90" />
               </PopoverTrigger>
 
               <PopoverContent
                 align="start"
                 side="bottom"
                 sideOffset={8}
-                className="h-fit max-w-[calc(100vw-2rem)] rounded-xl border border-black-70 bg-white p-2"
+                className="h-fit w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] rounded-xl border border-black-70 bg-white p-2"
               >
                 <ModelSelectionPopover
                   models={models}
@@ -106,19 +113,8 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
                 />
               </PopoverContent>
             </Popover>
-          ) : null}
+          )}
         </div>
-
-        {!isModelsFetching && (
-          <button
-            type="button"
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/15"
-            onClick={openModelTraining}
-          >
-            <MagicSparkIcon size={18} />
-            Add a new pet
-          </button>
-        )}
       </div>
 
       {selectedModel?.training_images?.length ? (
