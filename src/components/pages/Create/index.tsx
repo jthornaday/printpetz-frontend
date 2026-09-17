@@ -155,39 +155,43 @@ export const Create = () => {
           <a href="#studio-review"><span>03</span><div>The masterpiece<small>Review & create</small></div></a>
         </nav>
 
-        <section id="studio-pet" className="studio-card">
-          <div className="studio-section-heading"><div><p className="studio-eyebrow">01 / THE MAIN CHARACTER</p><h2>Who’s in the spotlight?</h2><p>Choose a saved pet or introduce someone new with 3 or more photos.</p></div><Camera className="studio-section-icon" size={25}/></div>
-          <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel}/>
-        </section>
+        <div className="studio-layout">
+          <div className="studio-setup-column">
+            <section id="studio-pet" className="studio-card">
+              <div className="studio-section-heading"><div><p className="studio-eyebrow">01 / THE MAIN CHARACTER</p><h2>Who’s in the spotlight?</h2><p>Choose a saved pet or introduce someone new with 3 or more photos.</p></div><Camera className="studio-section-icon" size={25}/></div>
+              <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel}/>
+            </section>
 
-        <section id="studio-theme" className="studio-card">
-          <div className="studio-section-heading"><div><p className="studio-eyebrow">02 / A WORLD OF POSSIBILITIES</p><h2>Find their next adventure.</h2><p>Explore the collection. Choose the character that feels like them.</p></div>{selectedStyle && <span className="studio-selected-tag"><Check size={14}/>{selectedStyle.name}</span>}</div>
-          <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle}/>
-        </section>
-
-        <section id="studio-review" className="studio-card studio-review">
-          <div className="studio-section-heading"><div><p className="studio-eyebrow">03 / THE FINISHING TOUCHES</p><h2>Make something worth keeping.</h2><p>Review your choices and credits before creating.</p></div></div>
-          <div className="studio-review-grid">
-            <div>
-              <div className="studio-selection-pair">
-                <div className="studio-selection"><div className="studio-selection-image">{selectedModel?.training_images?.[0] ? <CustomImagePreview image={selectedModel.training_images[0]} alt={selectedModel.name} className="object-cover"/> : <Camera size={28}/>}</div><div><small>YOUR PET</small><strong>{selectedModel?.name ?? "Choose your pet"}</strong><a href="#studio-pet">Change pet</a></div></div>
-                <div className="studio-selection"><div className="studio-selection-image">{selectedStyle?.image ? <CustomImagePreview image={selectedStyle.image} alt={selectedStyle.name} className="object-cover"/> : <Sparkles size={28}/>}</div><div><small>THEIR THEME</small><strong>{selectedStyle?.name ?? "Choose a theme"}</strong><a href="#studio-theme">Change theme</a></div></div>
-              </div>
-              <GenerationControls numberOfGenerations={numberOfGenerations} setNumberOfGenerations={setNumberOfGenerations}/>
-            </div>
-            <div className="studio-create-panel">
-              <p className="studio-eyebrow">YOUR NEXT CREATION</p>
-              <div className="studio-cost"><span>{creditCost}</span><div>credits<small>{numberOfGenerations} image{numberOfGenerations > 1 ? "s" : ""} · 2 credits each</small></div></div>
-              <div className="studio-balance"><span>Your balance</span><strong>{user.credits} credits</strong></div>
-              {user.credits < creditCost && <p className="studio-low-credits">You’ll need more credits for this creation. <Link href={ROUTES.plan}>View plans</Link></p>}
-              <Button onClick={handleGenerate} disabled={isGenerateButtonDisabled} loading={isSubmitting} className="studio-generate-button" aria-describedby="studio-generation-status">
-                <Sparkles size={17}/>{isBatchGenerating ? "Creation in progress" : selectedModel && selectedStyle ? `Create ${numberOfGenerations} image${numberOfGenerations > 1 ? "s" : ""}` : "Choose your pet & theme"}
-              </Button>
-              <p id="studio-generation-status" role="status" className="studio-generation-note">{isSubmitting ? "Sending your creation request…" : isBatchGenerating ? "Your portraits are taking shape. Follow their progress in Gallery." : "Your new images will appear in Gallery, ready to review and refine."}</p>
-              {isBatchGenerating && <Link href={ROUTES.history} className="studio-progress-link">View progress in Gallery <ArrowUpRight size={14}/></Link>}
-            </div>
+            <section id="studio-theme" className="studio-card">
+              <div className="studio-section-heading"><div><p className="studio-eyebrow">02 / A WORLD OF POSSIBILITIES</p><h2>Find their next adventure.</h2><p>Explore the collection. Choose the character that feels like them.</p></div>{selectedStyle && <span className="studio-selected-tag"><Check size={14}/>{selectedStyle.name}</span>}</div>
+              <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle}/>
+            </section>
           </div>
-        </section>
+
+          <section id="studio-review" className="studio-card studio-review">
+            <div className="studio-section-heading"><div><p className="studio-eyebrow">03 / YOUR CREATION</p><h2>Bring their story to life.</h2><p>Your selections and total stay in view while you explore.</p></div></div>
+            <div className="studio-review-grid">
+              <div>
+                <div className="studio-selection-pair">
+                  <div className="studio-selection"><div className="studio-selection-image">{selectedModel?.training_images?.[0] ? <CustomImagePreview image={selectedModel.training_images[0]} alt={selectedModel.name} className="object-cover"/> : <Camera size={28}/>}</div><div><small>YOUR PET</small><strong>{selectedModel?.name ?? "Choose your pet"}</strong><a href="#studio-pet">Change pet</a></div></div>
+                  <div className="studio-selection"><div className="studio-selection-image">{selectedStyle?.image ? <CustomImagePreview image={selectedStyle.image} alt={selectedStyle.name} className="object-cover"/> : <Sparkles size={28}/>}</div><div><small>THEIR THEME</small><strong>{selectedStyle?.name ?? "Choose a theme"}</strong><a href="#studio-theme">Change theme</a></div></div>
+                </div>
+                <GenerationControls numberOfGenerations={numberOfGenerations} setNumberOfGenerations={setNumberOfGenerations}/>
+              </div>
+              <div className="studio-create-panel">
+                <p className="studio-eyebrow">YOUR NEXT CREATION</p>
+                <div className="studio-cost"><span>{creditCost}</span><div>credits<small>{numberOfGenerations} image{numberOfGenerations > 1 ? "s" : ""} · 2 credits each</small></div></div>
+                <div className="studio-balance"><span>Your balance</span><strong>{user.credits} credits</strong></div>
+                {user.credits < creditCost && <p className="studio-low-credits">You’ll need more credits for this creation. <Link href={ROUTES.plan}>View plans</Link></p>}
+                <Button onClick={handleGenerate} disabled={isGenerateButtonDisabled} loading={isSubmitting} className="studio-generate-button" aria-describedby="studio-generation-status">
+                  <Sparkles size={17}/>{isBatchGenerating ? "Creation in progress" : selectedModel && selectedStyle ? `Create ${numberOfGenerations} image${numberOfGenerations > 1 ? "s" : ""}` : "Choose your pet & theme"}
+                </Button>
+                <p id="studio-generation-status" role="status" className="studio-generation-note">{isSubmitting ? "Sending your creation request…" : isBatchGenerating ? "Your portraits are taking shape. Follow their progress in Gallery." : "Your new images will appear in Gallery, ready to review and refine."}</p>
+                {isBatchGenerating && <Link href={ROUTES.history} className="studio-progress-link">View progress in Gallery <ArrowUpRight size={14}/></Link>}
+              </div>
+            </div>
+          </section>
+        </div>
         <p className="studio-bottom-note">A little imagination. All their personality.</p>
       </div>
       <InsufficientCreditsDialog open={showCreditsDialog} onClose={() => setShowCreditsDialog(false)}/>
