@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, Camera, Check, Images, Sparkles } from "lucide-react";
+import { ArrowUpRight, Camera, Check, Images, Plus, Sparkles } from "lucide-react";
 import { useGenerateImageMutation } from "@/store/api/generationApi";
 import { useRef, useState } from "react";
 import { InsufficientCreditsDialog } from "@/components/shared/InsufficientCreditsDialog";
@@ -141,6 +141,10 @@ export const Create = () => {
 
   const creditCost = numberOfGenerations * 2;
 
+  const openModelTraining = () => {
+    dispatch(setAppContext({ isModelTrainingDialogOpen: true }));
+  };
+
   return (
     <div className="pg-workspace studio-page min-w-0 flex-1">
       <div className="studio-wrap">
@@ -157,7 +161,7 @@ export const Create = () => {
 
         <div className="studio-layout">
           <section id="studio-pet" className="studio-card">
-            <div className="studio-section-heading"><div><p className="studio-eyebrow">01 / THE MAIN CHARACTER</p><h2>Who’s in the spotlight?</h2><p>Choose a saved pet or introduce someone new with 3 or more photos.</p></div><Camera className="studio-section-icon" size={25}/></div>
+            <div className="studio-section-heading"><div><p className="studio-eyebrow">01 / THE MAIN CHARACTER</p><h2>Who’s in the spotlight?</h2><p>Choose a saved pet or introduce someone new with 3 or more photos.</p></div><button type="button" className="studio-create-pet-button" onClick={openModelTraining}><Plus size={17}/>Create your pet here</button></div>
             <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel}/>
           </section>
 
