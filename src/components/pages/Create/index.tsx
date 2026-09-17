@@ -156,20 +156,18 @@ export const Create = () => {
         </nav>
 
         <div className="studio-layout">
-          <div className="studio-setup-column">
-            <section id="studio-pet" className="studio-card">
-              <div className="studio-section-heading"><div><p className="studio-eyebrow">01 / THE MAIN CHARACTER</p><h2>Who’s in the spotlight?</h2><p>Choose a saved pet or introduce someone new with 3 or more photos.</p></div><Camera className="studio-section-icon" size={25}/></div>
-              <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel}/>
-            </section>
+          <section id="studio-pet" className="studio-card">
+            <div className="studio-section-heading"><div><p className="studio-eyebrow">01 / THE MAIN CHARACTER</p><h2>Who’s in the spotlight?</h2><p>Choose a saved pet or introduce someone new with 3 or more photos.</p></div><Camera className="studio-section-icon" size={25}/></div>
+            <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel}/>
+          </section>
 
-            <section id="studio-theme" className="studio-card">
-              <div className="studio-section-heading"><div><p className="studio-eyebrow">02 / A WORLD OF POSSIBILITIES</p><h2>Find their next adventure.</h2><p>Explore the collection. Choose the character that feels like them.</p></div>{selectedStyle && <span className="studio-selected-tag"><Check size={14}/>{selectedStyle.name}</span>}</div>
-              <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle}/>
-            </section>
-          </div>
+          <section id="studio-theme" className="studio-card">
+            <div className="studio-section-heading"><div><p className="studio-eyebrow">02 / A WORLD OF POSSIBILITIES</p><h2>Find their next adventure.</h2><p>Explore the collection. Choose the character that feels like them.</p></div>{selectedStyle && <span className="studio-selected-tag"><Check size={14}/>{selectedStyle.name}</span>}</div>
+            <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle}/>
+          </section>
 
           <section id="studio-review" className="studio-card studio-review">
-            <div className="studio-section-heading"><div><p className="studio-eyebrow">03 / YOUR CREATION</p><h2>Bring their story to life.</h2><p>Your selections and total stay in view while you explore.</p></div></div>
+            <div className="studio-section-heading"><div><p className="studio-eyebrow">03 / APPROVE &amp; GENERATE</p><h2>Bring their story to life.</h2><p>Review your pet, theme, image count, and exact credit total before creating.</p></div></div>
             <div className="studio-review-grid">
               <div>
                 <div className="studio-selection-pair">
