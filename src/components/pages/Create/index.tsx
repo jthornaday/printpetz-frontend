@@ -144,15 +144,15 @@ export const Create = () => {
   );
 
   return (
-    <div className="min-w-0 flex-1 bg-[#f8f7fb]">
+    <div className="pg-workspace min-w-0 flex-1 bg-[#f5f7fb]">
       {/* One column at every width: pet, then style, then review and generate.
           Past creations live on Gallery. */}
       <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-5 p-4 sm:p-6 xl:p-8">
         <div className="rounded-2xl border border-[#e7e2ee] bg-white p-4 sm:p-5">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">PrintPetz Studio</p>
-          <h1 className="mt-1 text-2xl font-bold text-[#171524]">Create your pet artwork</h1>
+          <h1 className="pg-studio-heading mt-1 text-2xl text-[#171524]">Their next great portrait</h1>
           <p className="mt-1 text-sm text-black-40">
-            Pick your pet and role, then refine the finished character in the editor.
+            Choose your pet and theme. Your new creations will appear in Gallery, ready to review and refine.
           </p>
         </div>
 
@@ -167,7 +167,7 @@ export const Create = () => {
         <section className="rounded-2xl border border-[#e7e2ee] bg-white p-4 shadow-sm sm:p-5">
           <div className="mb-2 flex items-center gap-2">
             {stepBadge(2)}
-            <span className="text-sm font-bold text-[#171524]">Choose a style</span>
+            <span className="text-sm font-bold text-[#171524]">Choose a theme</span>
           </div>
           <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} />
         </section>

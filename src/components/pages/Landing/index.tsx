@@ -1,441 +1,55 @@
-import Image, { StaticImageData } from "next/image";
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BadgeCheck,
-  Check,
-  ChevronRight,
-  CircleDot,
-  Coffee,
-  Gift,
-  GlassWater,
-  Heart,
-  Home,
-  ImagePlus,
-  PackageCheck,
-  Shirt,
-  Sparkles,
-} from "lucide-react";
+import Head from "next/head";
+import { ArrowRight, ArrowUpRight, Camera, Download, Sparkles } from "lucide-react";
+import { PremiumHeader, PremiumFooter } from "@/components/shared/Premium";
+import queen from "@/utils/images/landingPage/styles/queen.png";
 
-import { ROUTES } from "@/routes";
-import mug from "@/utils/images/mockups/mug.png";
-import pillow from "@/utils/images/mockups/pillow.png";
-import shirt from "@/utils/images/mockups/t-shirt.png";
-import king from "@/utils/images/sliderImages/10.png";
-import explorer from "@/utils/images/sliderImages/14.png";
-import coolKid from "@/utils/images/sliderImages/22.png";
-import queen from "@/utils/images/sliderImages/5.png";
-import cowboyDog from "@/utils/images/sliderImages/9.png";
-import footballDog from "@/utils/images/sports/american-football-dog.webp";
-
-const styles: { name: string; image: StaticImageData; color: string }[] = [
-  { name: "Game Day", image: footballDog, color: "bg-[#e8e2ff]" },
-  { name: "Royal", image: king, color: "bg-[#fff0ca]" },
-  { name: "Adventure", image: cowboyDog, color: "bg-[#dff4ff]" },
-  { name: "Cool Kid", image: coolKid, color: "bg-[#dcf6e8]" },
-  { name: "Queen", image: queen, color: "bg-[#ffe1ea]" },
-  { name: "Explorer", image: explorer, color: "bg-[#e2eaff]" },
+const portraits = [
+  { name: "The Explorer", theme: "Space", image: "/gallery/explorer.webp", alt: "Tabby cat imagined as an astronaut", detail: "To the stars and beyond." },
+  { name: "The Hero", theme: "Superhero", image: "/gallery/hero.webp", alt: "White and brown terrier in a royal blue superhero cape", detail: "Everyday heroes. Extraordinary stories." },
+  { name: "The Royal", theme: "Royal", image: "/gallery/royal.webp", alt: "Golden retriever in a royal blue velvet cape", detail: "Born to be iconic." },
 ];
-
-const products = [
-  {
-    icon: Shirt,
-    name: "Apparel",
-    copy: "Tees, hoodies, jerseys, and more",
-    color: "bg-[#eeeaff] text-primary",
-  },
-  {
-    icon: Coffee,
-    name: "Coffee cups",
-    copy: "Start every morning with their face",
-    color: "bg-[#fff0d2] text-[#a76500]",
-  },
-  {
-    icon: GlassWater,
-    name: "Water bottles",
-    copy: "Bring your best friend everywhere",
-    color: "bg-[#dff4ff] text-[#0877a8]",
-  },
-  {
-    icon: CircleDot,
-    name: "Coasters",
-    copy: "Small canvas, huge personality",
-    color: "bg-[#dcf6e8] text-[#168054]",
-  },
-  {
-    icon: GlassWater,
-    name: "Glassware",
-    copy: "Custom glasses made unmistakably yours",
-    color: "bg-[#ffe7ed] text-[#b33b5d]",
-  },
-  {
-    icon: Home,
-    name: "Home & gifts",
-    copy: "Pillows, keepsakes, and giftable favorites",
-    color: "bg-[#f0e8ff] text-[#7950b6]",
-  },
-];
-
 const steps = [
-  {
-    icon: ImagePlus,
-    title: "Upload their photos",
-    copy: "Start with 3 clear photos. Add more angles for an even closer likeness.",
-  },
-  {
-    icon: Sparkles,
-    title: "Choose their look",
-    copy: "Turn your pet into a champion, explorer, royal, hero, and more.",
-  },
-  {
-    icon: BadgeCheck,
-    title: "Approve the artwork",
-    copy: "Choose the creation that feels most like your pet before moving forward.",
-  },
-  {
-    icon: PackageCheck,
-    title: "Put it on products",
-    copy: "Use the approved design on apparel, drinkware, gifts, or a digital portrait.",
-  },
+  { title: "Introduce your pet", text: "Upload 3 or more clear photos of your best friend. Different angles help capture their distinctive features." },
+  { title: "Choose their story", text: "Find a theme that brings their personality to life. Review your credit cost before you create." },
+  { title: "Make it yours", text: "Create, review, refine, and download your favorites. A whole new way to celebrate them." },
+];
+const questions = [
+  { q: "What photos should I upload?", a: "Start with at least 3 sharp photos of one pet, with their face clearly visible. Include different angles and lighting. Avoid group shots, heavy filters, and blurry images." },
+  { q: "How do credits work?", a: "Your studio shows the cost before you generate. Creating a pet model currently costs 30 credits, and image generation uses 2 credits per image. You can create 1–4 images at a time. Visit Credits & plans for available purchases." },
+  { q: "Can I refine my artwork?", a: "Open a finished creation to access the image editor. New creations start in Natural, with Natural, Mascot, and Cartoon options available in the editor. Download your favorites when you’re ready." },
+  { q: "Can I order merchandise?", a: "Our focus today is helping you create artwork you love. The future shop will let you put your approved images on shirts, hats, coffee mugs, water bottles, sweatshirts, and more. Physical product ordering is not yet available." },
 ];
 
-const Wordmark = () => (
-  <span className="text-2xl font-black tracking-[-.05em] text-[#171524]">
-    Print<span className="text-primary">Petz</span>
-    <span className="text-[#ff6a4d]">.</span>
-  </span>
-);
-
-const ProductMockup = ({
-  image,
-  label,
-  className,
-}: {
-  image: StaticImageData;
-  label: string;
-  className: string;
-}) => (
-  <div
-    className={`absolute z-20 flex w-32 flex-col items-center rounded-[22px] border-[6px] border-white bg-white px-3 pb-3 pt-2 shadow-[0_18px_45px_rgba(43,34,79,.2)] ${className}`}
-  >
-    <div className="relative h-24 w-full">
-      <Image src={image} alt={label} fill className="object-contain" quality={100} sizes="128px" />
+function StudioPreview() {
+  const [selected, setSelected] = useState(0);
+  const portrait = portraits[selected];
+  return <div className="pg-studio-demo">
+    <div className="pg-demo-top"><span>Your creative studio</span><span>Artwork examples</span></div>
+    <div className="pg-demo-body">
+      <div className="pg-demo-controls"><p className="pp-eyebrow">A LITTLE INSPIRATION</p><h3>Try a different story.</h3><p>Select an example to explore the possibilities.</p><div className="pg-demo-themes" role="group" aria-label="Preview artwork themes">{portraits.map((p, i) => <button key={p.theme} type="button" aria-pressed={selected === i} onClick={() => setSelected(i)}><span className="pg-demo-thumb"><Image src={p.image} alt="" fill sizes="75px" className="object-cover" /></span><span>{p.theme}</span></button>)}</div><div className="pg-demo-note"><Camera size={18}/><span>In your studio, it starts with photos of <strong>your</strong> pet.</span></div><Link href="/create" className="pp-button">Open my studio <ArrowUpRight size={16}/></Link></div>
+      <figure className="pg-demo-result"><div className="pg-demo-result-image"><Image src={portrait.image} alt={portrait.alt} fill sizes="(min-width: 1000px) 380px, 80vw" className="object-cover" /></div><figcaption aria-live="polite">{portrait.name}<span>Sample character artwork</span></figcaption></figure>
     </div>
-    <span className="text-xs font-black text-[#171524]">{label}</span>
-  </div>
-);
+  </div>;
+}
 
-export const Landing = () => (
-  <div className="min-h-screen overflow-hidden bg-[#fcfbff] text-[#171524]">
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-[#ebe7f4] bg-[#fcfbff]/90 px-5 py-4 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
-        <Link href={ROUTES.landing} aria-label="PrintPetz home">
-          <Wordmark />
-        </Link>
-        <nav className="hidden items-center gap-8 text-sm font-bold text-[#716b80] md:flex">
-          <a href="#products" className="transition hover:text-primary">
-            Products
-          </a>
-          <a href="#how-it-works" className="transition hover:text-primary">
-            How it works
-          </a>
-          <a href="#styles" className="transition hover:text-primary">
-            Styles
-          </a>
-          <Link href={ROUTES.shop} className="transition hover:text-primary">
-            Shop
-          </Link>
-          <Link href={ROUTES.login} className="transition hover:text-primary">
-            Sign in
-          </Link>
-        </nav>
-        <Link
-          href={ROUTES.create}
-          className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-white shadow-[0_8px_25px_rgba(111,97,239,.25)] transition hover:-translate-y-0.5 hover:bg-[#5f50e4]"
-        >
-          Create my pet <ArrowRight size={16} />
-        </Link>
-      </div>
-    </header>
-
-    <main>
-      <section className="relative px-5 pb-20 pt-32 md:pb-28 md:pt-40">
-        <div className="absolute -left-36 top-20 size-96 rounded-full bg-[#ffdd79]/30 blur-[100px]" />
-        <div className="absolute -right-36 top-8 size-[420px] rounded-full bg-[#a796ff]/25 blur-[110px]" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[1.02fr_.98fr]">
-          <div className="text-center lg:text-left">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#ddd5ff] bg-white px-4 py-2 text-sm font-black text-primary shadow-sm">
-              <Sparkles size={16} /> Personalized pet products, powered by AI
-            </div>
-            <h1 className="text-5xl font-black leading-[.94] tracking-[-.055em] sm:text-6xl md:text-7xl lg:text-[78px]">
-              Your pet.
-              <br />
-              <span className="text-primary">On products</span>
-              <br />
-              you&apos;ll love.
-            </h1>
-            <p className="mx-auto mt-7 max-w-xl text-lg leading-8 text-[#665f75] md:text-xl lg:mx-0">
-              Turn your pet&apos;s photos into one-of-a-kind character art—then put the design you
-              approve on apparel, drinkware, gifts, and more.
-            </p>
-            <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-              <Link
-                href={ROUTES.create}
-                className="inline-flex h-14 items-center justify-center gap-2 rounded-xl bg-primary px-7 font-black text-white shadow-[0_14px_35px_rgba(111,97,239,.3)] transition hover:-translate-y-0.5 hover:bg-[#5f50e4]"
-              >
-                Create my pet <ArrowRight size={18} />
-              </Link>
-              <Link
-                href={ROUTES.shop}
-                className="inline-flex h-14 items-center justify-center gap-2 rounded-xl border-2 border-[#e4dff0] bg-white px-7 font-bold transition hover:border-primary hover:text-primary"
-              >
-                Shop products <ChevronRight size={18} />
-              </Link>
-            </div>
-            <div className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm font-semibold text-[#716b80] lg:justify-start">
-              <span className="inline-flex items-center gap-2">
-                <Check size={16} className="text-[#22a764]" strokeWidth={3} /> Approve the artwork
-                first
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Check size={16} className="text-[#22a764]" strokeWidth={3} /> Reuse it across
-                products
-              </span>
-            </div>
-          </div>
-
-          <div className="relative mx-auto w-full max-w-[570px] pb-20 pt-4 sm:px-14">
-            <div className="relative mx-auto aspect-[.88] max-w-[410px] rotate-2 overflow-hidden rounded-[38px] border-[9px] border-white bg-[#e8e2ff] shadow-[0_28px_70px_rgba(55,40,116,.22)]">
-              <Image
-                src={footballDog}
-                alt="Custom PrintPetz character ready for personalized products"
-                fill
-                className="object-cover"
-                quality={95}
-                sizes="(min-width: 1024px) 410px, 76vw"
-                priority
-              />
-              <div className="absolute inset-x-5 bottom-5 rounded-2xl bg-white/90 px-5 py-4 shadow-lg backdrop-blur">
-                <p className="text-xs font-black uppercase tracking-[.16em] text-primary">
-                  Approved artwork
-                </p>
-                <p className="mt-1 text-xl font-black">Ready for their merch ✦</p>
-              </div>
-            </div>
-            <ProductMockup
-              image={shirt}
-              label="Apparel"
-              className="-left-1 bottom-3 -rotate-6 sm:left-0"
-            />
-            <ProductMockup
-              image={mug}
-              label="Drinkware"
-              className="-right-1 top-3 rotate-6 sm:right-0"
-            />
-            <ProductMockup
-              image={pillow}
-              label="Home & gifts"
-              className="bottom-0 right-7 rotate-3 sm:right-4"
-            />
-            <div className="absolute left-0 top-0 z-20 -rotate-6 rounded-2xl bg-[#ffcc4d] px-5 py-3 font-black shadow-lg">
-              One pet. So many possibilities.
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-[#ece8f4] bg-white px-5 py-5">
-        <div className="mx-auto grid max-w-5xl gap-3 text-center text-sm font-bold text-[#625c70] sm:grid-cols-3">
-          <div className="rounded-xl bg-[#f8f6ff] px-4 py-3">
-            🐾 Made from your pet&apos;s photos
-          </div>
-          <div className="rounded-xl bg-[#f8f6ff] px-4 py-3">✓ You choose the final artwork</div>
-          <div className="rounded-xl bg-[#f8f6ff] px-4 py-3">🎁 Made for keeping or gifting</div>
-        </div>
-      </section>
-
-      <section id="products" className="px-5 py-20 md:py-28">
-        <div className="mx-auto max-w-7xl">
-          <div className="mx-auto mb-12 max-w-3xl text-center">
-            <p className="mb-3 text-sm font-black uppercase tracking-[.18em] text-primary">
-              Made for more than the screen
-            </p>
-            <h2 className="text-4xl font-black tracking-[-.04em] md:text-5xl">
-              Put your favorite face on your favorite things.
-            </h2>
-            <p className="mt-4 text-lg leading-8 text-[#716b80]">
-              Create the artwork once, then choose how you want to enjoy it.
-            </p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map(({ icon: Icon, name, copy, color }) => (
-              <Link
-                href={ROUTES.shop}
-                key={name}
-                className="group flex items-center gap-5 rounded-[24px] border border-[#e8e4f3] bg-white p-5 shadow-[0_8px_28px_rgba(43,34,79,.05)] transition hover:-translate-y-1 hover:border-[#d5ccff] hover:shadow-[0_16px_40px_rgba(78,60,155,.12)]"
-              >
-                <div className={`grid size-14 shrink-0 place-items-center rounded-2xl ${color}`}>
-                  <Icon size={25} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-lg font-black">{name}</h3>
-                  <p className="mt-1 text-sm leading-6 text-[#716b80]">{copy}</p>
-                </div>
-                <ChevronRight
-                  size={18}
-                  className="shrink-0 text-[#c3bdce] transition group-hover:translate-x-1 group-hover:text-primary"
-                />
-              </Link>
-            ))}
-          </div>
-          <div className="mt-10 text-center">
-            <Link
-              href={ROUTES.shop}
-              className="inline-flex h-13 items-center gap-2 rounded-xl bg-[#171524] px-7 font-black text-white transition hover:bg-primary"
-            >
-              Explore the shop <ArrowRight size={17} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section id="how-it-works" className="px-5 py-16">
-        <div className="mx-auto max-w-7xl rounded-[34px] bg-[#171524] px-6 py-12 text-white md:px-12 md:py-16">
-          <div className="mb-10 max-w-2xl">
-            <p className="text-sm font-black uppercase tracking-[.18em] text-[#aca2ff]">
-              From photos to products
-            </p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight md:text-5xl">
-              Your pet becomes the star.
-            </h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {steps.map(({ icon: Icon, title, copy }, index) => (
-              <div key={title} className="rounded-[22px] bg-white/[.07] p-6">
-                <div className="mb-5 flex items-center justify-between">
-                  <div className="grid size-11 place-items-center rounded-xl bg-primary">
-                    <Icon size={20} />
-                  </div>
-                  <span className="text-sm font-black text-white/25">0{index + 1}</span>
-                </div>
-                <h3 className="text-xl font-black">{title}</h3>
-                <p className="mt-2 leading-7 text-white/60">{copy}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="styles" className="px-5 py-20 md:py-28">
-        <div className="mx-auto max-w-7xl">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
-            <p className="mb-3 text-sm font-black uppercase tracking-[.18em] text-primary">
-              Choose their alter ego
-            </p>
-            <h2 className="text-4xl font-black tracking-[-.04em] md:text-5xl">
-              The artwork starts with their personality.
-            </h2>
-            <p className="mt-4 text-lg leading-8 text-[#716b80]">
-              Sporty, regal, heroic, adventurous—or something completely their own.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-            {styles.map((style, index) => (
-              <Link
-                href={ROUTES.create}
-                key={style.name}
-                className={`group relative aspect-[.82] overflow-hidden rounded-[24px] ${style.color} ${index % 2 ? "md:mt-8" : ""}`}
-              >
-                <Image
-                  src={style.image}
-                  alt={`${style.name} custom pet artwork`}
-                  fill
-                  className="object-cover transition duration-500 group-hover:scale-105"
-                  quality={95}
-                  sizes="(min-width: 1024px) 190px, (min-width: 768px) 33vw, 50vw"
-                />
-                <span className="absolute inset-x-3 bottom-3 rounded-xl bg-white/90 px-3 py-2 text-center text-sm font-black shadow-sm backdrop-blur">
-                  {style.name}
-                </span>
-              </Link>
-            ))}
-          </div>
-          <div className="mt-10 text-center">
-            <Link
-              href={ROUTES.create}
-              className="inline-flex h-13 items-center gap-2 rounded-xl bg-[#171524] px-7 font-black text-white transition hover:bg-primary"
-            >
-              Create their look <ArrowRight size={17} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-[#ece8f4] bg-white px-5 py-20">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-[.85fr_1.15fr]">
-          <div className="mx-auto grid size-64 place-items-center rounded-full bg-[#f0ecff] text-primary sm:size-72">
-            <div className="grid size-48 place-items-center rounded-full border-2 border-dashed border-primary/30 bg-white shadow-[0_18px_50px_rgba(78,60,155,.12)] sm:size-56">
-              <Gift size={78} strokeWidth={1.5} />
-            </div>
-          </div>
-          <div className="text-center md:text-left">
-            <p className="text-sm font-black uppercase tracking-[.18em] text-primary">
-              A gift that could only be theirs
-            </p>
-            <h2 className="mt-3 text-4xl font-black tracking-[-.04em] md:text-5xl">
-              Funny. Meaningful. Completely one of a kind.
-            </h2>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#716b80]">
-              Celebrate a birthday, holiday, game day, new pet, or treasured memory with something
-              made around the pet they love most.
-            </p>
-            <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm font-bold text-[#625c70] md:justify-start">
-              {["Pet parents", "Birthdays", "Holidays", "Game days", "Keepsakes"].map(
-                (occasion) => (
-                  <span key={occasion} className="rounded-full bg-[#f6f3ff] px-4 py-2">
-                    {occasion}
-                  </span>
-                )
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-5 py-24">
-        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[36px] bg-primary px-7 py-16 text-center text-white md:px-16 md:py-20">
-          <div className="absolute -left-16 -top-16 size-44 rounded-full bg-[#ffcc4d]" />
-          <div className="absolute -bottom-28 -right-16 size-64 rounded-full border-[54px] border-white/10" />
-          <div className="relative mx-auto max-w-3xl">
-            <Heart className="mx-auto" size={48} fill="currentColor" />
-            <h2 className="mt-4 text-4xl font-black tracking-[-.04em] md:text-6xl">
-              Your pet is one of a kind. Their gear should be too.
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl text-lg text-white/75">
-              Start with their photos. Finish with something you&apos;ll be proud to wear, use,
-              display, or give.
-            </p>
-            <Link
-              href={ROUTES.create}
-              className="mt-8 inline-flex h-14 items-center gap-2 rounded-xl bg-white px-7 font-black text-[#171524] shadow-lg transition hover:-translate-y-0.5"
-            >
-              Create my PrintPetz <ArrowRight size={18} />
-            </Link>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer className="border-t border-[#ebe7f4] bg-white px-5 py-8">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-sm text-[#777181] sm:flex-row">
-        <Wordmark />
-        <p>© 2026 PrintPetz. Your pet, made personal.</p>
-        <div className="flex gap-6 font-semibold">
-          <span>Privacy</span>
-          <span>Terms</span>
-          <span>Contact</span>
-        </div>
-      </div>
-    </footer>
-  </div>
-);
+export const Landing = () => <div className="pp-site pg-site">
+  <Head><title>PrintPetz | Your favorite face. A whole new story.</title><meta name="description" content="Create extraordinary pet portraits from the photos you already love. Explore imaginative themes in the PrintPetz creative studio."/></Head>
+  <a className="pp-skip" href="#main-content">Skip to content</a><PremiumHeader/>
+  <main id="main-content">
+    <section className="pg-hero pp-wrap"><p className="pp-eyebrow">A LITTLE IMAGINATION. ALL THEIR PERSONALITY.</p><h1>Your favorite face.<br/><em>A whole new story.</em></h1><p className="pp-intro">Create extraordinary pet portraits from the photos you already love.</p><div className="pp-actions"><Link href="/create" className="pp-button">Create my pet <ArrowUpRight size={17}/></Link><a href="#collections" className="pp-text-link">See the possibilities <ArrowRight size={17}/></a></div>
+      <div className="pg-triptych">{portraits.map((p,i)=><figure key={p.name} className={i===1 ? "pg-center-portrait" : ""}><div className="pg-portrait"><Image src={p.image} alt={p.alt} fill priority sizes="(min-width: 1280px) 400px, (min-width: 760px) 30vw, 45vw" className="object-cover"/></div><figcaption>{p.name}</figcaption></figure>)}</div>
+      <p className="pg-example-label">A few imagined possibilities. Your story starts with your pet.</p>
+    </section>
+    <section className="pg-benefits pp-wrap" aria-label="Creating with PrintPetz">{[{icon:Camera,title:"Start with 3 photos",text:"Share a few clear photos of your pet."},{icon:Sparkles,title:"Explore imaginative themes",text:"From adventurous to regal. Find their story."},{icon:Download,title:"Create, refine & download",text:"Make something you’ll love to keep."}].map(({icon:Icon,title,text})=><div key={title}><span className="pg-benefit-icon"><Icon size={21}/></span><div><h2>{title}</h2><p>{text}</p></div></div>)}</section>
+    <section id="collections" className="pp-section pp-wrap"><div className="pp-section-heading"><div><p className="pp-eyebrow">A WORLD OF POSSIBILITIES</p><h2>Meet their next adventure.</h2></div><Link href="/create" className="pp-text-link">Explore all themes <ArrowRight size={17}/></Link></div><div className="pp-theme-grid">{[...portraits,{name:"Her Royal Highness",theme:"Royal cat",image:queen,alt:"Cat wearing a crown and royal robes",detail:"For the one who rules your home."}].map(p=><Link href="/create" className="pp-theme" key={p.name}><div className="pp-theme-image"><Image src={p.image} alt={p.alt} fill sizes="(min-width: 1000px) 280px, 45vw" className="object-cover"/><span className="pp-image-arrow"><ArrowUpRight size={20}/></span></div><h3>{p.name}</h3><p>{p.detail}</p></Link>)}</div></section>
+    <section id="how-it-works" className="pg-process"><div className="pp-wrap"><p className="pp-eyebrow">HOW IT WORKS</p><h2>From camera roll to character.</h2><div className="pg-steps">{steps.map((s,i)=><article key={s.title}><span>0{i+1}</span><h3>{s.title}</h3><p>{s.text}</p></article>)}</div></div></section>
+    <section id="studio" className="pg-studio-section"><div className="pp-wrap pg-studio-layout"><div><p className="pp-eyebrow">THE STUDIO</p><h2>A little imagination.<br/><em>All their personality.</em></h2><p className="pp-intro">The expressive eyes. The familiar face. The personality you know by heart. Give your best friend a new story in your own creative studio.</p><ul className="pg-feature-list"><li>Keep your pets and creations together</li><li>Explore a world of character themes</li><li>See your credit cost before creating</li><li>Refine and download your favorites</li></ul></div><StudioPreview/></div></section>
+    <section className="pp-wrap pg-story"><div className="pg-story-art"><Image src="/gallery/hero.webp" alt="Terrier reimagined as a hero in a blue cape" fill sizes="(min-width: 800px) 440px, 90vw" className="object-cover"/></div><div><p className="pp-eyebrow">MORE THAN A PORTRAIT</p><h2>Same best friend.<br/><em>A whole new story.</em></h2><p className="pp-intro">For the pet who turns an ordinary day into your favorite day. Create a keepsake of their larger-than-life personality, or a thoughtful surprise for their favorite person.</p><Link href="/create" className="pp-text-link">Start their story <ArrowRight size={17}/></Link></div></section>
+    <section className="pg-future"><div className="pp-wrap"><div><p className="pp-eyebrow">COMING LATER</p><h2>Their art. Your everyday favorites.</h2></div><p>Your approved artwork on shirts, hats, coffee mugs, water bottles, sweatshirts, and more. First, let’s create a portrait you love.</p></div></section>
+    <section id="faq" className="pp-wrap pg-faq"><div><p className="pp-eyebrow">QUESTIONS</p><h2>Before their<br/>big debut.</h2></div><div>{questions.map(f=><details key={f.q}><summary>{f.q}</summary><p>{f.a}</p></details>)}</div></section>
+    <section className="pg-closing"><div className="pp-wrap"><div><p className="pp-eyebrow">ONE OF A KIND. JUST LIKE THEM.</p><h2>Ready for their<br/>next great portrait?</h2><p>A little imagination goes a long way.</p><Link href="/create" className="pp-button pp-white">Create my pet <ArrowUpRight size={17}/></Link></div><div className="pg-closing-art"><Image src="/gallery/hero.webp" alt="" fill sizes="(min-width: 760px) 440px, 90vw" className="object-cover"/></div></div></section>
+  </main><PremiumFooter/>
+</div>;

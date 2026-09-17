@@ -35,8 +35,8 @@ export const ModelTrainingDialog = () => {
         )}
       >
         <DialogHeader className="flex-row justify-between items-center p-4 border-b-[1px] border-black-70">
-          <DialogTitle>Train Your Model</DialogTitle>
-          <DialogClose onClick={handleOnClose} className="cursor-pointer text-black-40">
+          <DialogTitle>Meet your next masterpiece</DialogTitle>
+          <DialogClose aria-label="Close pet setup" onClick={handleOnClose} className="cursor-pointer text-black-40">
             <CancelIcon size={22} />
           </DialogClose>
         </DialogHeader>

@@ -17,21 +17,25 @@ export const GenerationControls = ({
       <div className="flex items-center justify-between">
         <div className="flex gap-4 items-center">
           <ScreenIcon size={20} />
-          <span className="font-bold">No. of Generations</span>
+          <span className="font-bold">Images</span>
         </div>
         <div className="flex items-center gap-3">
           <Button
+            aria-label="Fewer images"
+            disabled={numberOfGenerations <= 1}
             variant={"link"}
             onClick={() => setNumberOfGenerations((pre) => Math.max(1, pre - 1))}
-            className="min-h-5 h-6 w-6 p-1 text-black-30 hover:text-black-10 transition cursor-pointer text-xl"
+            className="min-h-11 h-11 w-11 p-1 text-black-30 hover:text-black-10 transition cursor-pointer text-xl"
           >
             -
           </Button>
           <span className="text-[#171524] font-semibold w-3 text-center">{numberOfGenerations}</span>
           <Button
+            aria-label="More images"
+            disabled={numberOfGenerations >= 4}
             variant={"link"}
             onClick={() => setNumberOfGenerations((pre) => Math.min(4, pre + 1))}
-            className="min-h-5 h-6 w-6 p-1 text-black-30 hover:text-black-10 transition cursor-pointer text-xl"
+            className="min-h-11 h-11 w-11 p-1 text-black-30 hover:text-black-10 transition cursor-pointer text-xl"
           >
             +
           </Button>

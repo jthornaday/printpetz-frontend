@@ -66,7 +66,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       // Redirect authenticated users away from public routes (login, signup, etc.)
       // but skip during signup OTP flow where email isn't confirmed yet.
       const isEmailConfirmed = !!session.user.email_confirmed_at;
-      if (isEmailConfirmed && isPublicRoute(router.pathname)) {
+      if (isEmailConfirmed && isPublicRoute(router.pathname) && router.pathname !== ROUTES.landing && router.pathname !== ROUTES.shop) {
         scheduleRedirect(ROUTES.create);
       }
     };

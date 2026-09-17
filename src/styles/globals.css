@@ -2,6 +2,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./font.css";
+@import "./premium.css";
+@import "./gallery.css";
 
 /* @custom-variant dark (&:is(.dark *)); */
 :root {
@@ -38,8 +40,8 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Custom Vars */
-  --primary: #6f61ef;
-  --primary-dark: #5f52d1;
+  --primary: #2454df;
+  --primary-dark: #163eb3;
   --red: #eb5454;
   --yellow: #ffc107;
   --orange: #f39122;
@@ -160,5 +162,5 @@
 body {
   font-family: "Messina Sans", sans-serif;
   font-optical-sizing: auto;
-  user-select: none;
+  user-select: text;
 }

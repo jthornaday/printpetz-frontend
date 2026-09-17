@@ -6,6 +6,7 @@ export const publicRoutes = [
   ROUTES.verification,
   ROUTES.forgotPassword,
   ROUTES.landing,
+  ROUTES.shop,
 ];
 
 export const protectedRoutes = [ROUTES.create, ROUTES.history, ROUTES.plan];

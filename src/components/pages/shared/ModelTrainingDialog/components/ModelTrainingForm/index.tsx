@@ -137,7 +137,8 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
 
           <div className="flex flex-col gap-4">
             <div>
-              <p className="text-sm font-semibold">Upload Your Pet&apos;s Images</p>
+              <p className="text-sm font-semibold">Their best photos</p>
+              <p role="status" className="mt-2 text-sm font-medium text-primary">{selectedImages.length} of {min} required photos added{selectedImages.length >= min ? " — ready to create" : ""}</p>
               <p className="mt-1.5 text-xs text-black-40">
                 Upload at least 3 clear photos. For the closest likeness, we recommend 6-10 photos
                 from different angles.
@@ -150,14 +151,17 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
                     return (
                       <div key={index} className="h-fit">
                         <div className="group relative aspect-[4/5] w-full overflow-clip rounded-lg bg-black-80">
-                          <div
+                          <button
+                            type="button"
+                            aria-label={`Remove photo ${index + 1}`}
+                            disabled={isModelTraining}
                             onClick={() =>
                               setSelectedImages((pre) => pre.filter((_, i) => i !== index))
                             }
-                            className="absolute -right-0.5 -top-0.5 z-10 cursor-pointer rounded-full border-2 border-black-90 bg-black-50 p-1 opacity-0 transition-all group-hover:opacity-100"
+                            className="absolute -right-0.5 -top-0.5 z-10 cursor-pointer rounded-full border-2 border-black-90 bg-black-50 p-2 opacity-100 transition-all hover:bg-black-30"
                           >
-                            <CancelIcon size={12} className="[&>*]:stroke-[3]" />
-                          </div>
+                            <CancelIcon size={16} className="[&>*]:stroke-[3]" />
+                          </button>
                           <CustomImagePreview image={file.src} />
                         </div>
                       </div>
@@ -194,7 +198,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
               disabled={selectedImages.length < min || isModelTraining}
               className="mt-2"
             >
-              {isModelTraining ? "Training Model..." : "Train Model"}
+              {isUploading ? "Uploading their photos…" : isTraining ? "Creating their model…" : "Create my pet model"}
             </Button>
             <div className="mt-4 flex items-center justify-center pb-2">
               <div className="flex items-center gap-2 rounded-2xl border border-yellow/10 bg-yellow/5 px-4 py-2 transition-all hover:bg-yellow/10">
