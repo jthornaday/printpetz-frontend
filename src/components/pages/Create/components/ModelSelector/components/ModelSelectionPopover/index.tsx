@@ -20,6 +20,11 @@ export const ModelSelectionPopover = ({
 }: Props) => {
   return (
     <div className="flex flex-col">
+      {!models.length && (
+        <p className="px-3.5 py-4 text-center text-sm leading-6 text-black-40">
+          No previous models were found for this account.
+        </p>
+      )}
       {models.map((model) => {
         const isSelected = model.id === selectedModel?.id;
         const isModelTraining = [EModelStatus.PENDING, EModelStatus.TRAINING].includes(
@@ -53,7 +58,7 @@ export const ModelSelectionPopover = ({
       })}
       <Button onClick={onCreateNew} className="px-5 mt-2">
         <MagicSparkIcon />
-        Create New Model
+        Create your pet here
       </Button>
     </div>
   );
