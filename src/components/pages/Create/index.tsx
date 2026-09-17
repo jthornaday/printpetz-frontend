@@ -57,7 +57,7 @@ export const Create = () => {
 
   // The gallery that used to poll lives on Gallery now. Without polling here the
   // batch would never be seen to finish and Generate would stay disabled.
-  usePollGeneratingViews(generationViews, refetchGenerationViews);
+  usePollGeneratingViews(generationViews, refetchGenerationViews, refetchUser);
 
   // Catches a second click that lands before the disabled state re-renders.
   const isSubmittingRef = useRef(false);

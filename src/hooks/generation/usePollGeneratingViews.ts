@@ -8,7 +8,8 @@ import { useEffect, useMemo } from "react";
  */
 export const usePollGeneratingViews = (
   generationViews: IGenerationView[],
-  refetchGenerationViews: () => void
+  refetchGenerationViews: () => void,
+  onGenerationSettled?: () => void
 ) => {
   const [fetchGenerationById] = useLazyGetGenerationByIdQuery();
 
@@ -28,6 +29,8 @@ export const usePollGeneratingViews = (
     if (generatingIds.length === 0) return;
 
     const interval = setInterval(async () => {
+      let hasSettledGeneration = false;
+
       for (const id of generatingIds) {
         try {
           const result = await fetchGenerationById({ id }).unwrap();
@@ -36,11 +39,18 @@ export const usePollGeneratingViews = (
           // us checking the rest of the batch, or a finished image stays hidden
           // until every image before it has also finished.
           if (result.status === EGenerationStatus.GENERATING) continue;
-
-          refetchGenerationViews();
+          hasSettledGeneration = true;
         } catch (error) {
           console.error(`Failed to fetch generation ${id}:`, error);
         }
+      }
+
+      if (hasSettledGeneration) {
+        refetchGenerationViews();
+        // Credits are charged when work is queued and returned by the backend
+        // when an image fails. Refresh the account alongside the Gallery so a
+        // refund is visible immediately instead of only after a page reload.
+        onGenerationSettled?.();
       }
     }, 4000);
 

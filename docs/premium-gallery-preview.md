@@ -19,7 +19,7 @@ Official setup: https://supabase.com/docs/guides/auth/social-login/auth-apple
 Premium Gallery typography and colors, a desktop split workspace with pet/theme setup on the left and a sticky creation summary on the right, a stacked mobile flow, keyboard-accessible theme buttons, all-category search, empty/error/retry states, clear costs and credit balance, and generation progress guidance. Model selection, uploads, theme IDs, credit costs, and request parameters still use the real existing data flows. No sample models are injected into the authenticated studio.
 
 ## Failed-generation credits
-The backend main branch now queues OpenAI work off the request thread, charges only for saved synchronous generations, and automatically returns the per-image credit when queued work fails or is swept as abandoned. This frontend keeps polling failed rows so the customer sees the failure in Gallery. The backend revision containing that worker/refund path must be deployed before final production approval; a frontend-only deployment cannot activate refunds.
+The backend main branch now queues OpenAI work off the request thread, charges only for saved synchronous generations, and automatically returns the per-image credit when queued work fails or is swept as abandoned. This frontend keeps polling failed rows so the customer sees the failure in Gallery and refreshes the account when a generation settles, making returned credits visible without a page reload. The backend revision containing that worker/refund path must be deployed before final production approval; a frontend-only deployment cannot activate refunds.
 
 ## Test checklist
 - Sign in with existing Google/email accounts; confirm the users row and credits load.
