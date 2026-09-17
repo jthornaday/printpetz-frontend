@@ -102,7 +102,10 @@ export const clientApi = supabaseAuthApi.injectEndpoints({
         return withRetry(() =>
           supabase.auth.signInWithOAuth({
             provider,
-            options: { queryParams },
+            options: {
+              queryParams,
+              redirectTo: new URL("/login", window.location.origin).href,
+            },
           })
         );
       },

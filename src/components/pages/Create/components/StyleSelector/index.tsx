@@ -1,4 +1,4 @@
-import { LayersIcon, SearchIcon } from "@/components/icons";
+import { SearchIcon } from "@/components/icons";
 import { IStyle } from "@/types/style";
 import { Dispatch, SetStateAction, useState } from "react";
 import { StyleContent } from "./components/StyleContent";
@@ -14,30 +14,12 @@ export const StyleSelector = ({ selectedStyle, setSelectedStyle }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <div className="h-full max-h-[820px] bg-black-90 rounded-lg p-1 flex flex-col">
-      <div className="flex gap-4 items-center p-3">
-        <LayersIcon size={20} />
-        <span className="font-bold">Style</span>
+    <div className="studio-theme-picker">
+      <div className="studio-theme-search">
+        <SearchIcon size={20}/>
+        <Input type="search" aria-label="Search all themes" placeholder="Search all themes — astronaut, baseball, royalty…" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-11 min-w-0 flex-1 border-0 bg-transparent text-sm focus-visible:ring-0"/>
       </div>
-
-      <div className="px-2 py-0.5 bg-black-80 flex items-center gap-2.5 rounded-lg mx-3 my-3">
-        <SearchIcon size={20} className="text-black-30" />
-        <Input
-          type="text"
-          placeholder="Search style"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-grow p-0 h-8 text-sm text-[#171524] font-semibold rounded-lg focus-visible:ring-0 focus-visible:border-transparent"
-        />
-      </div>
-
-      <div className="flex-1 overflow-y-auto">
-        <StyleContent
-          selectedStyle={selectedStyle}
-          setSelectedStyle={setSelectedStyle}
-          searchTerm={searchTerm}
-        />
-      </div>
+      <StyleContent selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} searchTerm={searchTerm}/>
     </div>
   );
 };

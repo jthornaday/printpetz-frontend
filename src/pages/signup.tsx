@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PrintPetzWordmark } from "@/components/shared/PrintPetzWordmark";
 import { Button } from "@/components/ui/button";
-import { GoogleIcon } from "@/components/icons";
+import { SocialSignIn } from "@/components/shared/SocialSignIn";
 import { Input } from "@/components/ui/input";
 import { ControlledInput } from "@/components/ui/form/ControlledInput";
 import { FormProvider, useForm } from "react-hook-form";
@@ -12,7 +12,7 @@ import { PasswordEyeButton } from "@/components/ui/passwordEyeButton";
 import { ROUTES } from "@/routes";
 import { useRouter } from "next/router";
 import { Footer } from "@/components/shared/Footer";
-import { useSignInWithProviderMutation, useSignUpWithEmailMutation } from "@/store/api/authApi";
+import { useSignUpWithEmailMutation } from "@/store/api/authApi";
 import { useToast } from "@/hooks/useToast";
 import { setSessionUser } from "@/store/slices/sessionUserSlice";
 import { useAppDispatch } from "@/store";
@@ -24,11 +24,17 @@ const SignupPage = () => {
 
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (!router.isReady || !router.query.error) return;
+    toast(EToastType.ERROR, "Sign-in wasn’t completed. Please try again or choose another option.");
+    router.replace("/signup", undefined, { shallow: true });
+  }, [router, toast]);
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const [handleGoogleAuth, { isLoading: isGoogleButtonLoading }] = useSignInWithProviderMutation();
+  const [isProviderSigning, setProviderSigning] = useState(false);
   const [handleSignup, { isLoading: isSignupButtonLoading }] = useSignUpWithEmailMutation();
 
   const methods = useForm<ISignupRequest>({
@@ -60,11 +66,11 @@ const SignupPage = () => {
     router.push(ROUTES.verification);
   });
 
-  const isBtnDisabled = isSignupButtonLoading || isGoogleButtonLoading;
+  const isBtnDisabled = isSignupButtonLoading || isProviderSigning;
 
   return (
     <div className="relative w-full lg:w-1/2 flex items-center justify-center bg-white px-6 md:px-12 py-12">
-      <div className="w-full max-w-md flex flex-col items-center gap-14 mb-14">
+      <div className="w-full max-w-md flex flex-col items-center gap-7 mb-14">
         {/* Logo */}
         <button
           type="button"
@@ -78,7 +84,7 @@ const SignupPage = () => {
         {/* Welcome Text */}
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-1.5">Let’s Create An Account</h2>
-          <p className="text-black-40">Fill the details to Create your Account</p>
+          <p className="text-black-40">A new story for your favorite face.</p>
         </div>
 
         <div className="flex flex-col w-full gap-5">
@@ -146,16 +152,7 @@ const SignupPage = () => {
             <div className="flex-1 h-px bg-black-70"></div>
           </div>
 
-          {/* Google Sign In */}
-          <Button
-            onClick={() => handleGoogleAuth({ provider: "google" })}
-            variant={"outline"}
-            loading={isGoogleButtonLoading}
-            disabled={isBtnDisabled}
-          >
-            <GoogleIcon size={18} className="tracking-wide" />
-            Continue With Google
-          </Button>
+          <SocialSignIn disabled={isBtnDisabled} onBusyChange={setProviderSigning} />
 
           {/* Sign Up Link */}
           <div className="text-center space-x-2 text-sm">

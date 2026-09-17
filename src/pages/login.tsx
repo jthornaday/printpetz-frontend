@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PrintPetzWordmark } from "@/components/shared/PrintPetzWordmark";
 import { Button } from "@/components/ui/button";
-import { GoogleIcon } from "@/components/icons";
+import { SocialSignIn } from "@/components/shared/SocialSignIn";
 import { Input } from "@/components/ui/input";
 import { ControlledInput } from "@/components/ui/form/ControlledInput";
 import { FormProvider, useForm } from "react-hook-form";
@@ -15,7 +15,6 @@ import { Footer } from "@/components/shared/Footer";
 import {
   useResendEmailOtpMutation,
   useSignInWithEmailMutation,
-  useSignInWithProviderMutation,
 } from "@/store/api/authApi";
 import { useToast } from "@/hooks/useToast";
 import { EToastType } from "@/types/toast";
@@ -25,10 +24,16 @@ const LoginPage = () => {
 
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (!router.isReady || !router.query.error) return;
+    toast(EToastType.ERROR, "Sign-in wasn’t completed. Please try again or choose another option.");
+    router.replace("/login", undefined, { shallow: true });
+  }, [router, toast]);
+
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const [handleGoogleAuth, { isLoading: isProviderSigning }] = useSignInWithProviderMutation();
+  const [isProviderSigning, setProviderSigning] = useState(false);
   const [handleSignIn, { isLoading: isSignInButtonLoading }] = useSignInWithEmailMutation();
   const [resendEmailOtp, { isLoading: isResendEmailOtpLoading }] = useResendEmailOtpMutation();
 
@@ -65,7 +70,7 @@ const LoginPage = () => {
 
   return (
     <div className="relative w-full lg:w-1/2 flex items-center justify-center bg-white px-6 md:px-12 py-12">
-      <div className="w-full max-w-md flex flex-col items-center gap-14 mb-20">
+      <div className="w-full max-w-md flex flex-col items-center gap-7 mb-20">
         {/* Logo */}
         <button
           type="button"
@@ -79,7 +84,7 @@ const LoginPage = () => {
         {/* Welcome Text */}
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-1.5">Welcome to PrintPetz</h2>
-          <p className="text-black-40">Please enter your Email & Password to sign in</p>
+          <p className="text-black-40">Your next great portrait starts here.</p>
         </div>
 
         <div className="flex flex-col w-full gap-5">
@@ -136,18 +141,7 @@ const LoginPage = () => {
             <div className="flex-1 h-px bg-black-70"></div>
           </div>
 
-          {/* Google Sign In */}
-          <Button
-            onClick={() =>
-              handleGoogleAuth({ provider: "google", queryParams: { prompt: "select_account" } })
-            }
-            variant={"outline"}
-            loading={isProviderSigning}
-            disabled={isBtnDisabled}
-          >
-            <GoogleIcon size={18} className="tracking-wide" />
-            Continue With Google
-          </Button>
+          <SocialSignIn disabled={isBtnDisabled} onBusyChange={setProviderSigning} />
 
           {/* Sign Up Link */}
           <div className="text-center space-x-2 text-sm">

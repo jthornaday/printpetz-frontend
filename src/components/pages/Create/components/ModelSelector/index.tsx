@@ -73,7 +73,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-4">
             <ModelIcon size={20} />
-            <span className="font-bold">Model</span>
+            <span className="font-bold">Your saved pets</span>
           </div>
 
           {isModelsFetching ? (
@@ -83,7 +83,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
               <PopoverTrigger className="flex cursor-pointer items-center gap-2.5">
                 <div className="flex cursor-pointer items-center gap-2.5 text-black-40">
                   <span className="text-sm font-semibold">
-                    {selectedModel ? getModelName(selectedModel.name) : "Select Model"}
+                    {selectedModel ? getModelName(selectedModel.name) : "Choose a pet"}
                   </span>
                   <CaretIcon size={14} className="rotate-90" />
                 </div>
@@ -91,9 +91,9 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
 
               <PopoverContent
                 align="start"
-                side="right"
-                sideOffset={45}
-                className="-mt-5 h-fit rounded-xl border-none bg-black-90 p-2"
+                side="bottom"
+                sideOffset={8}
+                className="h-fit max-w-[calc(100vw-2rem)] rounded-xl border border-black-70 bg-white p-2"
               >
                 <ModelSelectionPopover
                   models={models}
@@ -116,7 +116,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
             onClick={openModelTraining}
           >
             <MagicSparkIcon size={18} />
-            Create My Model
+            Add a new pet
           </button>
         )}
       </div>
