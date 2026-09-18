@@ -18,6 +18,8 @@ import { useGetUser } from "@/hooks/user/useGetUser";
 import { useToast } from "@/hooks/useToast";
 import { EToastType } from "@/types/toast";
 import { ApiError } from "@/types/api";
+import { usePhotoIntake } from "@/hooks/usePhotoIntake";
+import { useWindowFileDrop } from "@/hooks/useWindowFileDrop";
 import { InsufficientCreditsDialog } from "@/components/shared/InsufficientCreditsDialog";
 
 const { min, max } = appConstants.modelTraining.imageSelectionLimit;
@@ -31,6 +33,9 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const { user } = useGetUser();
 
   const [selectedImages, setSelectedImages] = useState<ImageMetadata[]>([]);
+
+  const addFiles = usePhotoIntake(selectedImages.length, setSelectedImages);
+  const isDraggingFiles = useWindowFileDrop(addFiles);
 
   const [uploadFile, { isLoading: isUploading }] = useUploadFileMutation();
   const [trainModel, { isLoading: isTraining }] = useTrainModelMutation();
@@ -94,7 +99,11 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const isModelTraining = isUploading || isTraining;
 
   return (
-    <div className="order-1 min-h-0 min-w-0 flex-1 overflow-y-auto p-4 md:order-2 md:h-full">
+    <div
+      className={`order-1 min-h-0 min-w-0 flex-1 overflow-y-auto p-4 transition-shadow md:order-2 md:h-full ${
+        isDraggingFiles ? "ring-2 ring-inset ring-yellow" : ""
+      }`}
+    >
       <FormProvider {...methods}>
         <div className="flex min-h-full flex-col gap-5 pb-2">
           <div className="flex flex-col gap-4">
@@ -168,14 +177,14 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
                     );
                   })}
                   {selectedImages.length < max && (
-                    <div className="aspect-[4/5] w-full rounded-lg border-2 border-dashed border-black-60">
-                      <InputMultipleImages isSmall setSelectedImages={setSelectedImages} />
+                    <div className="relative aspect-[4/5] w-full rounded-lg border-2 border-dashed border-black-60">
+                      <InputMultipleImages isSmall onFiles={addFiles} />
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="h-40 w-full overflow-hidden rounded-2xl border-2 border-dashed border-black-60">
-                  <InputMultipleImages setSelectedImages={setSelectedImages} />
+                <div className="relative h-40 w-full overflow-hidden rounded-2xl border-2 border-dashed border-black-60">
+                  <InputMultipleImages onFiles={addFiles} />
                 </div>
               )}
             </div>

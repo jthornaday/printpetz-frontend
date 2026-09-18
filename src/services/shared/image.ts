@@ -32,6 +32,74 @@ export const isHeicFile = async (file: File): Promise<boolean> => {
   }
 };
 
+const PHOTO_MIME_BY_EXTENSION: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+};
+const PHOTO_MIMES = new Set(Object.values(PHOTO_MIME_BY_EXTENSION));
+
+// Some drag sources (Windows, chat apps, downloads folders) hand over a real
+// JPEG with an empty `type`. Those used to be dropped silently by the
+// `image/` check, so fall back to the extension when the browser gave no type.
+const photoMime = (file: File): string | null => {
+  if (PHOTO_MIMES.has(file.type)) return file.type;
+  if (file.type && file.type !== "application/octet-stream") return null;
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return PHOTO_MIME_BY_EXTENSION[extension] ?? null;
+};
+
+export type PhotoIntake = {
+  images: ImageMetadata[];
+  heic: string[];
+  unsupported: string[];
+  unreadable: string[];
+};
+
+/**
+ * Sort a batch of dropped or picked files into what can be added and what
+ * cannot, naming every file that cannot. One bad file must never take the
+ * others down with it: reads are settled individually, and nothing is dropped
+ * without being reported.
+ */
+export const readPhotoFiles = async (files: File[]): Promise<PhotoIntake> => {
+  const heicFlags = await Promise.all(files.map(isHeicFile));
+  const intake: PhotoIntake = { images: [], heic: [], unsupported: [], unreadable: [] };
+
+  const candidates: Array<{ file: File; mime: string }> = [];
+  files.forEach((file, i) => {
+    if (heicFlags[i]) {
+      intake.heic.push(file.name);
+      return;
+    }
+    const mime = photoMime(file);
+    if (mime) candidates.push({ file, mime });
+    else intake.unsupported.push(file.name);
+  });
+
+  const reads = await Promise.allSettled(
+    candidates.map(
+      ({ file, mime }) =>
+        new Promise<ImageMetadata>((resolve, reject) => {
+          const reader = new FileReader();
+          // Re-typed so an empty-type file still gets a data URL the <img> and
+          // dataURLtoFile understand.
+          reader.onload = () => resolve({ name: file.name, src: reader.result as string });
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(new File([file], file.name, { type: mime }));
+        })
+    )
+  );
+
+  reads.forEach((result, i) => {
+    if (result.status === "fulfilled") intake.images.push(result.value);
+    else intake.unreadable.push(candidates[i].file.name);
+  });
+
+  return intake;
+};
+
 export const dataURLtoFile = (dataUrl: string, filename: string) => {
   const arr = dataUrl.split(",");
   const mime = arr[0].match(/:(.*?);/)?.[1] || "image/png";
