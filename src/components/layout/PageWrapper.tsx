@@ -16,7 +16,7 @@ type LayoutVariant = "landing" | "auth" | "protected" | "default";
 const AUTH_SLIDER_ROUTES = [...publicRoutes, ROUTES.resetPassword];
 
 const resolveLayout = (pathname: string): LayoutVariant => {
-  if (pathname === ROUTES.landing) return "landing";
+  if (pathname === ROUTES.landing || pathname === ROUTES.shop) return "landing";
   if (AUTH_SLIDER_ROUTES.includes(pathname)) return "auth";
   if (protectedRoutes.includes(pathname)) return "protected";
   return "default";
@@ -29,7 +29,7 @@ const Shell = ({ children, className }: PageWrapperProps) => (
 );
 
 const LAYOUT_MAP: Record<LayoutVariant, React.FC<{ children: React.ReactNode }>> = {
-  landing: ({ children }) => <Shell className="h-screen overflow-y-auto">{children}</Shell>,
+  landing: ({ children }) => <>{children}</>,
 
   auth: ({ children }) => (
     <Shell className="flex">

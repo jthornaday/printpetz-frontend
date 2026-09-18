@@ -61,26 +61,10 @@ type StyleContentProps = {
 };
 
 const StyleItem = ({ name, image, isSelected, onClick }: ItemProps) => (
-  <div
-    onClick={onClick}
-    className={`flex flex-col rounded-lg overflow-hidden transition cursor-pointer border ${
-      isSelected ? "border-primary bg-black-90" : "bg-black-80 border-transparent"
-    }`}
-  >
-    {/* Square rather than 4/5. The thumbnails are rendered 1:1, so a taller box
-        was letting next/image stretch them — object-cover keeps them honest at
-        whatever width the column lands on. */}
-    <div className="relative aspect-square w-full">
-      <CustomImagePreview image={image} alt={name} className="object-cover" />
-    </div>
-    <label
-      className={`text-xs cursor-pointer font-semibold text-center px-1 py-2 ${
-        isSelected ? "text-primary font-bold" : "text-black-30"
-      }`}
-    >
-      {name}
-    </label>
-  </div>
+  <button type="button" onClick={onClick} aria-pressed={!!isSelected} className="studio-theme-card">
+    <span className="relative block aspect-square w-full"><CustomImagePreview image={image} alt={name} className="object-cover"/></span>
+    <span className="studio-theme-card-caption"><span>{name}</span>{isSelected && <span aria-hidden="true">✓</span>}</span>
+  </button>
 );
 
 export const StyleContent = ({
@@ -88,11 +72,11 @@ export const StyleContent = ({
   setSelectedStyle,
   searchTerm,
 }: StyleContentProps) => {
-  const { data: styles, isFetching } = useGetStylesQuery({});
+  const { data: styles, isLoading, isError, refetch } = useGetStylesQuery({});
 
   const filteredStyles = useMemo(
     () =>
-      styles?.filter((style) => style.name.toLowerCase().includes(searchTerm.toLowerCase())) || [],
+      styles?.filter((style) => style.name.toLowerCase().includes(searchTerm.trim().toLowerCase())) || [],
     [styles, searchTerm]
   );
 
@@ -113,68 +97,14 @@ export const StyleContent = ({
     }
   }, [styles, selectedStyle, setSelectedStyle]);
 
-  if (isFetching || !categories.length) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
+  if (isLoading) return <div className="studio-empty" role="status"><Loader/><p>Loading the theme collection…</p></div>;
+  if (isError) return <div className="studio-empty" role="alert">We couldn’t load the themes.<button type="button" onClick={() => refetch()}>Try again</button></div>;
+  if (!styles?.length) return <div className="studio-empty">No themes are available yet. Please check back soon.</div>;
 
-  return (
-    <Tabs defaultValue={categories[0]} className="h-full gap-1.5">
-      {/* Wraps to as many rows as it takes. flex-none on the trigger undoes the
-          flex-1 in the base component: equal-width tabs stretched to fill one
-          line is exactly what pushed the later categories off-screen. */}
-      <TabsList className="flex w-full flex-wrap justify-start gap-x-1">
-        {categories.map((category) => (
-          <TabsTrigger
-            key={category}
-            value={category}
-            className="h-auto flex-none gap-1 items-start"
-          >
-            {category}
-            <span
-              className={`w-1 h-1 rounded-full bg-orange ${
-                selectedStyle && categoryLabel(selectedStyle.category) === category
-                  ? "opacity-100"
-                  : "opacity-0"
-              } `}
-            />
-          </TabsTrigger>
-        ))}
-      </TabsList>
+  const renderCards = (items: IStyle[]) => items.length ? <div className="studio-theme-grid">{items.map(style => <StyleItem key={style.id} name={style.name} image={style.image} isSelected={selectedStyle?.id === style.id} onClick={() => setSelectedStyle(style)}/>)}</div> : <p className="studio-empty">No themes match your search. Try another word.</p>;
 
-      {categories.map((category) => {
-        const categoryStyles = filteredStyles?.filter(
-          (s) => categoryLabel(s.category) === category
-        );
+  // Search the entire collection, including categories that are not active.
+  if (searchTerm.trim()) return <div><p role="status" className="studio-search-count">{filteredStyles.length} matching theme{filteredStyles.length === 1 ? "" : "s"} across all categories</p>{renderCards(filteredStyles)}</div>;
 
-        return (
-          <TabsContent key={category} value={category} className="overflow-auto p-1">
-            {categoryStyles?.length ? (
-              // Two up on mobile; from md the columns size themselves so a card
-              // is never narrower than 240px. Beside the pet panel on xl that is
-              // two to four columns depending on screen width.
-              <div className="grid grid-cols-2 gap-4 md:[grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
-                {categoryStyles.map((style) => (
-                  <StyleItem
-                    key={style.id}
-                    name={style.name}
-                    image={style.image}
-                    isSelected={selectedStyle?.id === style.id}
-                    onClick={() => setSelectedStyle(style)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center text-secondary text-sm py-40">
-                No styles found
-              </div>
-            )}
-          </TabsContent>
-        );
-      })}
-    </Tabs>
-  );
+  return <Tabs defaultValue={categories[0]} className="gap-2"><TabsList className="flex w-full flex-wrap justify-start">{categories.map(category => <TabsTrigger key={category} value={category} className="flex-none">{category}</TabsTrigger>)}</TabsList>{categories.map(category => <TabsContent key={category} value={category}>{renderCards(styles.filter(s => categoryLabel(s.category) === category))}</TabsContent>)}</Tabs>;
 };

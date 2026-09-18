@@ -19,41 +19,48 @@ export const ModelSelectionPopover = ({
   models,
 }: Props) => {
   return (
-    <div className="flex flex-col">
-      {models.map((model) => {
-        const isSelected = model.id === selectedModel?.id;
-        const isModelTraining = [EModelStatus.PENDING, EModelStatus.TRAINING].includes(
-          model.status
-        );
-        const isCompleted = model.status === EModelStatus.COMPLETED;
-        const isError = model.status === EModelStatus.ERROR;
+    <div className="flex max-h-[min(32rem,var(--radix-popover-content-available-height))] min-h-0 flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+        {!models.length && (
+          <p className="px-3.5 py-4 text-center text-sm leading-6 text-black-40">
+            No previous models were found for this account.
+          </p>
+        )}
+        {models.map((model) => {
+          const isSelected = model.id === selectedModel?.id;
+          const isModelTraining = [EModelStatus.PENDING, EModelStatus.TRAINING].includes(
+            model.status
+          );
+          const isCompleted = model.status === EModelStatus.COMPLETED;
+          const isError = model.status === EModelStatus.ERROR;
 
-        return (
-          <div
-            key={model.id}
-            onClick={() => isCompleted && onSelection(model)}
-            className={cn(
-              "w-full p-3.5 transition text-sm flex items-center justify-between rounded-lg cursor-pointer",
-              {
-                "bg-black-80": isSelected,
-                "hover:bg-black-80/80": !isError && !isSelected,
-              }
-            )}
-          >
-            <div className="flex items-center gap-2">
-              {isModelTraining && <Loader size={16} />}
-              <span className={`${isSelected ? "text-primary font-semibold" : "text-black-40"}`}>
-                {getModelName(model.name)}
-              </span>
+          return (
+            <div
+              key={model.id}
+              onClick={() => isCompleted && onSelection(model)}
+              className={cn(
+                "w-full p-3.5 transition text-sm flex items-center justify-between rounded-lg cursor-pointer",
+                {
+                  "bg-black-80": isSelected,
+                  "hover:bg-black-80/80": !isError && !isSelected,
+                }
+              )}
+            >
+              <div className="flex items-center gap-2">
+                {isModelTraining && <Loader size={16} />}
+                <span className={`${isSelected ? "text-primary font-semibold" : "text-black-40"}`}>
+                  {getModelName(model.name)}
+                </span>
+              </div>
+              {isSelected && <span className="text-primary">✓</span>}
+              {isError && <ErrorIcon size={18} className="text-red" />}
             </div>
-            {isSelected && <span className="text-primary">✓</span>}
-            {isError && <ErrorIcon size={18} className="text-red" />}
-          </div>
-        );
-      })}
-      <Button onClick={onCreateNew} className="px-5 mt-2">
+          );
+        })}
+      </div>
+      <Button onClick={onCreateNew} className="mt-2 px-5">
         <MagicSparkIcon />
-        Create New Model
+        Create your pet here
       </Button>
     </div>
   );

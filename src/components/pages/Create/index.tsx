@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowUpRight, Camera, Check, Images, Plus, Sparkles } from "lucide-react";
 import { useGenerateImageMutation } from "@/store/api/generationApi";
 import { useRef, useState } from "react";
 import { InsufficientCreditsDialog } from "@/components/shared/InsufficientCreditsDialog";
@@ -55,7 +57,7 @@ export const Create = () => {
 
   // The gallery that used to poll lives on Gallery now. Without polling here the
   // batch would never be seen to finish and Generate would stay disabled.
-  usePollGeneratingViews(generationViews, refetchGenerationViews);
+  usePollGeneratingViews(generationViews, refetchGenerationViews, refetchUser);
 
   // Catches a second click that lands before the disabled state re-renders.
   const isSubmittingRef = useRef(false);
@@ -137,113 +139,64 @@ export const Create = () => {
     );
   }
 
-  const stepBadge = (step: number) => (
-    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
-      {step}
-    </span>
-  );
+  const creditCost = numberOfGenerations * 2;
+
+  const openModelTraining = () => {
+    dispatch(setAppContext({ isModelTrainingDialogOpen: true }));
+  };
 
   return (
-    <div className="min-w-0 flex-1 bg-[#f8f7fb]">
-      {/* One column at every width: pet, then style, then review and generate.
-          Past creations live on Gallery. */}
-      <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-5 p-4 sm:p-6 xl:p-8">
-        <div className="rounded-2xl border border-[#e7e2ee] bg-white p-4 sm:p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">PrintPetz Studio</p>
-          <h1 className="mt-1 text-2xl font-bold text-[#171524]">Create your pet artwork</h1>
-          <p className="mt-1 text-sm text-black-40">
-            Pick your pet and role, then refine the finished character in the editor.
-          </p>
+    <div className="pg-workspace studio-page min-w-0 flex-1">
+      <div className="studio-wrap">
+        <header className="studio-heading">
+          <div><p className="studio-eyebrow">THE PRINTPETZ CREATIVE STUDIO</p><h1>Let’s tell <em>their story.</em></h1><p>A familiar face. A little imagination. Something entirely their own.</p></div>
+          <Link href={ROUTES.history} className="studio-gallery-link"><Images size={17}/> Your gallery <ArrowUpRight size={16}/></Link>
+        </header>
+
+        <nav className="studio-progress" aria-label="Creation steps">
+          <a href="#studio-pet"><span>{selectedModel ? <Check size={16}/> : "01"}</span><div>Your Pet<small>{selectedModel ? "Selected" : "Start here"}</small></div></a>
+          <a href="#studio-theme"><span>{selectedStyle ? <Check size={16}/> : "02"}</span><div>Their Picture<small>{selectedStyle ? selectedStyle.name : "Choose a theme"}</small></div></a>
+          <a href="#studio-review"><span>03</span><div>Your Masterpiece<small>Review & create</small></div></a>
+        </nav>
+
+        <div className="studio-layout">
+          <section id="studio-pet" className="studio-card">
+            <div className="studio-section-heading studio-pet-heading"><div><p className="studio-eyebrow">01 / THE MAIN CHARACTER</p><h2>Who’s in the spotlight?</h2><p>Choose a saved pet or introduce someone new with 3 or more photos.</p></div><button type="button" className="studio-create-pet-button" onClick={openModelTraining}><Plus size={17}/>Create your pet here</button></div>
+            <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel}/>
+          </section>
+
+          <section id="studio-theme" className="studio-card">
+            <div className="studio-section-heading"><div><p className="studio-eyebrow">02 / A WORLD OF POSSIBILITIES</p><h2>Find their next adventure.</h2><p>Explore the collection. Choose the character that feels like them.</p></div>{selectedStyle && <span className="studio-selected-tag"><Check size={14}/>{selectedStyle.name}</span>}</div>
+            <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle}/>
+          </section>
+
+          <section id="studio-review" className="studio-card studio-review">
+            <div className="studio-section-heading"><div><p className="studio-eyebrow">03 / APPROVE &amp; GENERATE</p><h2>Bring their story to life.</h2><p>Review your pet, theme, image count, and exact credit total before creating.</p></div></div>
+            <div className="studio-review-grid">
+              <div>
+                <div className="studio-selection-pair">
+                  <div className="studio-selection"><div className="studio-selection-image">{selectedModel?.training_images?.[0] ? <CustomImagePreview image={selectedModel.training_images[0]} alt={selectedModel.name} className="object-cover"/> : <Camera size={28}/>}</div><div><small>YOUR PET</small><strong>{selectedModel?.name ?? "Choose your pet"}</strong><a href="#studio-pet">Change pet</a></div></div>
+                  <div className="studio-selection"><div className="studio-selection-image">{selectedStyle?.image ? <CustomImagePreview image={selectedStyle.image} alt={selectedStyle.name} className="object-cover"/> : <Sparkles size={28}/>}</div><div><small>THEIR THEME</small><strong>{selectedStyle?.name ?? "Choose a theme"}</strong><a href="#studio-theme">Change theme</a></div></div>
+                </div>
+                <GenerationControls numberOfGenerations={numberOfGenerations} setNumberOfGenerations={setNumberOfGenerations}/>
+              </div>
+              <div className="studio-create-panel">
+                <p className="studio-eyebrow">YOUR NEXT CREATION</p>
+                <div className="studio-cost"><span>{creditCost}</span><div>credits<small>{numberOfGenerations} image{numberOfGenerations > 1 ? "s" : ""} · 2 credits each</small></div></div>
+                <div className="studio-balance"><span>Your balance</span><strong>{user.credits} credits</strong></div>
+                {user.credits < creditCost && <p className="studio-low-credits">You’ll need more credits for this creation. <Link href={ROUTES.plan}>View plans</Link></p>}
+                <Button onClick={handleGenerate} disabled={isGenerateButtonDisabled} loading={isSubmitting} className="studio-generate-button" aria-describedby="studio-generation-status">
+                  <Sparkles size={17}/>{isBatchGenerating ? "Creation in progress" : selectedModel && selectedStyle ? `Create ${numberOfGenerations} image${numberOfGenerations > 1 ? "s" : ""}` : "Choose your pet & theme"}
+                </Button>
+                <p id="studio-generation-status" role="status" className="studio-generation-note">{isSubmitting ? "Sending your creation request…" : isBatchGenerating ? "Your portraits are taking shape. Follow their progress in Gallery." : "Your new images will appear in Gallery, ready to review and refine."}</p>
+                {isBatchGenerating && <Link href={ROUTES.history} className="studio-progress-link">View progress in Gallery <ArrowUpRight size={14}/></Link>}
+              </div>
+            </div>
+          </section>
         </div>
-
-        <section className="rounded-2xl border border-[#e7e2ee] bg-white p-4 shadow-sm sm:p-5">
-          <div className="mb-2 flex items-center gap-2">
-            {stepBadge(1)}
-            <span className="text-sm font-bold text-[#171524]">Choose your pet</span>
-          </div>
-          <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} />
-        </section>
-
-        <section className="rounded-2xl border border-[#e7e2ee] bg-white p-4 shadow-sm sm:p-5">
-          <div className="mb-2 flex items-center gap-2">
-            {stepBadge(2)}
-            <span className="text-sm font-bold text-[#171524]">Choose a style</span>
-          </div>
-          <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} />
-        </section>
-
-        <section className="rounded-2xl border border-primary/30 bg-white p-4 shadow-sm sm:p-5">
-          <div className="mb-1 flex items-center gap-2">
-            {stepBadge(3)}
-            <span className="text-sm font-bold text-[#171524]">Review and generate</span>
-          </div>
-          <p className="mb-4 text-sm text-black-40">
-            Check your pet and style before you spend credits. Nothing is charged until you press
-            Create.
-          </p>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="flex items-center gap-3 rounded-xl border border-[#e7e2ee] bg-[#fcfbff] p-3">
-              <div className="h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-black-80">
-                {selectedModel?.training_images?.[0] && (
-                  <img
-                    src={selectedModel.training_images[0]}
-                    alt={selectedModel.name}
-                    className="h-full w-full object-cover"
-                  />
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-black-40">Pet</p>
-                <p className="truncate font-bold text-[#171524]">{selectedModel?.name ?? "Not selected"}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 rounded-xl border border-[#e7e2ee] bg-[#fcfbff] p-3">
-              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-black-80">
-                {selectedStyle?.image && (
-                  <CustomImagePreview
-                    image={selectedStyle.image}
-                    alt={selectedStyle.name}
-                    className="object-cover"
-                  />
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs text-black-40">Style</p>
-                <p className="truncate font-bold text-[#171524]">{selectedStyle?.name ?? "Not selected"}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <GenerationControls
-              numberOfGenerations={numberOfGenerations}
-              setNumberOfGenerations={setNumberOfGenerations}
-            />
-          </div>
-
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-lg font-bold text-[#171524]">{numberOfGenerations * 2} credits</p>
-              <p className="text-xs text-black-40">2 credits per image</p>
-            </div>
-            <Button
-              onClick={handleGenerate}
-              disabled={isGenerateButtonDisabled}
-              loading={isGenerating}
-              className="w-full rounded-xl px-8 py-3 text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-            >
-              {selectedModel && selectedStyle ? `Create ${numberOfGenerations} image${numberOfGenerations > 1 ? "s" : ""}` : "Choose pet & style"}
-            </Button>
-          </div>
-        </section>
+        <p className="studio-bottom-note">A little imagination. All their personality.</p>
       </div>
-
-      <InsufficientCreditsDialog
-        open={showCreditsDialog}
-        onClose={() => setShowCreditsDialog(false)}
-      />
+      <InsufficientCreditsDialog open={showCreditsDialog} onClose={() => setShowCreditsDialog(false)}/>
     </div>
   );
 };

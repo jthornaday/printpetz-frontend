@@ -20,7 +20,7 @@ interface IExtendedGeneration extends IGenerationViewItem {
 }
 
 export const History = () => {
-  const { user } = useGetUser();
+  const { user, refetch: refetchUser } = useGetUser();
 
   const {
     generationViews,
@@ -32,7 +32,7 @@ export const History = () => {
   } = useGetGenerationViews(user?.id);
 
   // Spinners turn into images without a reload.
-  usePollGeneratingViews(generationViews, refetchGenerationViews);
+  usePollGeneratingViews(generationViews, refetchGenerationViews, refetchUser);
 
   const [selectedGeneration, setSelectedGeneration] = useState<IExtendedGeneration | null>(null);
 
