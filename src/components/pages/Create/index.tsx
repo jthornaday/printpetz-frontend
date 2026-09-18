@@ -161,7 +161,7 @@ export const Create = () => {
 
         <div className="studio-layout">
           <section id="studio-pet" className="studio-card">
-            <div className="studio-section-heading"><div><p className="studio-eyebrow">01 / THE MAIN CHARACTER</p><h2>Who’s in the spotlight?</h2><p>Choose a saved pet or introduce someone new with 3 or more photos.</p></div><button type="button" className="studio-create-pet-button" onClick={openModelTraining}><Plus size={17}/>Create your pet here</button></div>
+            <div className="studio-section-heading studio-pet-heading"><div><p className="studio-eyebrow">01 / THE MAIN CHARACTER</p><h2>Who’s in the spotlight?</h2><p>Choose a saved pet or introduce someone new with 3 or more photos.</p></div><button type="button" className="studio-create-pet-button" onClick={openModelTraining}><Plus size={17}/>Create your pet here</button></div>
             <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel}/>
           </section>
 
