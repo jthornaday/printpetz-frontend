@@ -1,6 +1,8 @@
 import { UploadImageIcon } from "@/components/icons";
-import { handleGetImageMetadata } from "@/services/shared/image";
+import { handleGetImageMetadata, isHeicFile } from "@/services/shared/image";
 import { ImageMetadata } from "@/types/common";
+import { useToast } from "@/hooks/useToast";
+import { EToastType } from "@/types/toast";
 import { appConstants } from "@/utils/constants/appConstants";
 import { Dispatch, SetStateAction, useRef } from "react";
 
@@ -13,11 +15,24 @@ type Props = {
 
 export const InputMultipleImages = ({ setSelectedImages, isSmall = false }: Props) => {
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const handleFiles = async (files: FileList | null) => {
     if (!files) return;
 
-    const currentSelections = await handleGetImageMetadata(Array.from(files));
+    const all = Array.from(files);
+    const heicFlags = await Promise.all(all.map(isHeicFile));
+    const heicNames = all.filter((_, i) => heicFlags[i]).map((f) => f.name);
+    if (heicNames.length) {
+      toast(
+        EToastType.ERROR,
+        `${heicNames.join(", ")} ${heicNames.length > 1 ? "are" : "is"} in Apple's HEIC format, ` +
+          "which we can't read. Please use a JPEG or PNG instead (iPhone: Settings > Camera > " +
+          "Formats > Most Compatible)."
+      );
+    }
+
+    const currentSelections = await handleGetImageMetadata(all.filter((_, i) => !heicFlags[i]));
     setSelectedImages((prev) => {
       const availableSlots = max - prev.length;
       if (availableSlots <= 0) return prev;
