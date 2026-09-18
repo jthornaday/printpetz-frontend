@@ -100,7 +100,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
                 align="start"
                 side="bottom"
                 sideOffset={8}
-                className="h-fit w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] rounded-xl border border-black-70 bg-white p-2"
+                className="w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-black-70 bg-white p-2"
               >
                 <ModelSelectionPopover
                   models={models}
