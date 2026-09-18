@@ -17,6 +17,21 @@ export const handleGetImageMetadata = async (files: File[]): Promise<ImageMetada
   );
 };
 
+// Safari previews HEIC natively and drag-and-drop skips the input's `accept`,
+// so HEIC reaches the picker looking fine and is only refused by the server at
+// submit. Sniff the bytes (a renamed .jpg can still be HEIC inside) so the
+// customer hears about it before they've filled in the form.
+export const isHeicFile = async (file: File): Promise<boolean> => {
+  if (/\.(heic|heif)$/i.test(file.name) || /^image\/hei[cf]/i.test(file.type)) return true;
+  try {
+    const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+    const ascii = (from: number, to: number) => String.fromCharCode(...head.slice(from, to));
+    return ascii(4, 8) === "ftyp" && /^(heic|heix|hevc|hevx|mif1|msf1)$/.test(ascii(8, 12));
+  } catch {
+    return false;
+  }
+};
+
 export const dataURLtoFile = (dataUrl: string, filename: string) => {
   const arr = dataUrl.split(",");
   const mime = arr[0].match(/:(.*?);/)?.[1] || "image/png";
