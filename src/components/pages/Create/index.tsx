@@ -154,9 +154,9 @@ export const Create = () => {
         </header>
 
         <nav className="studio-progress" aria-label="Creation steps">
-          <a href="#studio-pet"><span>{selectedModel ? <Check size={16}/> : "01"}</span><div>Your pet<small>{selectedModel ? "Selected" : "Start here"}</small></div></a>
-          <a href="#studio-theme"><span>{selectedStyle ? <Check size={16}/> : "02"}</span><div>Their story<small>{selectedStyle ? selectedStyle.name : "Choose a theme"}</small></div></a>
-          <a href="#studio-review"><span>03</span><div>The masterpiece<small>Review & create</small></div></a>
+          <a href="#studio-pet"><span>{selectedModel ? <Check size={16}/> : "01"}</span><div>Your Pet<small>{selectedModel ? "Selected" : "Start here"}</small></div></a>
+          <a href="#studio-theme"><span>{selectedStyle ? <Check size={16}/> : "02"}</span><div>Their Picture<small>{selectedStyle ? selectedStyle.name : "Choose a theme"}</small></div></a>
+          <a href="#studio-review"><span>03</span><div>Your Masterpiece<small>Review & create</small></div></a>
         </nav>
 
         <div className="studio-layout">
