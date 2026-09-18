@@ -19,7 +19,7 @@ export const InputMultipleImages = ({ onFiles, isSmall = false }: Props) => {
       <input
         multiple
         type="file"
-        accept=".jpg, .jpeg, .png"
+        accept=".jpg, .jpeg, .png, .heic, .heif"
         className="hidden"
         ref={imageInputRef}
         // Copy before the reset below: the FileList is live.

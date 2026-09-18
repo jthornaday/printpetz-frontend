@@ -17,10 +17,8 @@ export const handleGetImageMetadata = async (files: File[]): Promise<ImageMetada
   );
 };
 
-// Safari previews HEIC natively and drag-and-drop skips the input's `accept`,
-// so HEIC reaches the picker looking fine and is only refused by the server at
-// submit. Sniff the bytes (a renamed .jpg can still be HEIC inside) so the
-// customer hears about it before they've filled in the form.
+// Sniff the bytes rather than trust the name: a renamed .jpg can still be HEIC
+// inside, and Chrome/Windows hands over HEIC with an empty type.
 export const isHeicFile = async (file: File): Promise<boolean> => {
   if (/\.(heic|heif)$/i.test(file.name) || /^image\/hei[cf]/i.test(file.type)) return true;
   try {
@@ -52,40 +50,37 @@ const photoMime = (file: File): string | null => {
 
 export type PhotoIntake = {
   images: ImageMetadata[];
-  heic: string[];
   unsupported: string[];
   unreadable: string[];
 };
 
 /**
  * Sort a batch of dropped or picked files into what can be added and what
- * cannot, naming every file that cannot. One bad file must never take the
+ * cannot, naming every file that cannot. HEIC is added as-is: the server
+ * converts it to an sRGB JPEG on upload. One bad file must never take the
  * others down with it: reads are settled individually, and nothing is dropped
  * without being reported.
  */
 export const readPhotoFiles = async (files: File[]): Promise<PhotoIntake> => {
   const heicFlags = await Promise.all(files.map(isHeicFile));
-  const intake: PhotoIntake = { images: [], heic: [], unsupported: [], unreadable: [] };
+  const intake: PhotoIntake = { images: [], unsupported: [], unreadable: [] };
 
-  const candidates: Array<{ file: File; mime: string }> = [];
+  const candidates: Array<{ file: File; mime: string; isHeic: boolean }> = [];
   files.forEach((file, i) => {
-    if (heicFlags[i]) {
-      intake.heic.push(file.name);
-      return;
-    }
-    const mime = photoMime(file);
-    if (mime) candidates.push({ file, mime });
+    const isHeic = heicFlags[i];
+    const mime = isHeic ? "image/heic" : photoMime(file);
+    if (mime) candidates.push({ file, mime, isHeic });
     else intake.unsupported.push(file.name);
   });
 
   const reads = await Promise.allSettled(
     candidates.map(
-      ({ file, mime }) =>
+      ({ file, mime, isHeic }) =>
         new Promise<ImageMetadata>((resolve, reject) => {
           const reader = new FileReader();
           // Re-typed so an empty-type file still gets a data URL the <img> and
           // dataURLtoFile understand.
-          reader.onload = () => resolve({ name: file.name, src: reader.result as string });
+          reader.onload = () => resolve({ name: file.name, src: reader.result as string, isHeic });
           reader.onerror = () => reject(reader.error);
           reader.readAsDataURL(new File([file], file.name, { type: mime }));
         })

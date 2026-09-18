@@ -171,7 +171,16 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
                           >
                             <CancelIcon size={16} className="[&>*]:stroke-[3]" />
                           </button>
-                          <CustomImagePreview image={file.src} />
+                          {file.isHeic ? (
+                            <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
+                              <span className="text-xs font-bold text-black-40">HEIC</span>
+                              <span className="w-full break-all text-[10px] leading-tight text-black-50">
+                                {file.name}
+                              </span>
+                            </div>
+                          ) : (
+                            <CustomImagePreview image={file.src} />
+                          )}
                         </div>
                       </div>
                     );
