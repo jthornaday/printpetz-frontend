@@ -8,7 +8,11 @@ import { StyleSelector } from "./components/StyleSelector";
 import { GenerationControls } from "./components/GenerationControl";
 import { Button } from "@/components/ui/button";
 import { IStyle } from "@/types/style";
-import { IModel } from "@/types/model";
+import { useSelectedModel } from "@/hooks/model/useSelectedModel";
+import { GenerationItem } from "@/components/pages/shared/GenerationItem";
+import { GenerationPreviewDialog } from "@/components/pages/shared/GenerationPreviewDialog";
+import { IGenerationViewItem } from "@/types/generation";
+import { getModelName } from "@/utils/app_utils";
 import { useGetUser } from "@/hooks/user/useGetUser";
 import { useToast } from "@/hooks/useToast";
 import { EToastType } from "@/types/toast";
@@ -31,10 +35,11 @@ export const Create = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const [selectedModel, setSelectedModel] = useState<IModel | null>(null);
+  const { selectedModel } = useSelectedModel();
   const [selectedStyle, setSelectedStyle] = useState<IStyle | null>(null);
   const [numberOfGenerations, setNumberOfGenerations] = useState(2);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
+  const [previewGeneration, setPreviewGeneration] = useState<IGenerationViewItem | null>(null);
 
   const { user, isUserLoading, refetch: refetchUser } = useGetUser();
   const { generationViews, refetchGenerationViews } = useGetGenerationViews(user?.id);
@@ -95,9 +100,6 @@ export const Create = () => {
 
       refetchUser();
       refetchGenerationViews();
-      // In-progress and finished images show on Gallery. Only on success, so
-      // errors and the out-of-credits dialog still appear here.
-      router.push(ROUTES.history);
     } catch (error: unknown) {
       const apiError = error as ApiError;
 
@@ -162,7 +164,7 @@ export const Create = () => {
         <div className="studio-layout">
           <section id="studio-pet" className="studio-card">
             <div className="studio-section-heading studio-pet-heading"><div><p className="studio-eyebrow">01 / THE MAIN CHARACTER</p><h2>Who’s in the spotlight?</h2><p>Choose a saved pet or introduce someone new with 3 or more photos.</p></div><button type="button" className="studio-create-pet-button" onClick={openModelTraining}><Plus size={17}/>Create your pet here</button></div>
-            <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel}/>
+            <ModelSelector/>
           </section>
 
           <section id="studio-theme" className="studio-card">
@@ -192,10 +194,38 @@ export const Create = () => {
                 {isBatchGenerating && <Link href={ROUTES.history} className="studio-progress-link">View progress in Gallery <ArrowUpRight size={14}/></Link>}
               </div>
             </div>
+            {(isBatchGenerating || activeView) && (
+              <div className="mt-6" aria-live="polite">
+                <p className="studio-eyebrow">YOUR CREATION</p>
+                {activeView ? (
+                  <div className="mt-2 grid grid-cols-2 gap-2 rounded-lg bg-black-90 p-2 md:grid-cols-3 lg:grid-cols-4">
+                    {activeView.generations.map((generation) => (
+                      <GenerationItem
+                        key={generation.id}
+                        generation={generation}
+                        caption={`${activeView.model.pet_name ?? activeView.model.name} · ${activeView.style.name}`}
+                        onClick={() => setPreviewGeneration(generation)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-black-40">Getting your portraits ready…</p>
+                )}
+              </div>
+            )}
           </section>
         </div>
         <p className="studio-bottom-note">A little imagination. All their personality.</p>
       </div>
+      {previewGeneration && activeView && (
+        <GenerationPreviewDialog
+          generation={previewGeneration}
+          chips={[activeView.style.name, getModelName(activeView.model.name)]}
+          modelId={activeView.model.id}
+          styleId={activeView.style.id}
+          onClose={() => setPreviewGeneration(null)}
+        />
+      )}
       <InsufficientCreditsDialog open={showCreditsDialog} onClose={() => setShowCreditsDialog(false)}/>
     </div>
   );
