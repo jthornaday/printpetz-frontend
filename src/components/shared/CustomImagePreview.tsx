@@ -6,9 +6,10 @@ type Props = {
   image: string | StaticImageData;
   alt?: string;
   className?: string;
+  onError?: () => void;
 };
 
-export const CustomImagePreview = ({ image, className, alt }: Props) => {
+export const CustomImagePreview = ({ image, className, alt, onError }: Props) => {
   const [isImgLoad, setIsImgLoad] = useState(false);
 
   useEffect(() => {
@@ -21,6 +22,7 @@ export const CustomImagePreview = ({ image, className, alt }: Props) => {
   return (
     <Image
       onLoad={() => setIsImgLoad(true)}
+      onError={onError}
       fill
       priority
       src={image}
