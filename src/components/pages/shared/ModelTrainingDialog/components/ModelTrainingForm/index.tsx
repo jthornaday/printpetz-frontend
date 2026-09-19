@@ -24,6 +24,24 @@ import { InsufficientCreditsDialog } from "@/components/shared/InsufficientCredi
 
 const { min, max } = appConstants.modelTraining.imageSelectionLimit;
 
+// Safari draws HEIC in an <img>; Chrome, Firefox and Edge cannot. Try the real
+// thumbnail and fall back to a labelled tile only when this browser refuses it,
+// rather than guessing from the user agent.
+const HeicPreview = ({ file }: { file: ImageMetadata }) => {
+  const [cannotDraw, setCannotDraw] = useState(false);
+  if (!cannotDraw) {
+    return (
+      <CustomImagePreview image={file.src} alt={file.name} onError={() => setCannotDraw(true)} />
+    );
+  }
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
+      <span className="text-xs font-bold text-black-40">HEIC</span>
+      <span className="w-full break-all text-[10px] leading-tight text-black-50">{file.name}</span>
+    </div>
+  );
+};
+
 type Props = { setIsRequestSubmitted: Dispatch<SetStateAction<boolean>> };
 
 export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
@@ -172,12 +190,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
                             <CancelIcon size={16} className="[&>*]:stroke-[3]" />
                           </button>
                           {file.isHeic ? (
-                            <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
-                              <span className="text-xs font-bold text-black-40">HEIC</span>
-                              <span className="w-full break-all text-[10px] leading-tight text-black-50">
-                                {file.name}
-                              </span>
-                            </div>
+                            <HeicPreview file={file} />
                           ) : (
                             <CustomImagePreview image={file.src} />
                           )}

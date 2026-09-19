@@ -8,7 +8,7 @@ export type ImageMetadata = {
   name: string;
   src: string;
   // HEIC is accepted (the server converts it) but most browsers cannot draw
-  // it, so the grid shows a placeholder tile instead of a blank thumbnail.
+  // it, so the grid falls back to a placeholder tile when the browser refuses it.
   isHeic?: boolean;
   // objectFit: ObjectFit;
   // aspectRatio: string;
