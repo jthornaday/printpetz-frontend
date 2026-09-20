@@ -2,6 +2,7 @@ import { supabase } from "@/services/supabase";
 import { serverBaseApi, supabaseBaseApi } from "./baseApi";
 import { ApiResponse } from "@/types/api";
 import {
+  GenerateCustomImageRequest,
   GenerateImageRequest,
   GenerateImageResponse,
   GetGenerationByIdRequest,
@@ -23,6 +24,16 @@ export const serverGenerationApi = serverBaseApi.injectEndpoints({
     generateImage: builder.mutation<ApiResponse<GenerateImageResponse>, GenerateImageRequest>({
       query: (data) => ({
         url: `generation/create`,
+        method: "POST",
+        body: data,
+      }),
+    }),
+    generateCustomImage: builder.mutation<
+      ApiResponse<GenerateImageResponse>,
+      GenerateCustomImageRequest
+    >({
+      query: (data) => ({
+        url: `generation/create-custom`,
         method: "POST",
         body: data,
       }),
@@ -127,6 +138,7 @@ export const supabaseGenerationApi = supabaseBaseApi.injectEndpoints({
 
 export const {
   useGenerateImageMutation,
+  useGenerateCustomImageMutation,
   useDownloadGenerationImageMutation,
   useEditImageLookMutation,
   useRemoveImageBackgroundMutation,
