@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ArrowUpRight, Camera, Check, Images, Plus, Sparkles } from "lucide-react";
-import { useGenerateImageMutation } from "@/store/api/generationApi";
+import { useGenerateCustomImageMutation, useGenerateImageMutation } from "@/store/api/generationApi";
 import { useRef, useState } from "react";
 import { InsufficientCreditsDialog } from "@/components/shared/InsufficientCreditsDialog";
 import { ModelSelector } from "./components/ModelSelector";
+import { CustomThemeForm, CUSTOM_DESCRIPTION_MAX, CUSTOM_DESCRIPTION_MIN } from "./components/CustomThemeForm";
 import { StyleSelector } from "./components/StyleSelector";
 import { GenerationControls } from "./components/GenerationControl";
 import { Button } from "@/components/ui/button";
@@ -33,12 +34,38 @@ export const Create = () => {
 
   const [selectedModel, setSelectedModel] = useState<IModel | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<IStyle | null>(null);
+  const [customDescription, setCustomDescription] = useState("");
+  const [referencePhotoUrl, setReferencePhotoUrl] = useState<string | null>(null);
+  const [customError, setCustomError] = useState<string | null>(null);
   const [numberOfGenerations, setNumberOfGenerations] = useState(2);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
 
   const { user, isUserLoading, refetch: refetchUser } = useGetUser();
   const { generationViews, refetchGenerationViews } = useGetGenerationViews(user?.id);
-  const [generateImage, { isLoading: isSubmitting }] = useGenerateImageMutation();
+  const [generateImage, { isLoading: isSubmittingTheme }] = useGenerateImageMutation();
+  const [generateCustomImage, { isLoading: isSubmittingCustom }] = useGenerateCustomImageMutation();
+  const isSubmitting = isSubmittingTheme || isSubmittingCustom;
+
+  // Only one of a theme or a custom description is the active choice.
+  const trimmedDescription = customDescription.trim();
+  const isCustomActive = trimmedDescription.length > 0;
+  const isCustomValid =
+    trimmedDescription.length >= CUSTOM_DESCRIPTION_MIN &&
+    trimmedDescription.length <= CUSTOM_DESCRIPTION_MAX;
+  const hasTheme = isCustomActive ? isCustomValid : !!selectedStyle;
+
+  useEffect(() => {
+    if (selectedStyle) {
+      setCustomDescription("");
+      setCustomError(null);
+    }
+  }, [selectedStyle]);
+
+  const handleCustomDescriptionChange = (value: string) => {
+    setCustomDescription(value);
+    setCustomError(null);
+    if (value.trim()) setSelectedStyle(null);
+  };
 
   // The create request returns as soon as the images are queued, so the
   // mutation's loading state ends long before the batch does. Track the batch
@@ -72,16 +99,27 @@ export const Create = () => {
   }, [dispatch, refetchUser, router, toast]);
 
   const handleGenerate = async () => {
-    if (!selectedModel || !selectedStyle || isGenerating || isSubmittingRef.current) return;
+    if (!selectedModel || !hasTheme || isGenerating || isSubmittingRef.current) return;
+    const style = selectedStyle;
+    if (!isCustomActive && !style) return;
+    setCustomError(null);
 
     isSubmittingRef.current = true;
     try {
-      const response = await generateImage({
-        modelId: selectedModel.id,
-        styleId: selectedStyle.id,
-        numberOfImages: numberOfGenerations,
-        cutenessLevel: DEFAULT_LOOK_LEVEL,
-      }).unwrap();
+      const response = isCustomActive
+        ? await generateCustomImage({
+            description: trimmedDescription,
+            referencePhotoUrl: referencePhotoUrl ?? undefined,
+            modelId: selectedModel.id,
+            numberOfImages: numberOfGenerations,
+            cutenessLevel: DEFAULT_LOOK_LEVEL,
+          }).unwrap()
+        : await generateImage({
+            modelId: selectedModel.id,
+            styleId: style!.id,
+            numberOfImages: numberOfGenerations,
+            cutenessLevel: DEFAULT_LOOK_LEVEL,
+          }).unwrap();
       const { success, data, message } = response;
       if (!success || !data) {
         toast(EToastType.ERROR, message ?? "Failed to generate image");
@@ -107,13 +145,19 @@ export const Create = () => {
       }
 
       const message = apiError?.data?.message || "Failed to generate image";
+      // The backend's 400 text (trademark block, batch already in flight) is
+      // written for display and says no credits were charged. Keep the form.
+      if (isCustomActive && apiError?.status === 400 && apiError?.data?.message) {
+        setCustomError(message);
+        return;
+      }
       toast(EToastType.ERROR, message);
     } finally {
       isSubmittingRef.current = false;
     }
   };
 
-  const isGenerateButtonDisabled = !selectedModel || !selectedStyle || isGenerating;
+  const isGenerateButtonDisabled = !selectedModel || !hasTheme || isGenerating;
 
   if (isUserLoading) {
     return (
@@ -155,7 +199,7 @@ export const Create = () => {
 
         <nav className="studio-progress" aria-label="Creation steps">
           <a href="#studio-pet"><span>{selectedModel ? <Check size={16}/> : "01"}</span><div>Your Pet<small>{selectedModel ? "Selected" : "Start here"}</small></div></a>
-          <a href="#studio-theme"><span>{selectedStyle ? <Check size={16}/> : "02"}</span><div>Their Picture<small>{selectedStyle ? selectedStyle.name : "Choose a theme"}</small></div></a>
+          <a href="#studio-theme"><span>{hasTheme ? <Check size={16}/> : "02"}</span><div>Their Picture<small>{isCustomActive ? "Custom template" : selectedStyle ? selectedStyle.name : "Choose a theme"}</small></div></a>
           <a href="#studio-review"><span>03</span><div>Your Masterpiece<small>Review & create</small></div></a>
         </nav>
 
@@ -168,6 +212,7 @@ export const Create = () => {
           <section id="studio-theme" className="studio-card">
             <div className="studio-section-heading"><div><p className="studio-eyebrow">02 / A WORLD OF POSSIBILITIES</p><h2>Find their next adventure.</h2><p>Explore the collection. Choose the character that feels like them.</p></div>{selectedStyle && <span className="studio-selected-tag"><Check size={14}/>{selectedStyle.name}</span>}</div>
             <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle}/>
+            <CustomThemeForm description={customDescription} setDescription={handleCustomDescriptionChange} referencePhotoUrl={referencePhotoUrl} setReferencePhotoUrl={setReferencePhotoUrl} error={customError} disabled={isGenerating}/>
           </section>
 
           <section id="studio-review" className="studio-card studio-review">
@@ -176,7 +221,7 @@ export const Create = () => {
               <div>
                 <div className="studio-selection-pair">
                   <div className="studio-selection"><div className="studio-selection-image">{selectedModel?.training_images?.[0] ? <CustomImagePreview image={selectedModel.training_images[0]} alt={selectedModel.name} className="object-cover"/> : <Camera size={28}/>}</div><div><small>YOUR PET</small><strong>{selectedModel?.name ?? "Choose your pet"}</strong><a href="#studio-pet">Change pet</a></div></div>
-                  <div className="studio-selection"><div className="studio-selection-image">{selectedStyle?.image ? <CustomImagePreview image={selectedStyle.image} alt={selectedStyle.name} className="object-cover"/> : <Sparkles size={28}/>}</div><div><small>THEIR THEME</small><strong>{selectedStyle?.name ?? "Choose a theme"}</strong><a href="#studio-theme">Change theme</a></div></div>
+                  <div className="studio-selection"><div className="studio-selection-image">{!isCustomActive && selectedStyle?.image ? <CustomImagePreview image={selectedStyle.image} alt={selectedStyle.name} className="object-cover"/> : <Sparkles size={28}/>}</div><div><small>THEIR THEME</small><strong>{isCustomActive ? trimmedDescription : selectedStyle?.name ?? "Choose a theme"}</strong><a href="#studio-theme">Change theme</a></div></div>
                 </div>
                 <GenerationControls numberOfGenerations={numberOfGenerations} setNumberOfGenerations={setNumberOfGenerations}/>
               </div>
@@ -185,8 +230,8 @@ export const Create = () => {
                 <div className="studio-cost"><span>{creditCost}</span><div>credits<small>{numberOfGenerations} image{numberOfGenerations > 1 ? "s" : ""} · 2 credits each</small></div></div>
                 <div className="studio-balance"><span>Your balance</span><strong>{user.credits} credits</strong></div>
                 {user.credits < creditCost && <p className="studio-low-credits">You’ll need more credits for this creation. <Link href={ROUTES.plan}>View plans</Link></p>}
-                <Button onClick={handleGenerate} disabled={isGenerateButtonDisabled} loading={isSubmitting} className="studio-generate-button" aria-describedby="studio-generation-status">
-                  <Sparkles size={17}/>{isBatchGenerating ? "Creation in progress" : selectedModel && selectedStyle ? `Create ${numberOfGenerations} image${numberOfGenerations > 1 ? "s" : ""}` : "Choose your pet & theme"}
+                <Button onClick={handleGenerate} disabled={isGenerateButtonDisabled} loading={isSubmittingTheme} className="studio-generate-button" aria-describedby="studio-generation-status">
+                  <Sparkles size={17}/>{isSubmittingCustom ? "Checking..." : isBatchGenerating ? "Creation in progress" : selectedModel && hasTheme ? `Create ${numberOfGenerations} image${numberOfGenerations > 1 ? "s" : ""}` : "Choose your pet & theme"}
                 </Button>
                 <p id="studio-generation-status" role="status" className="studio-generation-note">{isSubmitting ? "Sending your creation request…" : isBatchGenerating ? "Your portraits are taking shape. Follow their progress in Gallery." : "Your new images will appear in Gallery, ready to review and refine."}</p>
                 {isBatchGenerating && <Link href={ROUTES.history} className="studio-progress-link">View progress in Gallery <ArrowUpRight size={14}/></Link>}

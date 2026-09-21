@@ -51,6 +51,14 @@ export interface GenerateImageRequest {
   cutenessLevel: number;
 }
 
+export interface GenerateCustomImageRequest {
+  description: string;
+  referencePhotoUrl?: string;
+  modelId: number;
+  numberOfImages: number;
+  cutenessLevel: number;
+}
+
 export interface GenerateImageResponse {
   generations: IGeneration[];
 }
