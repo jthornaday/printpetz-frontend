@@ -3,7 +3,7 @@ import { Loader } from "@/components/ui/loader";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useGetStylesQuery } from "@/store/api/styleApi";
 import { IStyle } from "@/types/style";
-import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useRef } from "react";
 
 // Tab order and display labels.
 //
@@ -89,19 +89,21 @@ export const StyleContent = ({
     return seen.sort((a, b) => categoryRank(a) - categoryRank(b));
   }, [styles]);
 
+  // Preselect the first theme once, on load. Re-running this whenever the
+  // selection is null would undo deselecting a tile and would wipe a custom
+  // description as soon as it cleared the theme.
+  const hasPreselected = useRef(false);
   useEffect(() => {
-    if (!styles) return;
-
-    if (!selectedStyle && styles[0]) {
-      setSelectedStyle(styles[0]);
-    }
+    if (!styles || hasPreselected.current) return;
+    hasPreselected.current = true;
+    if (!selectedStyle && styles[0]) setSelectedStyle(styles[0]);
   }, [styles, selectedStyle, setSelectedStyle]);
 
   if (isLoading) return <div className="studio-empty" role="status"><Loader/><p>Loading the theme collection…</p></div>;
   if (isError) return <div className="studio-empty" role="alert">We couldn’t load the themes.<button type="button" onClick={() => refetch()}>Try again</button></div>;
   if (!styles?.length) return <div className="studio-empty">No themes are available yet. Please check back soon.</div>;
 
-  const renderCards = (items: IStyle[]) => items.length ? <div className="studio-theme-grid">{items.map(style => <StyleItem key={style.id} name={style.name} image={style.image} isSelected={selectedStyle?.id === style.id} onClick={() => setSelectedStyle(style)}/>)}</div> : <p className="studio-empty">No themes match your search. Try another word.</p>;
+  const renderCards = (items: IStyle[]) => items.length ? <div className="studio-theme-grid">{items.map(style => <StyleItem key={style.id} name={style.name} image={style.image} isSelected={selectedStyle?.id === style.id} onClick={() => setSelectedStyle(selectedStyle?.id === style.id ? null : style)}/>)}</div> : <p className="studio-empty">No themes match your search. Try another word.</p>;
 
   // Search the entire collection, including categories that are not active.
   if (searchTerm.trim()) return <div><p role="status" className="studio-search-count">{filteredStyles.length} matching theme{filteredStyles.length === 1 ? "" : "s"} across all categories</p>{renderCards(filteredStyles)}</div>;
