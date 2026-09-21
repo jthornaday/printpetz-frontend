@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef } from "react";
+import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { useUploadFileMutation } from "@/store/api/fileApi";
 import { useToast } from "@/hooks/useToast";
@@ -32,10 +32,9 @@ export const CustomThemeForm = ({
   const length = description.trim().length;
   const isInvalid = length > 0 && (length < CUSTOM_DESCRIPTION_MIN || length > CUSTOM_DESCRIPTION_MAX);
 
-  const handlePhoto = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
+  const [isDragging, setIsDragging] = useState(false);
+
+  const uploadPhoto = async (file: File) => {
     try {
       const result = await uploadFile({ files: [file], type: EUploadFile.CUSTOM_REFERENCE }).unwrap();
       const url = result.data?.fileUrls?.[0];
@@ -44,6 +43,33 @@ export const CustomThemeForm = ({
     } catch {
       toast(EToastType.ERROR, "Failed to upload photo");
     }
+  };
+
+  const handlePhoto = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (file) uploadPhoto(file);
+  };
+
+  const canDrop = !disabled && !isUploading;
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    if (!canDrop) return;
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (!canDrop) return;
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast(EToastType.ERROR, "Please drop an image file");
+      return;
+    }
+    uploadPhoto(file);
   };
 
   return (
@@ -77,7 +103,12 @@ export const CustomThemeForm = ({
           {error}
         </p>
       )}
-      <div className="mt-3 flex items-center gap-3">
+      <div
+        className={`mt-3 flex items-center gap-3 rounded-xl border border-dashed p-3 ${isDragging ? "border-black-40" : "border-transparent"}`}
+        onDragOver={handleDragOver}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+      >
         <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handlePhoto} />
         <button
           type="button"
