@@ -28,6 +28,8 @@ export type MerchProduct = {
   key: string;
   label: string;
   blurb: string;
+  /** Exists in Shopify and in the backend catalog, but not offered yet. */
+  hidden?: boolean;
   variants: MerchVariant[];
 };
 
@@ -52,8 +54,12 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
       { label: "20 oz", variantGid: "gid://shopify/ProductVariant/50526266065154", retailUsd: 13.00, costUsd: 9.69 },
     ],
   },
+  // Hidden from the picker. The pint glass print file is 9.58x5.04in @300 DPI —
+  // 1.9:1 landscape against our 0.81 portrait source, so a crop gives a horizontal
+  // slice of pet. It needs wrap composition, not a crop. The Shopify product exists
+  // and the key matches the backend; set `hidden: false` once that work is done.
   {
-    key: "pint_glass_16oz", label: "Pint Glass", blurb: "16oz shaker pint.",
+    key: "pint_glass_16oz", label: "Pint Glass", blurb: "16oz shaker pint.", hidden: true,
     variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526392549634", retailUsd: 20.00, costUsd: 15.26 }],
   },
   {
@@ -74,7 +80,7 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
 ];
 
 export const orderableProducts = () =>
-  MERCH_PRODUCTS.filter((p) => p.variants.some((v) => v.variantGid));
+  MERCH_PRODUCTS.filter((p) => !p.hidden && p.variants.some((v) => v.variantGid));
 
 export const merchProductByKey = (key: string) =>
   MERCH_PRODUCTS.find((p) => p.key === key) ?? null;
