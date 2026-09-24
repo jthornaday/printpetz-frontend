@@ -11,6 +11,8 @@ import {
 import { cn } from "@/lib/utils";
 import AutoSmartMockup from "../AutoSmartMokup";
 import { ImageEditorPanel } from "../ImageEditorPanel";
+import { OrderPrintDialog } from "../OrderPrintDialog";
+import { merchAvailable } from "@/constants/merch_products";
 import { IGenerationViewItem } from "@/types/generation";
 import mugMockup from "@/utils/images/mockups/mug.png";
 import pillowMockup from "@/utils/images/mockups/pillow.png";
@@ -49,6 +51,7 @@ const getBlobExtension = (blob: Blob) => {
 
 export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, onClose }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isOrdering, setIsOrdering] = useState(false);
   const [deleteGeneration, { isLoading: isDeleting }] = useDeleteGenerationMutation();
   const [downloadGenerationImage, { isLoading: isDownloading }] = useDownloadGenerationImageMutation();
   const { user } = useGetUser();
@@ -119,7 +122,8 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
   };
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
+    <>
+      <Dialog open={true} onOpenChange={onClose}>
       <DialogContent
         showCloseButton={false}
         className={cn(
@@ -177,6 +181,15 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
                   <DownloadIcon size={22} />
                   {isDownloading ? "Downloading..." : "Download"}
                 </Button>
+                {merchAvailable() && (
+                  <Button
+                    className="min-w-[130px] flex-1"
+                    onClick={() => setIsOrdering(true)}
+                    disabled={!generation.image}
+                  >
+                    Order print
+                  </Button>
+                )}
                 <Button
                   variant="secondary"
                   className="min-w-[110px] flex-1"
@@ -202,6 +215,13 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
           </div>
         )}
       </DialogContent>
-    </Dialog>
+      </Dialog>
+      <OrderPrintDialog
+        open={isOrdering}
+        onClose={() => setIsOrdering(false)}
+        generationImage={generation.image}
+        generationId={generation.id}
+      />
+    </>
   );
 };
