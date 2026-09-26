@@ -28,6 +28,8 @@ export type MerchProduct = {
   key: string;
   label: string;
   blurb: string;
+  /** Scale cue shown on every shop tile, so a coaster never reads as a canvas. */
+  sizeNote: string;
   /** Exists in Shopify and in the backend catalog, but not offered yet. */
   hidden?: boolean;
   variants: MerchVariant[];
@@ -35,19 +37,19 @@ export type MerchProduct = {
 
 export const MERCH_PRODUCTS: MerchProduct[] = [
   {
-    key: "poster_8x10", label: '8×10" Print', blurb: "Museum-matte paper.",
+    key: "poster_8x10", label: '8×10" Print', blurb: "Museum-matte paper.", sizeNote: "8 × 10 in",
     variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526390026498", retailUsd: 35.00, costUsd: 7.03 }],
   },
   {
-    key: "framed_8x10", label: '8×10" Framed Print', blurb: "Black frame, ready to hang.",
+    key: "framed_8x10", label: '8×10" Framed Print', blurb: "Black frame, ready to hang.", sizeNote: "8 × 10 in, black frame",
     variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526391402754", retailUsd: 59.00, costUsd: 20.76 }],
   },
   {
-    key: "canvas_16x20", label: '16×20" Canvas', blurb: "Gallery wrap, no frame needed.",
+    key: "canvas_16x20", label: '16×20" Canvas', blurb: "Gallery wrap, no frame needed.", sizeNote: "16 × 20 in canvas",
     variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526379507970", retailUsd: 89.00, costUsd: 28.56 }],
   },
   {
-    key: "mug_11oz", label: "Mug", blurb: "Dishwasher and microwave safe.",
+    key: "mug_11oz", label: "Mug", blurb: "Dishwasher and microwave safe.", sizeNote: "11, 15 or 20 oz",
     variants: [
       { label: "11 oz", variantGid: "gid://shopify/ProductVariant/50526265999618", retailUsd: 25.00, costUsd: 6.07 },
       { label: "15 oz", variantGid: "gid://shopify/ProductVariant/50526266032386", retailUsd: 29.00, costUsd: 8.11 },
@@ -59,15 +61,15 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
   // slice of pet. It needs wrap composition, not a crop. The Shopify product exists
   // and the key matches the backend; set `hidden: false` once that work is done.
   {
-    key: "pint_glass_16oz", label: "Pint Glass", blurb: "16oz shaker pint.", hidden: true,
+    key: "pint_glass_16oz", label: "Pint Glass", blurb: "16oz shaker pint.", sizeNote: "16 oz", hidden: true,
     variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526392549634", retailUsd: 20.00, costUsd: 15.26 }],
   },
   {
-    key: "coaster_4x4", label: "Coaster", blurb: "Cork-backed, 3.74in square.",
+    key: "coaster_4x4", label: "Coaster", blurb: "Cork-backed, 3.74in square.", sizeNote: "3.74 in, drink-sized",
     variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526403592450", retailUsd: 14.00, costUsd: 5.55 }],
   },
   {
-    key: "can_cooler", label: "Can Cooler", blurb: "Keeps a 12oz can cold.",
+    key: "can_cooler", label: "Can Cooler", blurb: "Keeps a 12oz can cold.", sizeNote: "Fits a 12 oz can",
     variants: [
       { label: "Regular 12 oz", variantGid: "gid://shopify/ProductVariant/50526510252290", retailUsd: 12.00, costUsd: 3.49 },
       // Slim (50526510285058) is hidden: Printful's slim print area is tall and narrow
@@ -76,7 +78,7 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
     ],
   },
   {
-    key: "pillow_18x18", label: '18×18" Pillow', blurb: "All-over print, insert included.",
+    key: "pillow_18x18", label: '18×18" Pillow', blurb: "All-over print, insert included.", sizeNote: "18 × 18 in",
     variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526365614338", retailUsd: 49.00, costUsd: 16.60 }],
   },
 ];
