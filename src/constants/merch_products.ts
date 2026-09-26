@@ -93,6 +93,14 @@ export const TREATMENTS: Array<{ value: Treatment; label: string; blurb: string 
 ];
 
 /**
+ * What customers can pick today. Cut-out is off for launch: background removal
+ * dropped Wizard's tail and paws and George's bat in testing, and a missing tail is
+ * an identity failure. Re-add "cutout" once it passes the regression-pet check
+ * (specs/merch-m4-shop-showroom-product.md, "Mockup fidelity bar").
+ */
+export const OFFERED_TREATMENTS = TREATMENTS.filter((t) => t.value === "panel");
+
+/**
  * True only when Shopify is configured AND something is orderable. Until then the
  * Order control is hidden entirely — a button that opens a "not available" dialog is
  * worse than no button.

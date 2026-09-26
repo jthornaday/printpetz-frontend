@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radioGroup";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
-  MerchProduct, MerchVariant, TREATMENTS, Treatment, orderableProducts,
+  MerchProduct, MerchVariant, OFFERED_TREATMENTS, Treatment, orderableProducts,
 } from "@/constants/merch_products";
 import { createCheckoutForGeneration } from "@/services/shopify/cart";
 import { shopifyConfigured } from "@/services/shopify/client";
@@ -131,6 +131,7 @@ export const OrderPrintDialog = ({ open, onClose, generationImage, generationId 
               </div>
             )}
 
+            {OFFERED_TREATMENTS.length > 1 && (
             <div className="space-y-2">
               <Label>Style</Label>
               <RadioGroup
@@ -138,7 +139,7 @@ export const OrderPrintDialog = ({ open, onClose, generationImage, generationId 
                 onValueChange={(v) => setTreatment(v as Treatment)}
                 className="grid grid-cols-2 gap-2"
               >
-                {TREATMENTS.map((t) => (
+                {OFFERED_TREATMENTS.map((t) => (
                   <label
                     key={t.value}
                     className={cn(
@@ -155,6 +156,7 @@ export const OrderPrintDialog = ({ open, onClose, generationImage, generationId 
                 ))}
               </RadioGroup>
             </div>
+            )}
 
             <Button className="w-full" disabled={!canOrder} onClick={handleCheckout}>
               {isSubmitting
