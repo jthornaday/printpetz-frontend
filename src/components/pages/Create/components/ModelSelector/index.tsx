@@ -1,22 +1,18 @@
 import { CaretIcon, ModelIcon } from "@/components/icons";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ModelSelectionPopover } from "./components/ModelSelectionPopover";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { EModelStatus, IModel } from "@/types/model";
+import { EModelStatus } from "@/types/model";
 import { Loader } from "@/components/ui/loader";
 import { useGetUser } from "@/hooks/user/useGetUser";
 import { getModelName } from "@/utils/app_utils";
 import { useGetModels } from "@/hooks/model/useGetModels";
+import { useSelectedModel } from "@/hooks/model/useSelectedModel";
 import { setAppContext } from "@/store/slices/appContextSlice";
 import { useAppDispatch } from "@/store";
 
-type Props = {
-  selectedModel: IModel | null;
-  setSelectedModel: Dispatch<SetStateAction<IModel | null>>;
-};
-
 // Model Selector Component
-export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
+export const ModelSelector = () => {
   const dispatch = useAppDispatch();
 
   const [openModelSelectionPopover, setOpenModelSelectionPopover] = useState(false);
@@ -26,6 +22,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
   const { user } = useGetUser();
 
   const { models, isModelsFetching } = useGetModels(user?.id);
+  const { selectedModel, setSelectedModel } = useSelectedModel();
 
   const openModelTraining = () => {
     setOpenModelSelectionPopover(false);
@@ -33,11 +30,17 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
   };
 
   useEffect(() => {
+    // Until the list has loaded, an empty one is not "no models": treating it as
+    // the first load would make every model look newly completed once it lands,
+    // and the newest would replace the user's selection.
+    if (isModelsFetching) return;
+
     const completeModels = models.filter((m) => m.status === EModelStatus.COMPLETED);
     const completeModelIds = new Set(completeModels.map((model) => model.id));
 
-    // On first load, keep the existing behavior: select the first completed model
-    // only when the user has not already selected one.
+    // First look at the list this mount: select the first completed model only
+    // when nothing is selected (first login, or the selected model is gone). A
+    // selection kept in the store from before a navigation is left alone.
     if (!hasInitializedCompletedModels.current) {
       knownCompletedModelIds.current = completeModelIds;
       hasInitializedCompletedModels.current = true;
@@ -65,7 +68,7 @@ export const ModelSelector = ({ selectedModel, setSelectedModel }: Props) => {
     }
 
     knownCompletedModelIds.current = completeModelIds;
-  }, [models, selectedModel, setSelectedModel]);
+  }, [models, isModelsFetching, selectedModel, setSelectedModel]);
 
   return (
     <div className="relative flex flex-col gap-3">
