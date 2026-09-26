@@ -70,7 +70,9 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
     key: "can_cooler", label: "Can Cooler", blurb: "Keeps a 12oz can cold.",
     variants: [
       { label: "Regular 12 oz", variantGid: "gid://shopify/ProductVariant/50526510252290", retailUsd: 12.00, costUsd: 3.49 },
-      { label: "Slim 12 oz", variantGid: "gid://shopify/ProductVariant/50526510285058", retailUsd: 12.00, costUsd: 3.49 },
+      // Slim (50526510285058) is hidden: Printful's slim print area is tall and narrow
+      // (1076x2085) and our file would lose ~40% of its width. Re-add once the backend
+      // has a slim print-file spec.
     ],
   },
   {
