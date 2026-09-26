@@ -69,7 +69,7 @@ export const OrderPrintDialog = ({ open, onClose, generationImage, generationId 
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Put this on something</DialogTitle>
-          <DialogDescription>We print the artwork exactly as you see it here.</DialogDescription>
+          <DialogDescription>Your pet is printed as-is, never redrawn. The coaster, pillow, and can cooler trim the edges to fit their shape.</DialogDescription>
         </DialogHeader>
 
         {notReady ? (

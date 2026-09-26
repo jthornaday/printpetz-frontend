@@ -16,7 +16,6 @@ import { merchAvailable } from "@/constants/merch_products";
 import { IGenerationViewItem } from "@/types/generation";
 import mugMockup from "@/utils/images/mockups/mug.png";
 import pillowMockup from "@/utils/images/mockups/pillow.png";
-import tShirtMockup from "@/utils/images/mockups/t-shirt.png";
 import { useState } from "react";
 import {
   useDeleteGenerationMutation,
@@ -35,7 +34,6 @@ type Props = {
 const mockupConfigs = [
   { mockup: mugMockup, width: 51, left: 30, top: 21 },
   { mockup: pillowMockup, width: 72, left: 14, top: 21 },
-  { mockup: tShirtMockup, width: 53, left: 21, top: 25 },
 ];
 
 const getBlobExtension = (blob: Blob) => {
