@@ -18,18 +18,29 @@ import { storefrontFetch } from "./client";
 const CART_CREATE = `
   mutation CartCreate($input: CartInput!) {
     cartCreate(input: $input) {
-      cart { id checkoutUrl }
+      cart { id checkoutUrl lines(first: 5) { nodes { quantity } } }
       userErrors { field message }
+      warnings { code message }
     }
   }
 `;
 
 type CartCreateResponse = {
   cartCreate: {
-    cart: { id: string; checkoutUrl: string } | null;
+    cart: {
+      id: string;
+      checkoutUrl: string;
+      lines: { nodes: Array<{ quantity: number }> };
+    } | null;
     userErrors: Array<{ field: string[] | null; message: string }>;
+    warnings: Array<{ code: string; message: string }>;
   };
 };
+
+// Shown to the customer when Shopify accepts the cart but drops the item. The real
+// reason goes to the console; the customer gets something they can act on.
+const UNAVAILABLE_MESSAGE =
+  "This product can't be ordered right now. Please try a different one, or check back soon.";
 
 export type OrderLine = {
   variantGid: string;
@@ -61,8 +72,26 @@ export const createCheckoutForGeneration = async (line: OrderLine): Promise<stri
     },
   });
 
-  const { cart, userErrors } = data.cartCreate;
+  const { cart, userErrors, warnings } = data.cartCreate;
   if (userErrors?.length) throw new Error(userErrors[0].message);
   if (!cart?.checkoutUrl) throw new Error("Shopify did not return a checkout URL.");
+
+  // Shopify does NOT fail cartCreate when it can't sell an item. It returns a valid
+  // checkoutUrl for a cart whose line has quantity 0, plus a warning such as
+  // MERCHANDISE_OUT_OF_STOCK. Redirecting there drops the customer on an empty
+  // checkout with no explanation. This happened for real on 2026-09-25 when the
+  // Printful location fell out of the shipping profile: every product was in stock
+  // but undeliverable, and every cart came back empty.
+  const placed = cart.lines.nodes.reduce((n, l) => n + l.quantity, 0);
+  if (placed < line.quantity || warnings?.length) {
+    console.error("[shopify-cart] item not added", {
+      productKey: line.productKey,
+      requested: line.quantity,
+      placed,
+      warnings,
+    });
+    throw new Error(UNAVAILABLE_MESSAGE);
+  }
+
   return cart.checkoutUrl;
 };
