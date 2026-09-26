@@ -9,7 +9,7 @@
  * hand. To refresh after adding a product, query:
  *   { products(first:30){ edges{ node{ title variants(first:20){ edges{ node{ id title } } } } } } }
  *
- * `retailUsd` mirrors the Shopify price for display only. Shopify is the source of
+ * `retailUsd` mirrors the Shopify price for display only. Synced 2026-09-25. Shopify is the source of
  * truth at checkout — if the two drift, the customer pays Shopify's number.
  */
 
@@ -36,22 +36,22 @@ export type MerchProduct = {
 export const MERCH_PRODUCTS: MerchProduct[] = [
   {
     key: "poster_8x10", label: '8×10" Print', blurb: "Museum-matte paper.",
-    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526390026498", retailUsd: 31.50, costUsd: 7.03 }],
+    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526390026498", retailUsd: 35.00, costUsd: 7.03 }],
   },
   {
     key: "framed_8x10", label: '8×10" Framed Print', blurb: "Black frame, ready to hang.",
-    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526391402754", retailUsd: 27.00, costUsd: 20.76 }],
+    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526391402754", retailUsd: 59.00, costUsd: 20.76 }],
   },
   {
     key: "canvas_16x20", label: '16×20" Canvas', blurb: "Gallery wrap, no frame needed.",
-    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526379507970", retailUsd: 80.00, costUsd: 28.56 }],
+    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526379507970", retailUsd: 89.00, costUsd: 28.56 }],
   },
   {
     key: "mug_11oz", label: "Mug", blurb: "Dishwasher and microwave safe.",
     variants: [
-      { label: "11 oz", variantGid: "gid://shopify/ProductVariant/50526265999618", retailUsd: 8.00, costUsd: 6.07 },
-      { label: "15 oz", variantGid: "gid://shopify/ProductVariant/50526266032386", retailUsd: 11.00, costUsd: 8.11 },
-      { label: "20 oz", variantGid: "gid://shopify/ProductVariant/50526266065154", retailUsd: 13.00, costUsd: 9.69 },
+      { label: "11 oz", variantGid: "gid://shopify/ProductVariant/50526265999618", retailUsd: 25.00, costUsd: 6.07 },
+      { label: "15 oz", variantGid: "gid://shopify/ProductVariant/50526266032386", retailUsd: 29.00, costUsd: 8.11 },
+      { label: "20 oz", variantGid: "gid://shopify/ProductVariant/50526266065154", retailUsd: 33.00, costUsd: 9.69 },
     ],
   },
   // Hidden from the picker. The pint glass print file is 9.58x5.04in @300 DPI —
@@ -64,18 +64,18 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
   },
   {
     key: "coaster_4x4", label: "Coaster", blurb: "Cork-backed, 3.74in square.",
-    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526403592450", retailUsd: 7.50, costUsd: 5.55 }],
+    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526403592450", retailUsd: 14.00, costUsd: 5.55 }],
   },
   {
     key: "can_cooler", label: "Can Cooler", blurb: "Keeps a 12oz can cold.",
     variants: [
-      { label: "Regular 12 oz", variantGid: "gid://shopify/ProductVariant/50526510252290", retailUsd: 5.00, costUsd: 3.49 },
-      { label: "Slim 12 oz", variantGid: "gid://shopify/ProductVariant/50526510285058", retailUsd: 5.00, costUsd: 3.49 },
+      { label: "Regular 12 oz", variantGid: "gid://shopify/ProductVariant/50526510252290", retailUsd: 12.00, costUsd: 3.49 },
+      { label: "Slim 12 oz", variantGid: "gid://shopify/ProductVariant/50526510285058", retailUsd: 12.00, costUsd: 3.49 },
     ],
   },
   {
     key: "pillow_18x18", label: '18×18" Pillow', blurb: "All-over print, insert included.",
-    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526365614338", retailUsd: 24.50, costUsd: 16.60 }],
+    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526365614338", retailUsd: 49.00, costUsd: 16.60 }],
   },
 ];
 
