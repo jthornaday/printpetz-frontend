@@ -55,7 +55,7 @@ export const Showroom = () => {
   const [pollMs, setPollMs] = useState(0);
   const { data, isError } = useGetMerchPreviewsQuery(chosen?.id ?? 0, { skip: !chosen, pollingInterval: pollMs });
   const manifest = data?.data;
-  const pending = manifest?.entries.some((e) => e.treatment === "panel" && e.status === "pending") ?? false;
+  const pending = manifest ? manifest.complete === false : false;
   useEffect(() => setPollMs(pending ? 2000 : 0), [pending]);
 
   const previewFor = (key: string): PreviewImage | "pending" | null => {
@@ -64,7 +64,7 @@ export const Showroom = () => {
     const e = manifest?.entries.find((x) => x.productKey === key && x.treatment === "panel");
     if (!e || e.status === "pending") return "pending";
     if (e.status !== "ready" || !e.url || !e.width || !e.height) return null;
-    return { url: e.url, width: e.width, height: e.height, trimmed: e.trimmed };
+    return { url: e.url, width: e.width, height: e.height, trimmed: e.trimmed, mockup: e.mockup };
   };
 
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -119,6 +119,9 @@ export const Showroom = () => {
                 <div className="pp-showroom-image">
                   {prev === "pending" ? (
                     <span className="pp-showroom-loading">Preparing your preview…</span>
+                  ) : prev?.mockup ? (
+                    <Image src={prev.mockup.url} alt={`${p.label} with ${isDemo ? DEMO_PET_NAME : "your artwork"}`} width={prev.mockup.width} height={prev.mockup.height}
+                      className="pp-showroom-mockup" />
                   ) : prev ? (
                     <Image src={prev.url} alt={`${p.label} with ${isDemo ? DEMO_PET_NAME : "your artwork"}`} width={prev.width} height={prev.height}
                       className={cn("pp-showroom-print", prev.width === prev.height && "is-square")} />
@@ -155,6 +158,7 @@ type DialogProps = {
 const ProductDialog = ({ product, preview, artwork, signedIn, onClose }: DialogProps) => {
   const [variantGid, setVariantGid] = useState(product.variants[0]?.variantGid ?? "");
   const [submitting, setSubmitting] = useState(false);
+  const [view, setView] = useState<"product" | "print">("product");
   const variant = product.variants.find((v) => v.variantGid === variantGid) ?? product.variants[0];
   const ready = preview && preview !== "pending";
 
@@ -182,13 +186,23 @@ const ProductDialog = ({ product, preview, artwork, signedIn, onClose }: DialogP
         </DialogHeader>
         <div className="pp-product-detail">
           <figure className="pp-product-detail-image">
-            {ready ? (
+            {ready && preview.mockup && (
+              <div className="pp-view-toggle" role="tablist" aria-label="Preview view">
+                <button type="button" role="tab" aria-selected={view === "product"} className={cn(view === "product" && "is-active")} onClick={() => setView("product")}>Product</button>
+                <button type="button" role="tab" aria-selected={view === "print"} className={cn(view === "print" && "is-active")} onClick={() => setView("print")}>Exact print</button>
+              </div>
+            )}
+            {ready && preview.mockup && view === "product" ? (
+              <Image src={preview.mockup.url} alt={`${product.label} with the artwork`} width={preview.mockup.width} height={preview.mockup.height} className="pp-showroom-mockup" />
+            ) : ready ? (
               <Image src={preview.url} alt={`${product.label} print preview`} width={preview.width} height={preview.height} className="pp-showroom-print" />
             ) : (
               <span className="pp-showroom-loading">{preview === "pending" ? "Preparing your preview…" : "Preview unavailable"}</span>
             )}
             <figcaption>
-              {artwork ? "This is exactly what we print." : `Sample: ${DEMO_PET_NAME}.`}
+              {ready && preview.mockup && view === "product"
+                ? "Shown on the product. Tap Exact print to see the file we print."
+                : artwork ? "This is exactly what we print." : `Sample: ${DEMO_PET_NAME}.`}
               {ready && preview.trimmed >= 0.05 && ` The edges are trimmed to fit this ${product.label.toLowerCase()} — about ${Math.round(preview.trimmed * 100)}% of the image.`}
             </figcaption>
           </figure>

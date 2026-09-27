@@ -7,6 +7,8 @@ export type PreviewImage = {
   height: number;
   /** Share of the artwork trimmed away to fit the product's shape, 0-1. */
   trimmed: number;
+  /** Photoreal version on the product photo, when this product's mockup has passed calibration. */
+  mockup?: { url: string; width: number; height: number };
 };
 
 export type PreviewEntry = Partial<PreviewImage> & {
@@ -22,4 +24,6 @@ export type PreviewManifest = {
   srcSha: string;
   version: string;
   entries: PreviewEntry[];
+  /** False while previews or mockups are still being made. */
+  complete?: boolean;
 };
