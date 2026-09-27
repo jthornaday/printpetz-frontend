@@ -45,16 +45,24 @@ export const Showroom = () => {
     [generationViews],
   );
 
-  const requested = Number(router.query.g);
-  const chosen = artworks.find((a) => a.id === requested) ?? artworks[0] ?? null;
   // A skipped query (signed out) reports itself as loading forever, so only wait on artwork when signed in.
   const loading = isUserLoading || (Boolean(user) && isGenerationViewsLoading);
-  const isDemo = !loading && !chosen;
+
+  // "Shop this image" links here with ?g=<id>. That image may be older than the picker has loaded,
+  // so use the id directly (the backend checks ownership and returns the image URL) rather than
+  // silently falling back to the newest image — the wrong pet on every product.
+  const requested = Number(router.query.g);
+  const requestedId = user && Number.isInteger(requested) && requested > 0 ? requested : null;
+  const chosenId = requestedId ?? artworks[0]?.id ?? null;
 
   // Poll while the backend is still rendering (square products wait on background removal).
   const [pollMs, setPollMs] = useState(0);
-  const { data, isError } = useGetMerchPreviewsQuery(chosen?.id ?? 0, { skip: !chosen, pollingInterval: pollMs });
+  const { data, isError } = useGetMerchPreviewsQuery(chosenId ?? 0, { skip: !chosenId, pollingInterval: pollMs });
   const manifest = data?.data;
+  const chosen: Artwork | null = chosenId === null ? null
+    : artworks.find((a) => a.id === chosenId)
+      ?? (manifest?.generationId === chosenId ? { id: chosenId, image: manifest.sourceUrl } : null);
+  const isDemo = !loading && !chosenId;
   const pending = manifest ? manifest.complete === false : false;
   useEffect(() => setPollMs(pending ? 2000 : 0), [pending]);
 
@@ -92,10 +100,10 @@ export const Showroom = () => {
             <p className="pp-picker-label">Your image</p>
             <div className="pp-picker-strip">
               {artworks.slice(0, 40).map((a) => (
-                <button key={a.id} type="button" onClick={() => choose(a.id)} aria-pressed={a.id === chosen?.id}
-                  className={cn("pp-picker-thumb", a.id === chosen?.id && "is-active")}>
+                <button key={a.id} type="button" onClick={() => choose(a.id)} aria-pressed={a.id === chosenId}
+                  className={cn("pp-picker-thumb", a.id === chosenId && "is-active")}>
                   <Image src={a.image} alt="" fill sizes="72px" className="object-cover" />
-                  {a.id === chosen?.id && <span className="pp-picker-check"><Check size={14} /></span>}
+                  {a.id === chosenId && <span className="pp-picker-check"><Check size={14} /></span>}
                 </button>
               ))}
             </div>
@@ -115,7 +123,7 @@ export const Showroom = () => {
           {products.map((p) => {
             const prev = previewFor(p.key);
             return (
-              <button key={p.key} type="button" className="pp-showroom-tile" onClick={() => setOpenKey(p.key)}>
+              <button key={p.key} type="button" className="pp-showroom-tile" disabled={!isDemo && !chosen} onClick={() => setOpenKey(p.key)}>
                 <div className="pp-showroom-image">
                   {prev === "pending" ? (
                     <span className="pp-showroom-loading">Preparing your preview…</span>
