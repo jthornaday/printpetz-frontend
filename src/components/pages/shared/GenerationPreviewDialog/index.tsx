@@ -9,15 +9,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import AutoSmartMockup from "../AutoSmartMokup";
 import { ImageEditorPanel } from "../ImageEditorPanel";
 import { OrderPrintDialog } from "../OrderPrintDialog";
 import { merchAvailable } from "@/constants/merch_products";
 import { shopEnabled } from "@/utils/shopMode";
 import { useRouter } from "next/router";
 import { IGenerationViewItem } from "@/types/generation";
-import mugMockup from "@/utils/images/mockups/mug.png";
-import pillowMockup from "@/utils/images/mockups/pillow.png";
+import Image from "next/image";
+import Link from "next/link";
+import { useGetMerchPreviewsQuery } from "@/store/api/merchApi";
 import { useEffect, useState } from "react";
 import {
   useDeleteGenerationMutation,
@@ -33,10 +33,8 @@ type Props = {
   onClose: () => void;
 };
 
-const mockupConfigs = [
-  { mockup: mugMockup, width: 51, left: 30, top: 21 },
-  { mockup: pillowMockup, width: 72, left: 14, top: 21 },
-];
+/** Products shown as photoreal thumbnails beside the image when the shop is on. */
+const THUMB_PRODUCTS = ["mug_11oz", "framed_8x10", "canvas_16x20"];
 
 const getBlobExtension = (blob: Blob) => {
   const mimeToExt: Record<string, string> = {
@@ -56,6 +54,16 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
   const [shopOn, setShopOn] = useState(false);
   useEffect(() => setShopOn(shopEnabled()), []);
   const router = useRouter();
+  // Real mockups of THIS image (same service as the shop). The old pasted-on mug/pillow
+  // thumbnails didn't match what prints, so without the shop there are no thumbnails.
+  const [pollMs, setPollMs] = useState(0);
+  const { data: previews } = useGetMerchPreviewsQuery(generation.id, { skip: !shopOn || !generation.image, pollingInterval: pollMs });
+  const complete = previews?.data?.complete;
+  useEffect(() => setPollMs(shopOn && complete === false ? 2000 : 0), [shopOn, complete]);
+  const thumbs = THUMB_PRODUCTS.map((key) => ({
+    key,
+    mockup: previews?.data?.entries.find((e) => e.productKey === key && e.treatment === "panel")?.mockup,
+  }));
   const [deleteGeneration, { isLoading: isDeleting }] = useDeleteGenerationMutation();
   const [downloadGenerationImage, { isLoading: isDownloading }] = useDownloadGenerationImageMutation();
   const { user } = useGetUser();
@@ -204,18 +212,23 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
                 </Button>
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-2 sm:flex sm:w-[110px] sm:flex-col sm:gap-3">
-              {[null, ...mockupConfigs].map((mockupConfig, i) => (
-                <div
-                  key={i}
-                  className="relative aspect-[4/5] flex-1 overflow-hidden rounded-md bg-black-100"
-                >
-                  {generation.image && (
-                    <AutoSmartMockup mockupConfig={mockupConfig} design={generation.image} />
-                  )}
+            {shopOn && (
+              <div className="grid grid-cols-4 gap-2 sm:flex sm:w-[110px] sm:flex-col sm:gap-3">
+                <div className="relative aspect-[4/5] flex-1 overflow-hidden rounded-md bg-black-100">
+                  {generation.image && <Image src={generation.image} alt="" fill sizes="110px" className="object-cover" />}
                 </div>
-              ))}
-            </div>
+                {thumbs.map((t) => (
+                  <Link key={t.key} href={{ pathname: "/shop", query: { g: generation.id } }}
+                    className="relative aspect-[4/5] flex-1 overflow-hidden rounded-md bg-[#f4f5f7]" aria-label="See it in the shop">
+                    {t.mockup ? (
+                      <Image src={t.mockup.url} alt="" fill sizes="110px" className="object-contain" />
+                    ) : (
+                      <span className="absolute inset-0 animate-pulse bg-[#e8eaef]" />
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </DialogContent>
