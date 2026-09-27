@@ -13,10 +13,12 @@ import AutoSmartMockup from "../AutoSmartMokup";
 import { ImageEditorPanel } from "../ImageEditorPanel";
 import { OrderPrintDialog } from "../OrderPrintDialog";
 import { merchAvailable } from "@/constants/merch_products";
+import { shopEnabled } from "@/utils/shopMode";
+import { useRouter } from "next/router";
 import { IGenerationViewItem } from "@/types/generation";
 import mugMockup from "@/utils/images/mockups/mug.png";
 import pillowMockup from "@/utils/images/mockups/pillow.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useDeleteGenerationMutation,
   useDownloadGenerationImageMutation,
@@ -50,6 +52,10 @@ const getBlobExtension = (blob: Blob) => {
 export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, onClose }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isOrdering, setIsOrdering] = useState(false);
+  // With the shop on, ordering happens in the showroom (this image on every product), not the list dialog.
+  const [shopOn, setShopOn] = useState(false);
+  useEffect(() => setShopOn(shopEnabled()), []);
+  const router = useRouter();
   const [deleteGeneration, { isLoading: isDeleting }] = useDeleteGenerationMutation();
   const [downloadGenerationImage, { isLoading: isDownloading }] = useDownloadGenerationImageMutation();
   const { user } = useGetUser();
@@ -182,10 +188,10 @@ export const GenerationPreviewDialog = ({ generation, chips, modelId, styleId, o
                 {merchAvailable() && (
                   <Button
                     className="min-w-[130px] flex-1"
-                    onClick={() => setIsOrdering(true)}
+                    onClick={() => (shopOn ? void router.push({ pathname: "/shop", query: { g: generation.id } }) : setIsOrdering(true))}
                     disabled={!generation.image}
                   >
-                    Order print
+                    {shopOn ? "Shop this image" : "Order print"}
                   </Button>
                 )}
                 <Button
