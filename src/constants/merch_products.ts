@@ -81,6 +81,25 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
     key: "pillow_18x18", label: '18×18" Pillow', blurb: "All-over print, insert included.", sizeNote: "18 × 18 in",
     variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526365614338", retailUsd: 49.00, costUsd: 16.60 }],
   },
+  // Holiday line, 2026-09-27. Shapes chosen so the whole pet survives: no hearts, stars or
+  // snowflakes (their cut edges clip ears and tails). Costs are Printful's, before shipping.
+  {
+    // HIDDEN: the disc's hanging hole sits ~12% down, dead centre — it lands on the pet's face in
+    // all 5 regression pets — and the physical disc is 2.76" (6.7% of the art lost per side).
+    // Needs a subject-placed crop below the hole before it can be offered.
+    key: "ornament_ceramic_circle", label: "Ceramic Ornament", blurb: "Glossy ceramic, printed on both sides, ribbon included.", sizeNote: "2.76 in circle", hidden: true,
+    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50554248265986", retailUsd: 14.00, costUsd: 7.73 }],
+  },
+  {
+    key: "ornament_metal_oval", label: "Metal Ornament", blurb: "Glossy white aluminum, red ribbon included.", sizeNote: "2.6 × 3.25 in oval",
+    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50554260029698", retailUsd: 18.00, costUsd: 4.61 }],
+  },
+  {
+    // HIDDEN until the Shopify pack variants exist: sold as 5- and 10-packs only (one card plus
+    // $6.95 shipping doesn't sell). Replace this variant with the pack variants, then unhide.
+    key: "card_4x6", label: "Greeting Card", blurb: "Heavy 350 gsm card, blank inside, envelope included.", sizeNote: "4 × 6 in", hidden: true,
+    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50554242990338", retailUsd: 7.00, costUsd: 2.55 }],
+  },
 ];
 
 export const orderableProducts = () =>

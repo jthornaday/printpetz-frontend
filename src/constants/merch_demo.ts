@@ -23,4 +23,9 @@ export const DEMO_PREVIEWS: Record<string, PreviewImage> = {
     mockup: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v1/coaster_4x4-panel-mockup-0334b5085ff4.webp", width: 1000, height: 1000 } },
   can_cooler: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v1/can_cooler-panel.jpg", width: 660, height: 800, trimmed: 0.01 },
   pillow_18x18: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v1/pillow_18x18-panel.jpg", width: 800, height: 800, trimmed: 0.19 },
+  ornament_ceramic_circle: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v1/ornament_ceramic_circle-panel.jpg", width: 800, height: 800, trimmed: 0.02 },
+  ornament_metal_oval: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v1/ornament_metal_oval-panel.jpg", width: 525, height: 650, trimmed: 0.02,
+    mockup: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v1/ornament_metal_oval-panel-mockup-de127874aa2f.webp", width: 1000, height: 1000 } },
+  card_4x6: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v1/card_4x6-panel.jpg", width: 539, height: 800, trimmed: 0.17,
+    mockup: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v1/card_4x6-panel-mockup-e590549584b3.webp", width: 1000, height: 1000 } },
 };
