@@ -95,10 +95,13 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
     variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50554260029698", retailUsd: 18.00, costUsd: 4.61 }],
   },
   {
-    // HIDDEN until the Shopify pack variants exist: sold as 5- and 10-packs only (one card plus
-    // $6.95 shipping doesn't sell). Replace this variant with the pack variants, then unhide.
-    key: "card_4x6", label: "Greeting Card", blurb: "Heavy 350 gsm card, blank inside, envelope included.", sizeNote: "4 × 6 in", hidden: true,
-    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50554242990338", retailUsd: 7.00, costUsd: 2.55 }],
+    // Sold in packs only (one card plus $6.95 shipping doesn't sell). Each pack prints that many
+    // cards (backend packQuantity).
+    key: "card_4x6", label: "Greeting Cards", blurb: "Heavy 350 gsm cards, blank inside, envelopes included.", sizeNote: "4 × 6 in, packs of 5 or 10",
+    variants: [
+      { label: "5 cards", variantGid: "gid://shopify/ProductVariant/50556470034690", retailUsd: 24.00, costUsd: 12.75 },
+      { label: "10 cards", variantGid: "gid://shopify/ProductVariant/50556470067458", retailUsd: 39.00, costUsd: 25.50 },
+    ],
   },
 ];
 
