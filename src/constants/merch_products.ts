@@ -84,11 +84,10 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
   // Holiday line, 2026-09-27. Shapes chosen so the whole pet survives: no hearts, stars or
   // snowflakes (their cut edges clip ears and tails). Costs are Printful's, before shipping.
   {
-    // HIDDEN: the disc's hanging hole sits ~12% down, dead centre — it lands on the pet's face in
-    // all 5 regression pets — and the physical disc is 2.76" (6.7% of the art lost per side).
-    // Needs a subject-placed crop below the hole before it can be offered.
-    key: "ornament_ceramic_circle", label: "Ceramic Ornament", blurb: "Glossy ceramic, printed on both sides, ribbon included.", sizeNote: "2.76 in circle", hidden: true,
-    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50554248265986", retailUsd: 14.00, costUsd: 7.73 }],
+    // The art sits below the hanging hole (backend safeArea) inside the 2.76" disc; checked on 5 pets
+    // against Printful's own renders. The pet is ~1.7" tall on the ornament.
+    key: "ornament_ceramic_circle", label: "Ceramic Ornament", blurb: "Glossy ceramic, printed on both sides, ribbon included.", sizeNote: "2.76 in circle",
+    variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50554248265986", retailUsd: 22.00, costUsd: 7.73 }],
   },
   {
     key: "ornament_metal_oval", label: "Metal Ornament", blurb: "Glossy white aluminum, red ribbon included.", sizeNote: "2.6 × 3.25 in oval",
