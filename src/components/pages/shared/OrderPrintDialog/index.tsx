@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radioGroup";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
-  MerchProduct, MerchVariant, OFFERED_TREATMENTS, Treatment, orderableProducts,
+  MerchProduct, MerchVariant, OFFERED_TREATMENTS, Treatment, quickOrderProducts,
 } from "@/constants/merch_products";
 import { createCheckoutForGeneration } from "@/services/shopify/cart";
 import { shopifyConfigured } from "@/services/shopify/client";
@@ -23,7 +23,7 @@ type Props = {
 };
 
 export const OrderPrintDialog = ({ open, onClose, generationImage, generationId }: Props) => {
-  const products = useMemo(() => orderableProducts(), []);
+  const products = useMemo(() => quickOrderProducts(), []);
   const [productKey, setProductKey] = useState<string | null>(products[0]?.key ?? null);
   const [variantGid, setVariantGid] = useState<string | null>(products[0]?.variants[0]?.variantGid ?? null);
   const [treatment, setTreatment] = useState<Treatment>("panel");
