@@ -32,6 +32,8 @@ export type MerchProduct = {
   sizeNote: string;
   /** Exists in Shopify and in the backend catalog, but not offered yet. */
   hidden?: boolean;
+  /** Prints the pet's name, so it's sold only from the showroom, where the preview shows the name. */
+  showroomOnly?: boolean;
   variants: MerchVariant[];
 };
 
@@ -102,10 +104,24 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
       { label: "10 cards", variantGid: "gid://shopify/ProductVariant/50556470067458", retailUsd: 39.00, costUsd: 25.50 },
     ],
   },
+  // Pet bowl, 2026-09-29: design B2 — portrait + the pet's name on the front, portraits round the
+  // sides (backend band layout). The name comes from the pet model server-side, never the browser.
+  // Hidden until Jake flips it (specs/merch-pet-bowl.md in printpetz-backend).
+  {
+    key: "pet_bowl", label: "Pet Bowl", blurb: "Stainless steel, printed with your pet’s name and portrait all the way round.", sizeNote: "18 or 32 oz",
+    hidden: true, showroomOnly: true,
+    variants: [
+      { label: "18 oz", variantGid: "gid://shopify/ProductVariant/50558146150658", retailUsd: 42.00, costUsd: 28.25 },
+      { label: "32 oz", variantGid: "gid://shopify/ProductVariant/50558146183426", retailUsd: 48.00, costUsd: 32.25 },
+    ],
+  },
 ];
 
 export const orderableProducts = () =>
   MERCH_PRODUCTS.filter((p) => !p.hidden && p.variants.some((v) => v.variantGid));
+
+/** For the quick order dialog, which shows the plain image rather than the product preview. */
+export const quickOrderProducts = () => orderableProducts().filter((p) => !p.showroomOnly);
 
 export const merchProductByKey = (key: string) =>
   MERCH_PRODUCTS.find((p) => p.key === key) ?? null;

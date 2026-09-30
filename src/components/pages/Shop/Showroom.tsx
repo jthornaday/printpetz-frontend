@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,9 +17,29 @@ import { ROUTES } from "@/routes";
 import { createCheckoutForGeneration } from "@/services/shopify/cart";
 import { useGetMerchPreviewsQuery } from "@/store/api/merchApi";
 import { EGenerationStatus } from "@/types/generation";
-import { PreviewImage } from "@/types/merch";
+import { Personalization, PreviewImage } from "@/types/merch";
 
 type Artwork = { id: number; image: string };
+
+/** Wrap-around prints (pet bowl) are about 8 times wider than tall. */
+const isStrip = (p: { width: number; height: number }) => p.width / p.height > 3;
+
+const OMITTED_REASON: Record<NonNullable<Personalization["omitted"]>, string> = {
+  no_name: "your pet doesn’t have a name saved",
+  unsupported_characters: "the name uses letters we can’t print yet",
+  too_long: "the name is too long to fit",
+};
+
+/** The name as it will print, in words, so the picture is never the only clue. */
+const nameNote = (pz: Personalization) => {
+  if (!pz.lines) {
+    return `Prints with portraits only: ${OMITTED_REASON[pz.omitted ?? "no_name"]}.`;
+  }
+  const name = pz.lines.join(" ");
+  return pz.frontPortrait === false
+    ? `Printed name: ${name}. It’s a long one, so it prints on its own across the front, with your pet’s portrait on each side.`
+    : `Printed name: ${name}.`;
+};
 
 const priceLabel = (p: MerchProduct) => {
   const prices = p.variants.map((v) => v.retailUsd);
@@ -72,7 +92,7 @@ export const Showroom = () => {
     const e = manifest?.entries.find((x) => x.productKey === key && x.treatment === "panel");
     if (!e || e.status === "pending") return "pending";
     if (e.status !== "ready" || !e.url || !e.width || !e.height) return null;
-    return { url: e.url, width: e.width, height: e.height, trimmed: e.trimmed, mockup: e.mockup };
+    return { url: e.url, width: e.width, height: e.height, trimmed: e.trimmed, mockup: e.mockup, personalization: e.personalization };
   };
 
   const [openKey, setOpenKey] = useState<string | null>(null);
@@ -132,7 +152,7 @@ export const Showroom = () => {
                       className="pp-showroom-mockup" />
                   ) : prev ? (
                     <Image src={prev.url} alt={`${p.label} with ${isDemo ? DEMO_PET_NAME : "your artwork"}`} width={prev.width} height={prev.height}
-                      className={cn("pp-showroom-print", prev.width === prev.height && "is-square")} />
+                      className={cn("pp-showroom-print", (prev.width === prev.height || isStrip(prev)) && "is-square")} />
                   ) : (
                     <span className="pp-showroom-loading">Preview unavailable</span>
                   )}
@@ -202,6 +222,8 @@ const ProductDialog = ({ product, preview, artwork, signedIn, onClose }: DialogP
             )}
             {ready && preview.mockup && view === "product" ? (
               <Image src={preview.mockup.url} alt={`${product.label} with the artwork`} width={preview.mockup.width} height={preview.mockup.height} className="pp-showroom-mockup" />
+            ) : ready && isStrip(preview) ? (
+              <StripPreview preview={preview} label={product.label} />
             ) : ready ? (
               <Image src={preview.url} alt={`${product.label} print preview`} width={preview.width} height={preview.height} className="pp-showroom-print" />
             ) : (
@@ -209,9 +231,13 @@ const ProductDialog = ({ product, preview, artwork, signedIn, onClose }: DialogP
             )}
             <figcaption>
               {ready && preview.mockup && view === "product"
-                ? "Shown on the product. Tap Exact print to see the file we print."
+                ? `Shown on the product. Tap Exact print to see ${isStrip(preview) ? "the whole wrap, laid flat" : "the file we print"}.`
                 : artwork ? "This is exactly what we print." : `Sample: ${DEMO_PET_NAME}.`}
+              {ready && isStrip(preview) && (preview.mockup && view === "product"
+                ? " It wraps all the way round; the ends meet at the back."
+                : " Scroll sideways to see all the way round; the ends meet at the back.")}
               {ready && preview.trimmed >= 0.05 && ` The edges are trimmed to fit this ${product.label.toLowerCase()} — about ${Math.round(preview.trimmed * 100)}% of the image.`}
+              {ready && preview.personalization && <strong className="pp-name-note">{nameNote(preview.personalization)}</strong>}
             </figcaption>
           </figure>
           <div className="pp-product-detail-buy">
@@ -240,5 +266,20 @@ const ProductDialog = ({ product, preview, artwork, signedIn, onClose }: DialogP
         </div>
       </DialogContent>
     </Dialog>
+  );
+};
+
+/** A wrap-around print at a readable height, scrolled so the front of the product (the centre) shows first. */
+const StripPreview = ({ preview, label }: { preview: PreviewImage; label: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const centre = () => {
+    const el = ref.current;
+    if (el) el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+  };
+  useEffect(centre, [preview.url]);
+  return (
+    <div ref={ref} className="pp-strip-scroll">
+      <Image src={preview.url} alt={`${label} print, laid flat`} width={preview.width} height={preview.height} className="pp-strip-print" onLoad={centre} />
+    </div>
   );
 };

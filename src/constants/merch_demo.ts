@@ -31,4 +31,8 @@ export const DEMO_PREVIEWS: Record<string, PreviewImage> = {
     mockup: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v2/ornament_metal_oval-panel-mockup-de127874aa2f.webp", width: 1000, height: 1000 } },
   card_4x6: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v2/card_4x6-panel.jpg", width: 539, height: 800, trimmed: 0.17,
     mockup: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v2/card_4x6-panel-mockup-e590549584b3.webp", width: 1000, height: 1000 } },
+  // merch-demo -- --name=Max
+  pet_bowl: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v2/pet_bowl-panel-nfd4ced8c2c2e.jpg", width: 2600, height: 321, trimmed: 0.02,
+    mockup: { url: "https://d155jdfit5sgy.cloudfront.net/merch/previews/611d2a6c8c38252013797cab1abd32a1/v2/pet_bowl-panel-nfd4ced8c2c2e-mockup-8071cb6e74cc.webp", width: 1000, height: 1000 },
+    personalization: { lines: ["MAX"], frontPortrait: true } },
 };
