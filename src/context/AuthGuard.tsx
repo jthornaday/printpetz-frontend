@@ -4,7 +4,7 @@ import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 import { ROUTES } from "@/routes";
 import { supabase } from "@/services/supabase";
-import { publicRoutes } from "@/utils/constants/appConstants";
+import { legalRoutes, publicRoutes } from "@/utils/constants/appConstants";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { supabaseBaseApi } from "@/store/api/baseApi";
 import { clearSessionUser, setSessionUser } from "@/store/slices/sessionUserSlice";
@@ -66,7 +66,8 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       // Redirect authenticated users away from public routes (login, signup, etc.)
       // but skip during signup OTP flow where email isn't confirmed yet.
       const isEmailConfirmed = !!session.user.email_confirmed_at;
-      if (isEmailConfirmed && isPublicRoute(router.pathname) && router.pathname !== ROUTES.landing && router.pathname !== ROUTES.shop) {
+      const staysPut = router.pathname === ROUTES.landing || router.pathname === ROUTES.shop || legalRoutes.includes(router.pathname);
+      if (isEmailConfirmed && isPublicRoute(router.pathname) && !staysPut) {
         scheduleRedirect(ROUTES.create);
       }
     };

@@ -9,4 +9,8 @@ export const ROUTES = {
   history: "/history",
   plan: "/plan",
   shop: "/shop",
+  terms: "/terms",
+  privacy: "/privacy",
+  refunds: "/refunds",
+  contact: "/contact",
 };

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 
 import { ROUTES } from "@/routes";
 import { cn } from "@/lib/utils";
-import { publicRoutes, protectedRoutes } from "@/utils/constants/appConstants";
+import { legalRoutes, publicRoutes, protectedRoutes } from "@/utils/constants/appConstants";
 import { AnimatedImageSlider } from "../shared/AnimatedImageSlider";
 import { Header } from "../pages/shared/Header";
 import { Sidebar } from "../pages/shared/Sidebar";
@@ -16,7 +16,7 @@ type LayoutVariant = "landing" | "auth" | "protected" | "default";
 const AUTH_SLIDER_ROUTES = [...publicRoutes, ROUTES.resetPassword];
 
 const resolveLayout = (pathname: string): LayoutVariant => {
-  if (pathname === ROUTES.landing || pathname === ROUTES.shop) return "landing";
+  if (pathname === ROUTES.landing || pathname === ROUTES.shop || legalRoutes.includes(pathname)) return "landing";
   if (AUTH_SLIDER_ROUTES.includes(pathname)) return "auth";
   if (protectedRoutes.includes(pathname)) return "protected";
   return "default";

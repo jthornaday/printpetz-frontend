@@ -9,6 +9,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { signupSchema } from "@/lib/validations/login";
 import { ISignupRequest } from "@/types/auth";
 import { PasswordEyeButton } from "@/components/ui/passwordEyeButton";
+import Link from "next/link";
 import { ROUTES } from "@/routes";
 import { useRouter } from "next/router";
 import { Footer } from "@/components/shared/Footer";
@@ -153,6 +154,12 @@ const SignupPage = () => {
           </div>
 
           <SocialSignIn disabled={isBtnDisabled} onBusyChange={setProviderSigning} />
+
+          <p className="text-center text-xs text-black-50">
+            By creating an account you agree to our{" "}
+            <Link href={ROUTES.terms} className="font-semibold underline">Terms</Link> and{" "}
+            <Link href={ROUTES.privacy} className="font-semibold underline">Privacy Policy</Link>.
+          </p>
 
           {/* Sign Up Link */}
           <div className="text-center space-x-2 text-sm">

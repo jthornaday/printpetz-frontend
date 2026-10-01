@@ -9,3 +9,5 @@
 @media(max-width:760px){.pp-product-detail-image .pp-showroom-mockup{max-height:46vh}}
 .pp-product-detail-image{min-width:0}.pp-strip-scroll{width:100%;max-width:100%;overflow-x:auto;box-shadow:0 10px 24px #10182824,0 2px 6px #1018281f;border-radius:2px;background:#fff}.pp-strip-print{display:block;height:160px;width:auto;max-width:none}.pp-name-note{display:block;margin-top:6px;font-weight:600;color:#141820}
 @media(max-width:760px){.pp-strip-print{height:130px}}
+.pp-legal{max-width:760px;padding-block:64px 90px}.pp-legal h1{font-size:clamp(34px,5vw,52px);line-height:1.05;letter-spacing:-.03em;margin-top:10px}.pp-legal-updated{font-size:12px;color:#606671;margin-top:12px}.pp-legal h2{font-size:20px;font-weight:600;letter-spacing:-.01em;margin-top:34px}.pp-legal p,.pp-legal li{font-size:15px;line-height:1.7;color:#2b313b;margin-top:12px}.pp-legal ul{list-style:disc;padding-left:22px}.pp-legal li{margin-top:6px}.pp-footer-legal{display:flex;gap:18px;font-size:12px;color:#606671}
+@media(max-width:760px){.pp-legal{padding-block:36px 56px}.pp-footer-legal{flex-wrap:wrap}}
