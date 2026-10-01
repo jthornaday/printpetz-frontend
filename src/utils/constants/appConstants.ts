@@ -1,5 +1,8 @@
 import { ROUTES } from "@/routes";
 
+/** Policy and contact pages: open to everyone, signed in or not, and never redirected away from. */
+export const legalRoutes = [ROUTES.terms, ROUTES.privacy, ROUTES.refunds, ROUTES.contact];
+
 export const publicRoutes = [
   ROUTES.login,
   ROUTES.signup,
@@ -7,6 +10,7 @@ export const publicRoutes = [
   ROUTES.forgotPassword,
   ROUTES.landing,
   ROUTES.shop,
+  ...legalRoutes,
 ];
 
 export const protectedRoutes = [ROUTES.create, ROUTES.history, ROUTES.plan];

@@ -20,5 +20,5 @@ export function PremiumHeader() {
 }
 export function PremiumFooter() {
   const { user } = useGetUser();
-  return <footer className="pp-footer pp-wrap"><div><Link href="/" aria-label="PrintPetz home"><PrintPetzWordmark className="text-3xl"/></Link><p>A little imagination. A whole lot of them.</p></div><nav aria-label="Footer navigation"><Link href="/create">Your studio</Link><Link href="/plan">Credits & plans</Link>{user ? <Link href="/history">Your gallery</Link> : <Link href="/login">Sign in</Link>}</nav><span>© {new Date().getFullYear()} PrintPetz</span></footer>;
+  return <footer className="pp-footer pp-wrap"><div><Link href="/" aria-label="PrintPetz home"><PrintPetzWordmark className="text-3xl"/></Link><p>A little imagination. A whole lot of them.</p></div><nav aria-label="Footer navigation"><Link href="/create">Your studio</Link><Link href="/plan">Credits & plans</Link>{user ? <Link href="/history">Your gallery</Link> : <Link href="/login">Sign in</Link>}</nav><nav aria-label="Policies" className="pp-footer-legal"><Link href="/terms">Terms</Link><Link href="/privacy">Privacy</Link><Link href="/refunds">Refunds</Link><Link href="/contact">Contact</Link></nav><span>© {new Date().getFullYear()} PrintPetz</span></footer>;
 }
