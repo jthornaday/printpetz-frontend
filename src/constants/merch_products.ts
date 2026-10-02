@@ -150,3 +150,23 @@ export const merchAvailable = () =>
       process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN &&
       orderableProducts().length > 0,
   );
+
+/**
+ * Standard shipping exactly as Shopify charges it at checkout, by order subtotal. Verified
+ * 2026-10-02 against the store's live checkout (Storefront cart delivery options): $14 and $25 ->
+ * $6.95, $49 and $59 -> $9.95, $89 -> $12.95, $178 -> free. Alaska and Hawaii are the same. Canada,
+ * the UK and Australia get no shipping option, so it's US only. If the Shopify shipping profile
+ * changes, change this too: the shop must never quote a different number than checkout charges.
+ */
+const SHIPPING_TIERS = [
+  { under: 30, usd: 6.95 },
+  { under: 60, usd: 9.95 },
+  { under: 100, usd: 12.95 },
+];
+
+/** Shipping for an order of this subtotal (0 = free). */
+export const shippingFor = (subtotalUsd: number) =>
+  SHIPPING_TIERS.find((t) => subtotalUsd < t.under)?.usd ?? 0;
+
+/** Printful's stated production and US transit times (2026-09-26). */
+export const TURNAROUND = "Made to order in 2–5 business days, then 3–4 business days to arrive.";

@@ -9,7 +9,7 @@ import { ArrowUpRight, Check } from "lucide-react";
 import { PremiumFooter, PremiumHeader } from "@/components/shared/Premium";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DEMO_PET_NAME, DEMO_PREVIEWS } from "@/constants/merch_demo";
-import { MerchProduct, orderableProducts } from "@/constants/merch_products";
+import { MerchProduct, orderableProducts, shippingFor, TURNAROUND } from "@/constants/merch_products";
 import { useGetGenerationViews } from "@/hooks/generation/useGetGenerationViews";
 import { useGetUser } from "@/hooks/user/useGetUser";
 import { cn } from "@/lib/utils";
@@ -144,6 +144,12 @@ export const Showroom = () => {
           </div>
         )}
 
+        <ul className="pp-shop-trust" aria-label="Shipping and our promise">
+          <li>Made to order, shipped to you in about 1–2 weeks</li>
+          <li>US shipping from $6.95</li>
+          <li><span>Damaged or wrong? <Link href={ROUTES.refunds} className="pp-inline-link">Free reprint or full refund</Link></span></li>
+        </ul>
+
         <div className="pp-showroom-grid">
           {products.map((p) => {
             const prev = previewFor(p.key);
@@ -260,7 +266,12 @@ const ProductDialog = ({ product, preview, artwork, signedIn, watermarked, onClo
               </div>
             )}
             <p className="pp-product-price">${variant?.retailUsd.toFixed(2)}</p>
-            <p className="pp-fine-print">Printed and shipped for you. Free shipping on orders over $100.</p>
+            <p className="pp-fine-print">
+              {variant && shippingFor(variant.retailUsd) > 0 ? `+ $${shippingFor(variant.retailUsd).toFixed(2)} shipping` : "Free shipping"}, US only. {TURNAROUND}
+            </p>
+            <p className="pp-fine-print">
+              Arrives damaged or wrong? We’ll reprint it free or give you a full refund. <Link href={ROUTES.refunds} className="pp-inline-link">Our promise</Link>
+            </p>
             {artwork ? (
               <button type="button" className="pp-button" disabled={!ready || submitting} onClick={buy}>
                 {submitting ? "Taking you to checkout…" : "Buy now"} <ArrowUpRight size={17} />
