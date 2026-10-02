@@ -138,6 +138,11 @@ export const Showroom = () => {
         {isError && !isDemo && (
           <div className="pp-shop-note">We couldn’t load the previews just now. Refresh to try again.</div>
         )}
+        {!isDemo && manifest?.watermarked && (
+          <div className="pp-shop-note">
+            This image was made with free starter credits, so the previews show a watermark. <strong>Your product prints without it.</strong>
+          </div>
+        )}
 
         <div className="pp-showroom-grid">
           {products.map((p) => {
@@ -168,7 +173,7 @@ export const Showroom = () => {
       <PremiumFooter />
 
       {open && (
-        <ProductDialog product={open} preview={previewFor(open.key)} artwork={isDemo ? null : chosen}
+        <ProductDialog product={open} preview={previewFor(open.key)} artwork={isDemo ? null : chosen} watermarked={!isDemo && Boolean(manifest?.watermarked)}
           signedIn={Boolean(user)} onClose={() => setOpenKey(null)} />
       )}
     </div>
@@ -180,10 +185,12 @@ type DialogProps = {
   preview: PreviewImage | "pending" | null;
   artwork: Artwork | null;
   signedIn: boolean;
+  /** Preview shows the free-credit watermark; the product prints without it. */
+  watermarked?: boolean;
   onClose: () => void;
 };
 
-const ProductDialog = ({ product, preview, artwork, signedIn, onClose }: DialogProps) => {
+const ProductDialog = ({ product, preview, artwork, signedIn, watermarked, onClose }: DialogProps) => {
   const [variantGid, setVariantGid] = useState(product.variants[0]?.variantGid ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [view, setView] = useState<"product" | "print">("product");
@@ -238,6 +245,7 @@ const ProductDialog = ({ product, preview, artwork, signedIn, onClose }: DialogP
                 : " Scroll sideways to see all the way round; the ends meet at the back.")}
               {ready && preview.trimmed >= 0.05 && ` The edges are trimmed to fit this ${product.label.toLowerCase()} — about ${Math.round(preview.trimmed * 100)}% of the image.`}
               {ready && preview.personalization && <strong className="pp-name-note">{nameNote(preview.personalization)}</strong>}
+              {watermarked && <strong className="pp-name-note">Prints without the watermark.</strong>}
             </figcaption>
           </figure>
           <div className="pp-product-detail-buy">

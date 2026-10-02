@@ -37,12 +37,15 @@ export const Plan = () => {
     <main className="w-full py-10 px-5 overflow-auto">
       <div className="min-h-full flex flex-col justify-center gap-8">
         <section className="text-center">
-          <h1 className="text-4xl md:text-5xl font-black">Choose your plan</h1>
+          <h1 className="text-4xl md:text-5xl font-black">Buy credits</h1>
           <div className="mt-6">
             <h2 className="text-2xl text-black-20 font-bold">Start Generating Pet Magic</h2>
             <p className="mt-2 text-black-40 max-w-2xl mx-auto">
-              Use credits to create unlimited, high-quality AI images of your pet in fun and
-              professional styles. No subscriptions. No cloud limits. Just pure creativity.
+              Use credits to create high-quality portraits of your pet in fun and professional
+              styles. No subscriptions: buy only what you need.
+            </p>
+            <p className="mt-2 text-black-40 max-w-2xl mx-auto">
+              Buying any pack also removes the watermark from images you made with free starter credits.
             </p>
           </div>
         </section>
