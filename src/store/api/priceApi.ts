@@ -18,7 +18,13 @@ export const priceApi = supabaseBaseApi.injectEndpoints({
     getPrices: builder.query<IPrice[], GetPricesParams>({
       async queryFn() {
         try {
-          const { data, error } = await supabase.from("prices").select("*").order("id");
+          // Only packs that are on sale: archiving a price in Stripe sets is_active false via the
+          // price.updated webhook, which is how the old test-mode packs are retired at launch.
+          const { data, error } = await supabase
+            .from("prices")
+            .select("*")
+            .eq("is_active", true)
+            .order("id");
 
           if (error) return createErrorResponse(error);
           return { data: data as IPrice[] };
