@@ -21,6 +21,7 @@ import { ApiError } from "@/types/api";
 import { usePhotoIntake } from "@/hooks/usePhotoIntake";
 import { useWindowFileDrop } from "@/hooks/useWindowFileDrop";
 import { InsufficientCreditsDialog } from "@/components/shared/InsufficientCreditsDialog";
+import { totalCredits } from "@/types/user";
 
 const { min, max } = appConstants.modelTraining.imageSelectionLimit;
 
@@ -85,7 +86,7 @@ export const ModelTrainingForm = ({ setIsRequestSubmitted }: Props) => {
   const onSubmit = handleSubmit(async (formData) => {
     if (!user) return;
 
-    if (user.credits < appConstants.modelTrainingCredit) {
+    if (totalCredits(user) < appConstants.modelTrainingCredit) {
       setShowCreditsDialog(true);
       return;
     }

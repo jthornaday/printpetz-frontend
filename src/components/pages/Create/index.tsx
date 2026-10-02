@@ -28,6 +28,7 @@ import { useEffect } from "react";
 import { ROUTES } from "@/routes";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { setAppContext } from "@/store/slices/appContextSlice";
+import { totalCredits } from "@/types/user";
 
 const DEFAULT_LOOK_LEVEL = 1; // Natural
 
@@ -230,8 +231,9 @@ export const Create = () => {
               <div className="studio-create-panel">
                 <p className="studio-eyebrow">YOUR NEXT CREATION</p>
                 <div className="studio-cost"><span>{creditCost}</span><div>credits<small>{numberOfGenerations} image{numberOfGenerations > 1 ? "s" : ""} · 2 credits each</small></div></div>
-                <div className="studio-balance"><span>Your balance</span><strong>{user.credits} credits</strong></div>
-                {user.credits < creditCost && <p className="studio-low-credits">You’ll need more credits for this creation. <Link href={ROUTES.plan}>View plans</Link></p>}
+                <div className="studio-balance"><span>Your balance</span><strong>{totalCredits(user)} credits</strong></div>
+                {(user.free_credits ?? 0) > 0 && <p className="studio-free-note">Includes {user.free_credits} free starter credits. Images made with them carry a PrintPetz watermark until you buy any credit pack; products always print without it.</p>}
+                {totalCredits(user) < creditCost && <p className="studio-low-credits">You’ll need more credits for this creation. <Link href={ROUTES.plan}>View plans</Link></p>}
                 <Button onClick={handleGenerate} disabled={isGenerateButtonDisabled} loading={isSubmittingTheme} className="studio-generate-button" aria-describedby="studio-generation-status">
                   <Sparkles size={17}/>{isSubmittingCustom ? "Checking..." : isBatchGenerating ? "Creation in progress" : selectedModel && hasTheme ? `Create ${numberOfGenerations} image${numberOfGenerations > 1 ? "s" : ""}` : "Choose your pet & theme"}
                 </Button>

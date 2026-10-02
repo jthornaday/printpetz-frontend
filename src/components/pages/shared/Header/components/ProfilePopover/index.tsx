@@ -11,6 +11,7 @@ import { UserProfileImage } from "../shared/UserProfileImage";
 import { Loader } from "@/components/ui/loader";
 import { useAppDispatch } from "@/store";
 import { setAppContext } from "@/store/slices/appContextSlice";
+import { totalCredits } from "@/types/user";
 
 export const ProfilePopover = () => {
   const router = useRouter();
@@ -68,7 +69,7 @@ export const ProfilePopover = () => {
               <CreditIcon size={20} />
               Credit Usage
             </span>
-            <span className="text-sm text-primary font-bold">{user?.credits} credits left</span>
+            <span className="text-sm text-primary font-bold">{totalCredits(user)} credits left</span>
           </div>
 
           {/* Upgrade Button */}

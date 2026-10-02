@@ -35,4 +35,6 @@ export type PreviewManifest = {
   entries: PreviewEntry[];
   /** False while previews or mockups are still being made. */
   complete?: boolean;
+  /** Made with free starter credits: previews carry the watermark; the product prints without it. */
+  watermarked?: boolean;
 };

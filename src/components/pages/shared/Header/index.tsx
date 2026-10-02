@@ -7,6 +7,7 @@ import { ProfilePopover } from "./components/ProfilePopover";
 import { ProfileDrawer } from "./components/ProfileDrawer";
 import { useEffect } from "react";
 import { useGetUser } from "@/hooks/user/useGetUser";
+import { totalCredits } from "@/types/user";
 
 export const Header = () => {
   const router = useRouter();
@@ -38,7 +39,7 @@ export const Header = () => {
           <div className="flex items-center gap-2.5">
             <div className="flex items-center gap-2 px-2 py-2 rounded-full border border-black-70 sm:gap-3 sm:pl-2.5 sm:pr-4">
               <ThunderIcon size={16} className="text-yellow" />
-              <span className="font-semibold text-[#171524]">{user?.credits}</span>
+              <span className="font-semibold text-[#171524]">{totalCredits(user)}</span>
             </div>
             {/* Profile Popover */}
             <ProfilePopover />
