@@ -9,7 +9,9 @@ import { ROUTES } from "@/routes";
  * Jake's decisions: support email, and the reprint-or-refund promise. Not legal advice; have them
  * reviewed. When a promise here changes, change the Shopify store policies to match.
  */
-export const SUPPORT_EMAIL = "myprintpetz@gmail.com";
+// To move to support@printpetz.com once that mailbox forwards correctly, set NEXT_PUBLIC_SUPPORT_EMAIL in
+// Amplify and redeploy. The backend has its own matching setting, SUPPORT_EMAIL, for email reply-to.
+export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || "myprintpetz@gmail.com";
 const UPDATED = "October 1, 2026";
 
 const Mail = () => <a href={`mailto:${SUPPORT_EMAIL}`} className="pp-inline-link">{SUPPORT_EMAIL}</a>;
