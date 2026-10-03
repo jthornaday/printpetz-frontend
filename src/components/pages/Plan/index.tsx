@@ -23,14 +23,20 @@ export const Plan = () => {
 
     setSelectedPriceId(priceId);
 
-    const { success, data, message } = await createCheckoutSession({ priceId }).unwrap();
-    if (!success || !data) {
-      toast(EToastType.ERROR, message ?? "Something went wrong");
-      return;
+    try {
+      const { success, data, message } = await createCheckoutSession({ priceId }).unwrap();
+      if (!success || !data) {
+        toast(EToastType.ERROR, message ?? "Something went wrong");
+        setSelectedPriceId(null);
+        return;
+      }
+      window.location.href = data.session.url;
+    } catch (error) {
+      // A refused checkout (pack retired, wrong mode) arrives as an HTTP error, which unwrap() throws.
+      const message = (error as { data?: { message?: string } })?.data?.message;
+      toast(EToastType.ERROR, message ?? "We couldn't start checkout. Please refresh and try again.");
+      setSelectedPriceId(null);
     }
-
-    window.location.href = data.session.url;
-    setSelectedPriceId(null);
   };
 
   return (
@@ -56,6 +62,10 @@ export const Plan = () => {
             <div className="w-full min-h-[290px] flex items-center justify-center">
               <Loader size={32} />
             </div>
+          ) : prices.length === 0 ? (
+            <p className="w-full text-center text-black-40">
+              Credit packs aren&apos;t available right now. Please check back soon.
+            </p>
           ) : (
             prices.map((price) => (
               <PlanCard
