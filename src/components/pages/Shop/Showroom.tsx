@@ -21,8 +21,8 @@ import { Personalization, PreviewImage } from "@/types/merch";
 
 type Artwork = { id: number; image: string };
 
-/** Wrap-around prints (pet bowl) are about 8 times wider than tall. */
-const isStrip = (p: { width: number; height: number }) => p.width / p.height > 3;
+/** Wrap-around prints (pet bowl about 8:1, mug about 2.6:1) are much wider than tall. */
+const isStrip = (p: { width: number; height: number }) => p.width / p.height > 2;
 
 const OMITTED_REASON: Record<NonNullable<Personalization["omitted"]>, string> = {
   no_name: "your pet doesn’t have a name saved",
