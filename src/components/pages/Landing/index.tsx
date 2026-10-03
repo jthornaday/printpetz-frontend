@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Head from "next/head";
 import { ArrowRight, ArrowUpRight, Camera, Download, Sparkles } from "lucide-react";
 import { PremiumHeader, PremiumFooter } from "@/components/shared/Premium";
+import { shopEnabled } from "@/utils/shopMode";
 import queen from "@/utils/images/landingPage/styles/queen.png";
 
 const portraits = [
@@ -20,8 +21,10 @@ const questions = [
   { q: "What photos should I upload?", a: "Start with at least 3 sharp photos of one pet, with their face clearly visible. Include different angles and lighting. Avoid group shots, heavy filters, and blurry images." },
   { q: "How do credits work?", a: "Your studio shows the cost before you generate. Creating a pet model currently costs 30 credits, and image generation uses 2 credits per image. You can create 1–4 images at a time. Visit Credits & plans for available purchases." },
   { q: "Can I refine my artwork?", a: "Open a finished creation to access the image editor. New creations start in Natural, with Natural, Mascot, and Cartoon options available in the editor. Download your favorites when you’re ready." },
-  { q: "Can I order merchandise?", a: "Our focus today is helping you create artwork you love. Soon, you’ll be able to put your approved images on mugs, prints, framed prints, canvas, coasters, can coolers, and pillows. Physical product ordering is not yet available." },
 ];
+const merchQuestion = (shop: boolean) => shop
+  ? { q: "Can I order merchandise?", a: "Yes. Visit the shop to put your finished creations on a mug, print, framed print, canvas, coaster, can cooler, or pillow. Your pet is printed on demand and shipped to you in the US. If it arrives wrong or damaged, tell us within 30 days and we’ll reprint it or refund you." }
+  : { q: "Can I order merchandise?", a: "Our focus today is helping you create artwork you love. Soon, you’ll be able to put your approved images on mugs, prints, framed prints, canvas, coasters, can coolers, and pillows. Physical product ordering is not yet available." };
 
 function StudioPreview() {
   const [selected, setSelected] = useState(0);
@@ -35,7 +38,11 @@ function StudioPreview() {
   </div>;
 }
 
-export const Landing = () => <div className="pp-site pg-site">
+export const Landing = () => {
+  const [shop, setShop] = useState(false);
+  useEffect(() => setShop(shopEnabled()), []);
+  const faq = [...questions, merchQuestion(shop)];
+  return <div className="pp-site pg-site">
   <Head><title>PrintPetz | Your favorite face. A whole new story.</title><meta name="description" content="Create extraordinary pet portraits from the photos you already love. Explore imaginative themes in the PrintPetz creative studio."/></Head>
   <a className="pp-skip" href="#main-content">Skip to content</a><PremiumHeader/>
   <main id="main-content">
@@ -48,8 +55,11 @@ export const Landing = () => <div className="pp-site pg-site">
     <section id="how-it-works" className="pg-process"><div className="pp-wrap"><p className="pp-eyebrow">HOW IT WORKS</p><h2>From camera roll to character.</h2><div className="pg-steps">{steps.map((s,i)=><article key={s.title}><span>0{i+1}</span><h3>{s.title}</h3><p>{s.text}</p></article>)}</div></div></section>
     <section id="studio" className="pg-studio-section"><div className="pp-wrap pg-studio-layout"><div><p className="pp-eyebrow">THE STUDIO</p><h2>A little imagination.<br/><em>All their personality.</em></h2><p className="pp-intro">The expressive eyes. The familiar face. The personality you know by heart. Give your best friend a new story in your own creative studio.</p><ul className="pg-feature-list"><li>Keep your pets and creations together</li><li>Explore a world of character themes</li><li>See your credit cost before creating</li><li>Refine and download your favorites</li></ul></div><StudioPreview/></div></section>
     <section className="pp-wrap pg-story"><div className="pg-story-art"><Image src="/gallery/hero.webp" alt="Terrier reimagined as a hero in a blue cape" fill sizes="(min-width: 800px) 440px, 90vw" className="object-cover"/></div><div><p className="pp-eyebrow">MORE THAN A PORTRAIT</p><h2>Same best friend.<br/><em>A whole new story.</em></h2><p className="pp-intro">For the pet who turns an ordinary day into your favorite day. Create a keepsake of their larger-than-life personality, or a thoughtful surprise for their favorite person.</p><Link href="/create" className="pp-text-link">Start their story <ArrowRight size={17}/></Link></div></section>
-    <section className="pg-future"><div className="pp-wrap"><div><p className="pp-eyebrow">COMING LATER</p><h2>Their art. Your everyday favorites.</h2></div><p>Your approved artwork on mugs, prints, framed prints, canvas, coasters, can coolers, and pillows. First, let’s create a portrait you love.</p></div></section>
-    <section id="faq" className="pp-wrap pg-faq"><div><p className="pp-eyebrow">QUESTIONS</p><h2>Before their<br/>big debut.</h2></div><div>{questions.map(f=><details key={f.q}><summary>{f.q}</summary><p>{f.a}</p></details>)}</div></section>
+    <section className="pg-future"><div className="pp-wrap">{shop
+      ? <><div><p className="pp-eyebrow">NOW IN THE SHOP</p><h2>Their art. Your everyday favorites.</h2></div><p>Put your approved artwork on mugs, prints, framed prints, canvas, coasters, can coolers, and pillows. <Link href="/shop" className="pp-text-link">Browse the shop <ArrowRight size={17}/></Link></p></>
+      : <><div><p className="pp-eyebrow">COMING LATER</p><h2>Their art. Your everyday favorites.</h2></div><p>Your approved artwork on mugs, prints, framed prints, canvas, coasters, can coolers, and pillows. First, let’s create a portrait you love.</p></>}</div></section>
+    <section id="faq" className="pp-wrap pg-faq"><div><p className="pp-eyebrow">QUESTIONS</p><h2>Before their<br/>big debut.</h2></div><div>{faq.map(f=><details key={f.q}><summary>{f.q}</summary><p>{f.a}</p></details>)}</div></section>
     <section className="pg-closing"><div className="pp-wrap"><div><p className="pp-eyebrow">ONE OF A KIND. JUST LIKE THEM.</p><h2>Ready for their<br/>next great portrait?</h2><p>A little imagination goes a long way.</p><Link href="/create" className="pp-button pp-white">Create my pet <ArrowUpRight size={17}/></Link></div><div className="pg-closing-art"><Image src="/gallery/hero.webp" alt="" fill sizes="(min-width: 760px) 440px, 90vw" className="object-cover"/></div></div></section>
   </main><PremiumFooter/>
 </div>;
+};
