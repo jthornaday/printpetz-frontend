@@ -34,7 +34,8 @@ type Props = {
 };
 
 /** Products shown as photoreal thumbnails beside the image when the shop is on. */
-const THUMB_PRODUCTS = ["mug_11oz", "framed_8x10", "canvas_16x20"];
+// Mug dropped until the two-sided wrap ships (see merch_products.ts).
+const THUMB_PRODUCTS = ["framed_8x10", "canvas_16x20"];
 
 const getBlobExtension = (blob: Blob) => {
   const mimeToExt: Record<string, string> = {
