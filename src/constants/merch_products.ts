@@ -51,7 +51,9 @@ export const MERCH_PRODUCTS: MerchProduct[] = [
     variants: [{ label: "Default", variantGid: "gid://shopify/ProductVariant/50526379507970", retailUsd: 89.00, costUsd: 28.56 }],
   },
   {
-    key: "mug_11oz", label: "Mug", blurb: "Dishwasher and microwave safe.", sizeNote: "11, 15 or 20 oz",
+    // Hidden until the two-sided wrap ships (printpetz-backend specs/merch-mug-fullwrap.md): today's file
+    // prints one front panel and the handle/side views show a blank mug. Set `hidden: false` then.
+    key: "mug_11oz", label: "Mug", blurb: "Dishwasher and microwave safe.", sizeNote: "11, 15 or 20 oz", hidden: true,
     variants: [
       { label: "11 oz", variantGid: "gid://shopify/ProductVariant/50526265999618", retailUsd: 25.00, costUsd: 6.07 },
       { label: "15 oz", variantGid: "gid://shopify/ProductVariant/50526266032386", retailUsd: 29.00, costUsd: 8.11 },
