@@ -25,7 +25,7 @@ export const Header = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-13 items-center">
-            <PrintPetzWordmark className="text-2xl sm:text-3xl" />
+            <PrintPetzWordmark className="text-2xl sm:text-3xl" inHeader />
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-5">
