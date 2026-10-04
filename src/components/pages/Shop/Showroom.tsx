@@ -84,13 +84,13 @@ export const Showroom = () => {
       ?? (manifest?.generationId === chosenId ? { id: chosenId, image: manifest.sourceUrl } : null);
   const isDemo = !loading && !chosenId;
   const pending = manifest ? manifest.complete === false : false;
-  useEffect(() => setPollMs(pending ? 2000 : 0), [pending]);
+  useEffect(() => setPollMs(pending ? 1000 : 0), [pending]);
 
   const previewFor = (key: string): PreviewImage | "pending" | null => {
     if (isDemo) return DEMO_PREVIEWS[key] ?? null;
     if (loading) return "pending";
     const e = manifest?.entries.find((x) => x.productKey === key && x.treatment === "panel");
-    if (!e || e.status === "pending") return "pending";
+    if (!e || e.status === "pending" || e.mockupPending) return "pending";
     if (e.status !== "ready" || !e.url || !e.width || !e.height) return null;
     return { url: e.url, width: e.width, height: e.height, trimmed: e.trimmed, mockup: e.mockup, personalization: e.personalization };
   };
