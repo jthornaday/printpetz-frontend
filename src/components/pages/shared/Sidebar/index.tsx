@@ -1,6 +1,9 @@
 import { HistoryIcon, MagicSparkIcon } from "@/components/icons";
 import { ROUTES } from "@/routes";
+import { shopEnabled } from "@/utils/shopMode";
+import { ShoppingBag } from "lucide-react";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 const navbarOptions = [
   {
@@ -15,13 +18,22 @@ const navbarOptions = [
   },
 ];
 
+const shopOption = {
+  name: "Shop",
+  path: ROUTES.shop,
+  icon: <ShoppingBag size={24} />,
+};
+
 // Sidebar Navigation
 export const Sidebar = () => {
   const router = useRouter();
+  const [showShop, setShowShop] = useState(false);
+  useEffect(() => setShowShop(shopEnabled()), []);
+  const options = showShop ? [...navbarOptions, shopOption] : navbarOptions;
 
   return (
     <div className="border-r border-[#e7e2ee] bg-white flex flex-col items-center p-2 sm:p-4 gap-4 lg:gap-5">
-      {navbarOptions.map((option, index) => {
+      {options.map((option, index) => {
         const isCurrent = option.path === router.pathname;
         return (
           <div
