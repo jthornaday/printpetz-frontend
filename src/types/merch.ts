@@ -25,6 +25,8 @@ export type PreviewEntry = Partial<PreviewImage> & {
   treatment: Treatment;
   status: "ready" | "pending" | "failed";
   trimmed: number;
+  /** The photoreal mockup is still rendering; wait for it rather than showing the flat art first. */
+  mockupPending?: boolean;
 };
 
 export type PreviewManifest = {
